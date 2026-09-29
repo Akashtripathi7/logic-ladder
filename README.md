@@ -12,7 +12,7 @@ A complete, beginner-friendly path from "never coded" to solving 150 core DSA pr
 4. **Warm-up 50**: basic programs (reverse a string, largest number, anagram, palindrome…) explained step by step.
 5. **DSA 150**: 18 pattern topics, each with a video, and 150 problems. Every problem covers how to understand it, how to think, brute force, the best approach, how to spot the pattern, a dry run and common mistakes.
 
-**Bitu**, the robot mascot, keeps you company: it types on Python pages, lifts weights in the Logic Gym, jogs through the warm-ups, climbs the ladder in DSA 150, and cheers when you solve something. Click Bitu for a tip, or tuck it away with ×. There is a **night mode** toggle in the top bar.
+Every page has a **coach panel** beside the content: **Bitu**, the robot mascot, with a tip for that page, your progress, the page's main action (mark solved, mark complete), what's up next, and an "On this page" list that follows you as you scroll. Bitu types on Python pages, lifts weights in the Logic Gym, jogs through the warm-ups, climbs the ladder in DSA 150, and cheers when you solve something. Click Bitu for a tip. There is a **night mode** toggle in the top bar.
 
 The narration uses the browser's built-in speech voice. For Hinglish, an Indian English voice (en-IN) sounds best. Progress is saved in the browser.
 

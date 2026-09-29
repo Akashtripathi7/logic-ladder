@@ -1,5 +1,6 @@
-/* Bitu, the Logic Ladder mascot: an SVG robot with a pose per page and short reactions to actions.
-   API: Mascot.pose(name) · Mascot.react(name, text?) · Mascot.say(text, ms?) */
+/* Bitu, the Logic Ladder mascot: an SVG robot that lives inside each page's coach panel.
+   It holds a pose per page, a speech line, and short reactions to what the learner does.
+   API: Mascot.mount(host) · Mascot.pose(name) · Mascot.say(text) · Mascot.react(name, text?) */
 (function () {
 const SVG = `
 <svg class="bitu-svg" viewBox="0 0 120 150" aria-hidden="true">
@@ -39,12 +40,12 @@ const SVG = `
 </svg>`;
 
 /* floating glyphs per pose */
-const FLOAT = { think: ['?', '?', '…'], math: ['+', '×', '÷'], type: ['def', '</>', 'if'], sleep: ['z', 'Z', 'z'], confused: ['?', '!', '?'], watch: ['♪', '♫', '♪'], lift: [], jog: [] };
+const FLOAT = { think: ['?', '?', '…'], math: ['+', '×', '÷'], type: ['def', '</>', 'if'], sleep: ['z', 'Z', 'z'], confused: ['?', '!', '?'], watch: ['♪', '♫', '♪'] };
 const REACT_MS = { cheer: 2600, idea: 2400, nod: 1800, sleep: 2600, stretch: 2200, namaste: 2200, wave: 2200, confused: 2200 };
+const LINE_MS = 6000;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-let root, bubble, base = 'idle', reactTimer = 0, sayTimer = 0;
-function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem('dsa:' + k)); localStorage.setItem('dsa:' + k, JSON.stringify(v)); } catch (e) { return null; } }
+let root, bubble, base = 'idle', line = '', reactTimer = 0, lineTimer = 0;
 
 function setPose(name) {
   if (!root) return;
@@ -52,61 +53,49 @@ function setPose(name) {
   const g = FLOAT[name] || [];
   root.querySelectorAll('.fl').forEach((t, i) => { t.textContent = g[i] || ''; });
 }
-function mount() {
+function create() {
   root = document.createElement('div');
   root.className = 'bitu';
-  root.innerHTML = `<div class="bitu-bubble" role="status" aria-live="polite" hidden></div><button type="button" class="bitu-btn" aria-label="Bitu, the mascot. Click for a tip.">${SVG}</button><button type="button" class="bitu-x" aria-label="Hide mascot" title="Hide">×</button>`;
-  document.body.appendChild(root);
+  root.innerHTML = `<button type="button" class="bitu-btn" aria-label="Bitu, your coach. Click for a tip.">${SVG}</button><p class="bitu-bubble" role="status" aria-live="polite"></p>`;
   bubble = root.querySelector('.bitu-bubble');
-  if (store('mascot') === 'tucked') root.classList.add('tucked');
-  root.querySelector('.bitu-x').onclick = e => { e.stopPropagation(); tuck(true); };
-  root.querySelector('.bitu-btn').onclick = () => {
-    if (root.classList.contains('tucked')) { tuck(false); return; }
-    root.dispatchEvent(new CustomEvent('poke', { bubbles: true }));
-  };
+  root.querySelector('.bitu-btn').onclick = () => root.dispatchEvent(new CustomEvent('poke', { bubbles: true }));
   setPose(base);
   /* eyes follow the pointer, gently */
   let raf = 0, px = 0, py = 0;
   window.addEventListener('pointermove', e => {
     px = e.clientX; py = e.clientY;
-    if (raf || reduce.matches) return;
+    if (raf || reduce.matches || !root.isConnected) return;
     raf = requestAnimationFrame(() => {
       raf = 0;
       const r = root.querySelector('.face').getBoundingClientRect();
-      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      const dx = px - cx, dy = py - cy, d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 300);
+      const dx = px - (r.left + r.width / 2), dy = py - (r.top + r.height / 2), d = Math.hypot(dx, dy) || 1, k = Math.min(1, d / 300);
       root.style.setProperty('--ex', (dx / d * 2.4 * k).toFixed(2) + 'px');
       root.style.setProperty('--ey', (dy / d * 2.4 * k).toFixed(2) + 'px');
     });
   }, { passive: true });
 }
-function tuck(on) {
-  root.classList.toggle('tucked', on);
-  store('mascot', on ? 'tucked' : 'shown');
-  if (on) hideBubble();
+/* move Bitu into this page's host element (it keeps its state between pages) */
+function mount(host) {
+  if (!root) create();
+  if (host && root.parentNode !== host) host.appendChild(root);
 }
-function hideBubble() { clearTimeout(sayTimer); bubble.classList.remove('on'); sayTimer = setTimeout(() => { bubble.hidden = true; }, 250); }
-function say(text, ms = 4200) {
-  if (!root || !text || root.classList.contains('tucked')) return;
-  clearTimeout(sayTimer);
+function show(text) {
+  if (!bubble || bubble.textContent === text) return;
   bubble.textContent = text;
-  bubble.hidden = false;
-  requestAnimationFrame(() => bubble.classList.add('on'));
-  sayTimer = setTimeout(hideBubble, ms);
+  bubble.classList.remove('pop'); void bubble.offsetWidth; bubble.classList.add('pop');
 }
-function pose(name) {
-  base = name;
-  clearTimeout(reactTimer);
-  setPose(name);
-}
+/* the page's standing line */
+function say(text) { line = text || ''; clearTimeout(lineTimer); show(line); }
+function pose(name) { base = name; clearTimeout(reactTimer); setPose(name); }
+/* a short reaction; a temporary line goes back to the page's line afterwards */
 function react(name, text) {
   if (!root) return;
   clearTimeout(reactTimer);
   setPose('idle');
   void root.offsetWidth; /* restart one-shot animations */
   setPose(name);
-  if (text) say(text, Math.max(2600, (REACT_MS[name] || 2200) + 800));
   reactTimer = setTimeout(() => setPose(base), REACT_MS[name] || 2200);
+  if (text) { clearTimeout(lineTimer); show(text); lineTimer = setTimeout(() => show(line), LINE_MS); }
 }
 
 window.Mascot = { mount, pose, react, say, get el() { return root; } };

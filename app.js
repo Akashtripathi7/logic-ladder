@@ -65,7 +65,7 @@ function paintLang() {
   document.querySelectorAll('.nav a').forEach(a => { a.textContent = labels[a.dataset.k][L() === 'hi' ? 1 : 0]; });
   document.documentElement.lang = L() === 'hi' ? 'hi-Latn' : 'en';
 }
-document.querySelectorAll('.lang button').forEach(b => b.onclick = () => { const changed = b.dataset.l !== L(); E.setLang(b.dataset.l); paintLang(); paintTheme(); quietRoute = changed; route(); if (changed && window.Mascot) L() === 'hi' ? Mascot.react('namaste', 'Namaste! Ab sab Hinglish mein.') : Mascot.react('wave', 'Hello! Switched to English.'); });
+document.querySelectorAll('.lang button').forEach(b => b.onclick = () => { const changed = b.dataset.l !== L(); E.setLang(b.dataset.l); paintLang(); paintTheme(); route(); if (changed && window.Mascot) L() === 'hi' ? Mascot.react('namaste', 'Namaste! Ab sab Hinglish mein.') : Mascot.react('wave', 'Hello! Switched to English.'); });
 
 /* ---------- helpers ---------- */
 const diffPill = d => `<span class="pill d-${d.toLowerCase()}">${d}</span>`;
@@ -103,65 +103,129 @@ function mountPlayer(el, lessonId) {
   return true;
 }
 
+/* ---------- layout: page header + main column + coach panel (Bitu, progress, actions, on-this-page) ---------- */
+const firstUnsolved = ids => ids.find(id => !isSolved(id));
+function head(o) {
+  return `${o.crumbs ? `<nav class="crumbs" aria-label="Breadcrumb">${o.crumbs}</nav>` : ''}<header class="phead">${o.kicker ? `<div class="kicker">${o.kicker}</div>` : ''}<h1>${o.title}</h1>${o.sub ? `<p>${o.sub}</p>` : ''}${o.extra || ''}</header>`;
+}
+function coach(o = {}) {
+  const st = o.stat;
+  return `<aside class="coach" aria-label="${tr('Your coach', 'Tumhara coach')}">
+    <div class="coach-card">
+      <div class="bitu-host" id="bitu-host"></div>
+      ${st ? `<div class="coach-stat"><div class="cs-row"><span>${st.label}</span><b>${st.n}<small> / ${st.total}</small></b></div>${bar(st.n, st.total)}${st.note ? `<div class="cs-note">${st.note}</div>` : ''}</div>` : ''}
+      ${o.actions ? `<div class="coach-actions">${o.actions}</div>` : ''}
+    </div>
+    ${o.toc ? `<nav class="coach-toc" aria-label="${tr('On this page', 'Is page pe')}"><div class="ct-h">${tr('On this page', 'Is page pe')}</div><ol id="toc-list"></ol></nav>` : ''}
+  </aside>`;
+}
+function shell(headHTML, mainHTML, coachOpts) {
+  view.innerHTML = `${headHTML}<div class="page"><div class="page-main">${mainHTML}</div>${coach(coachOpts)}</div>`;
+  buildToc();
+}
+const upNext = (href, label) => `<a class="upnext" href="${href}"><span>${tr('Up next', 'Aage')}</span><b>${esc(label)}</b></a>`;
+/* "On this page": built from [data-toc] targets, with the current section highlighted while scrolling */
+let tocObserver = null;
+function buildToc() {
+  if (tocObserver) { tocObserver.disconnect(); tocObserver = null; }
+  const list = document.getElementById('toc-list');
+  if (!list) return;
+  const targets = [...view.querySelectorAll('.page-main [data-toc]')];
+  targets.forEach((t, i) => { if (!t.id) t.id = 'sec-' + i; });
+  list.innerHTML = targets.map(t => `<li><a href="#${location.hash.slice(1)}" data-to="${t.id}"${t.dataset.tocSub ? ' class="sub"' : ''}>${esc(t.dataset.toc)}</a></li>`).join('');
+  list.querySelectorAll('a').forEach(a => a.onclick = e => {
+    e.preventDefault();
+    const el = document.getElementById(a.dataset.to);
+    if (el.tagName === 'DETAILS') el.open = true;
+    window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - 84, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  const links = new Map([...list.querySelectorAll('a')].map(a => [a.dataset.to, a]));
+  const visible = new Set();
+  tocObserver = new IntersectionObserver(es => {
+    es.forEach(e => e.isIntersecting ? visible.add(e.target.id) : visible.delete(e.target.id));
+    const cur = targets.find(t => visible.has(t.id));
+    links.forEach((a, id) => a.classList.toggle('on', !!cur && id === cur.id));
+  }, { rootMargin: '-80px 0px -55% 0px' });
+  targets.forEach(t => tocObserver.observe(t));
+}
+
 /* ---------- pages ---------- */
 function stepsDef() {
   return [
-    { n: 1, t: tr('Math for Logic (video)', 'Logic ke liye Math (video)'), d: tr('Modulo, digits, primes, powers, logs, binary, counting, ranges, grids, Big O: the ideas every problem quietly uses.', 'Modulo, digits, primes, powers, logs, binary, counting, ranges, grids, Big O: wo ideas jo har problem chupke se use karti hai.'), href: '#video-math', prog: () => lessonProgress('math') },
-    { n: 2, t: tr('Python from zero', 'Python bilkul shuru se'), d: tr('21 modules, each with a short video, a deep theory page and practice drills. From print() to heapq.', '21 modules, har ek mein chhota video, gehri theory aur practice drills. print() se heapq tak.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length}` },
-    { n: 3, t: tr('Logic Gym', 'Logic Gym'), d: tr('How to think, then mastery drills on loops, patterns, lists, strings and debugging. Finish this before the Warm-up 50.', 'Kaise sochein, phir loops, patterns, lists, strings aur debugging ke mastery drills. Warm-up 50 se pehle ye poora karo.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length}` },
-    { n: 4, t: 'Warm-up 50', d: tr('Reverse a string, largest number, anagram, palindrome, primes, sorting… each with an analogy and Hinglish explanation.', 'String reverse, sabse bada number, anagram, palindrome, primes, sorting… har ek analogy aur Hinglish explanation ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50` },
-    { n: 5, t: 'DSA 150', d: tr('18 topics, each with an explainer video, and 150 problems from brute force to the best approach, in Python.', '18 topics, har ek ka explainer video, aur 150 problems brute force se best approach tak, Python mein.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150` }
+    { n: 1, t: tr('Math for Logic', 'Logic ke liye Math'), kind: tr('Video', 'Video'), d: tr('Modulo, digits, primes, powers, logs, binary, counting, ranges, grids and Big O: the ideas every problem quietly uses.', 'Modulo, digits, primes, powers, logs, binary, counting, ranges, grids aur Big O: wo ideas jo har problem chupke se use karti hai.'), href: '#video-math', prog: () => lessonProgress('math'), label: () => { const f = lessonProgress('math'); return f >= 1 ? tr('Watched', 'Dekh liya') : f > 0 ? Math.round(f * 100) + '% ' + tr('watched', 'dekha') : tr('Not started', 'Shuru nahi kiya'); } },
+    { n: 2, t: tr('Python from zero', 'Python bilkul shuru se'), kind: tr('21 modules', '21 modules'), d: tr('A short video, a deep theory page and practice drills for each module. From print() to heapq.', 'Har module mein chhota video, gehri theory aur practice drills. print() se heapq tak.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length} ${tr('complete', 'complete')}` },
+    { n: 3, t: 'Logic Gym', kind: tr('6 modules', '6 modules'), d: tr('How to think, then drills on loops, patterns, lists, strings and debugging. Finish this before the warm-ups.', 'Kaise sochein, phir loops, patterns, lists, strings aur debugging ke drills. Warm-ups se pehle ye poora karo.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length} ${tr('complete', 'complete')}` },
+    { n: 4, t: 'Warm-up 50', kind: tr('50 problems', '50 problems'), d: tr('Reverse a string, largest number, anagram, palindrome, primes, sorting. Each with an analogy and a Hinglish explanation.', 'String reverse, sabse bada number, anagram, palindrome, primes, sorting. Har ek analogy aur Hinglish explanation ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50 ${tr('solved', 'solve kiye')}` },
+    { n: 5, t: 'DSA 150', kind: tr('18 topics · 150 problems', '18 topics · 150 problems'), d: tr('An explainer video per topic, then problems from brute force to the best approach, in Python.', 'Har topic ka explainer video, phir problems brute force se best approach tak, Python mein.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150 ${tr('solved', 'solve kiye')}` }
   ];
 }
 function pageHome() {
   const last = store.get('last', null);
   const lastLabel = last && routeLabel(last);
   const done = countSolved(ORDER.warm) + countSolved(ORDER.nc);
+  const steps = stepsDef();
+  const cur = steps.findIndex(s => s.prog() < 1);
   view.innerHTML = `
-  <section class="hero">
-    <div class="hero-t">
-      <div class="kicker">${tr('Your path', 'Tumhara raasta')}</div>
-      <h1>${tr('From zero logic to DSA 150', 'Zero logic se DSA 150 tak')}</h1>
-      <p>${tr('Five steps, in order. Watch, read, then practise. Everything is in Python, and every explanation is available in Hinglish too (switch at the top).', 'Paanch steps, order mein. Dekho, padho, phir practice karo. Sab Python mein hai, aur har explanation Hinglish mein bhi hai (upar se switch karo).')}</p>
+  <section class="home-hero">
+    <div class="hh-text">
+      <div class="kicker">Logic Ladder</div>
+      <h1>${tr('Climb from zero logic to DSA, one rung at a time', 'Zero logic se DSA tak, ek-ek seedhi chadh ke')}</h1>
+      <p>${tr('Five steps in order: watch, read, then practise. Everything is in Python, and every explanation is also in Hinglish.', 'Paanch steps order mein: dekho, padho, phir practice. Sab Python mein, aur har explanation Hinglish mein bhi.')}</p>
       <div class="hero-cta">
-        ${lastLabel ? `<a class="btn pri" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)}</a>` : `<a class="btn pri" href="#video-math">${tr('Start with the Math video', 'Math video se shuru karo')}</a>`}
-        <a class="btn" href="#python">${tr('Python course', 'Python course')}</a>
+        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)}</a>` : `<a class="btn pri lg" href="#video-math">${tr('Start with step 1', 'Step 1 se shuru karo')}</a>`}
+        <a class="btn lg" href="#dsa150">${tr('See the DSA 150 map', 'DSA 150 ka map dekho')}</a>
       </div>
+      <dl class="hero-facts">
+        <div><dt>${tr('Problems solved', 'Problems solved')}</dt><dd>${done}<small> / 200</small></dd></div>
+        <div><dt>${tr('Modules complete', 'Modules complete')}</dt><dd>${modsDone.size}<small> / ${MODS.length}</small></dd></div>
+        <div><dt>${tr('Videos', 'Videos')}</dt><dd>${Object.keys(E.LESSONS).length}</dd></div>
+      </dl>
     </div>
-    <div class="hero-stat"><div class="big-n">${done}<span>/ 200</span></div><div class="muted">${tr('problems solved', 'problems solve kiye')}</div>${bar(done, 200)}</div>
+    <div class="hh-coach"><div class="bitu-host big" id="bitu-host"></div></div>
   </section>
-  <ol class="steps">
-    ${stepsDef().map(s => { const f = s.prog(); const label = s.label ? s.label() : (f >= 1 ? tr('Watched', 'Dekh liya') : f > 0 ? Math.round(f * 100) + '%' : tr('Not started', 'Shuru nahi kiya')); return `<li class="step${f >= 1 ? ' complete' : ''}"><span class="snum">${s.n}</span><div class="sbody"><a href="${s.href}" class="stitle">${esc(s.t)}</a><p>${esc(s.d)}</p><div class="sprog">${bar(Math.round(f * 100), 100)}<span>${label}</span></div></div></li>`; }).join('')}
-  </ol>
+  <section class="ladder" aria-labelledby="ladder-h">
+    <h2 id="ladder-h" class="sr-only">${tr('Your five steps', 'Tumhare paanch steps')}</h2>
+    <ol>
+      ${steps.map((s, i) => { const state = s.prog() >= 1 ? 'done' : i === cur ? 'current' : 'todo'; return `
+      <li class="rung ${state}">
+        <span class="rung-n" aria-hidden="true">${state === 'done' ? '✓' : s.n}</span>
+        <a class="rung-card" href="${s.href}">
+          <span class="rc-top"><span class="rc-kind">${tr('Step', 'Step')} ${s.n} · ${s.kind}</span>${state === 'current' ? `<span class="here">${tr('You are here', 'Tum yahan ho')}</span>` : ''}</span>
+          <span class="rc-title">${esc(s.t)}</span>
+          <span class="rc-desc">${esc(s.d)}</span>
+          <span class="rc-prog">${bar(Math.round(s.prog() * 100), 100)}<span>${s.label()}</span></span>
+        </a>
+      </li>`; }).join('')}
+    </ol>
+  </section>
   <section class="plan">
     <h2>${tr('A realistic pace', 'Ek realistic speed')}</h2>
-    <div class="plan-grid">
-      <div><b>${tr('Week 1', 'Week 1')}</b><span>${tr('Math video + Python modules 1–8. Type every example.', 'Math video + Python modules 1–8. Har example khud type karo.')}</span></div>
-      <div><b>${tr('Week 2', 'Week 2')}</b><span>${tr('Python modules 9–21.', 'Python modules 9–21.')}</span></div>
-      <div><b>${tr('Week 3', 'Week 3')}</b><span>${tr('Logic Gym. Do every drill on paper first.', 'Logic Gym. Har drill pehle paper pe.')}</span></div>
-      <div><b>${tr('Weeks 4–5', 'Week 4–5')}</b><span>${tr('Warm-up 50, about 4 a day.', 'Warm-up 50, roz lagbhag 4.')}</span></div>
-      <div><b>${tr('Weeks 6–14', 'Week 6–14')}</b><span>${tr('DSA 150, about 2 a day. Watch each topic video first.', 'DSA 150, roz lagbhag 2. Har topic ka video pehle.')}</span></div>
-      <div><b>${tr('Every Sunday', 'Har Sunday')}</b><span>${tr('Re-solve 5 old problems without looking.', '5 purani problems bina dekhe dobara solve karo.')}</span></div>
-    </div>
+    <ol class="plan-grid">
+      <li><b>${tr('Week 1', 'Week 1')}</b><span>${tr('Math video + Python modules 1–8. Type every example.', 'Math video + Python modules 1–8. Har example khud type karo.')}</span></li>
+      <li><b>${tr('Week 2', 'Week 2')}</b><span>${tr('Python modules 9–21.', 'Python modules 9–21.')}</span></li>
+      <li><b>${tr('Week 3', 'Week 3')}</b><span>${tr('Logic Gym. Do every drill on paper first.', 'Logic Gym. Har drill pehle paper pe.')}</span></li>
+      <li><b>${tr('Weeks 4–5', 'Week 4–5')}</b><span>${tr('Warm-up 50, about 4 a day.', 'Warm-up 50, roz lagbhag 4.')}</span></li>
+      <li><b>${tr('Weeks 6–14', 'Week 6–14')}</b><span>${tr('DSA 150, about 2 a day. Watch each topic video first.', 'DSA 150, roz lagbhag 2. Har topic ka video pehle.')}</span></li>
+      <li><b>${tr('Every Sunday', 'Har Sunday')}</b><span>${tr('Re-solve 5 old problems without looking.', '5 purani problems bina dekhe dobara solve karo.')}</span></li>
+    </ol>
   </section>`;
 }
 function pageMathVideo() {
-  view.innerHTML = `<div class="phead"><div class="kicker">${tr('Step 1', 'Step 1')}</div><h1>${tr('Math for Logic', 'Logic ke liye Math')}</h1>
-  <p>${tr('Every math idea you need before coding problems, from zero. Use the language switch at the top for Hinglish narration.', 'Coding problems se pehle chahiye har math idea, bilkul shuru se. Hinglish narration ke liye upar language switch karo.')}</p></div>
-  <div id="player-mount"></div>
-  <div class="next-row"><span></span><a class="btn pri" href="#python">${tr('Next: Python from zero →', 'Aage: Python shuru se →')}</a></div>`;
+  const f = lessonProgress('math');
+  shell(head({ kicker: tr('Step 1 · Video', 'Step 1 · Video'), title: tr('Math for Logic', 'Logic ke liye Math'), sub: tr('Every math idea you need before coding problems, from zero. Switch to Hinglish at the top for Hinglish narration.', 'Coding problems se pehle chahiye har math idea, bilkul shuru se. Hinglish narration ke liye upar Hinglish chuno.') }),
+    `<div id="player-mount"></div>`,
+    { stat: { label: tr('Video watched', 'Video dekha'), n: Math.round(f * 100), total: 100, note: tr('Your place in the video is saved on this device.', 'Video mein tumhari jagah is device pe save hai.') }, actions: upNext('#python', tr('Python from zero', 'Python bilkul shuru se')) });
   mountPlayer(document.getElementById('player-mount'), 'math');
 }
 function pageModuleList(kind) {
   const list = kind === 'python' ? PY : GYM;
   const isPy = kind === 'python';
-  view.innerHTML = `
-  <div class="phead"><div class="kicker">${isPy ? tr('Step 2', 'Step 2') : tr('Step 3', 'Step 3')}</div>
-  <h1>${isPy ? tr('Python from zero', 'Python bilkul shuru se') : 'Logic Gym'}</h1>
-  <p>${isPy ? tr('Every module has a short video, a detailed theory page (English or Hinglish) and drills that check your understanding. Every code sample on these pages was run to confirm its output.', 'Har module mein chhota video, detailed theory page (English ya Hinglish) aur drills hain. Yahan ka har code sample chala ke output confirm kiya gaya hai.') : tr('Mastery drills before the Warm-up 50. Predict the output, write the function, fix the bug. Do each on paper first, then check the answer.', 'Warm-up 50 se pehle mastery drills. Output predict karo, function likho, bug theek karo. Pehle paper pe, phir answer check karo.')}</p>
-  <div class="phead-stat">${bar(countMods(list), list.length)} <span>${countMods(list)} / ${list.length} ${tr('complete', 'complete')}</span></div></div>
-  <section class="plist">${list.map((m, i) => moduleRow(m, i)).join('')}</section>
-  <div class="next-row"><span></span><a class="btn pri" href="#${isPy ? 'gym' : 'warmup'}">${isPy ? tr('Next: Logic Gym →', 'Aage: Logic Gym →') : tr('Next: Warm-up 50 →', 'Aage: Warm-up 50 →')}</a></div>`;
+  const nextMod = list.find(m => !modsDone.has(m.id));
+  shell(head({ kicker: isPy ? tr('Step 2', 'Step 2') : tr('Step 3', 'Step 3'), title: isPy ? tr('Python from zero', 'Python bilkul shuru se') : 'Logic Gym',
+    sub: isPy ? tr('Every module has a short video, a detailed theory page and drills that check your understanding. Every code sample here was run to confirm its output.', 'Har module mein chhota video, detailed theory page aur drills hain. Yahan ka har code sample chala ke output confirm kiya gaya hai.') : tr('Mastery drills before the Warm-up 50: predict the output, write the function, fix the bug. Do each on paper first, then check the answer.', 'Warm-up 50 se pehle mastery drills: output predict karo, function likho, bug theek karo. Pehle paper pe, phir answer check karo.') }),
+    `<section class="plist">${list.map((m, i) => moduleRow(m, i)).join('')}</section>`,
+    { stat: { label: tr('Modules complete', 'Modules complete'), n: countMods(list), total: list.length },
+      actions: nextMod ? upNext('#m-' + nextMod.id, nextMod.name) : upNext(isPy ? '#gym' : '#warmup', isPy ? 'Logic Gym' : 'Warm-up 50') });
 }
 function pageModule(id) {
   const m = MOD[id]; if (!m) return pageNotFound();
@@ -180,48 +244,62 @@ function pageModule(id) {
       </details>
     </div>`).join('');
   const hasVideo = !!E.LESSONS[m.id];
-  view.innerHTML = `
-  <nav class="crumbs"><a href="#${m.kind === 'python' ? 'python' : 'gym'}">${m.kind === 'python' ? 'Python' : 'Logic Gym'}</a> › <span>${tr('Module', 'Module')} ${i + 1}</span></nav>
-  <div class="phead"><div class="kicker">${m.kind === 'python' ? 'Python' : 'Logic Gym'} · ${i + 1} / ${list.length}</div><h1>${esc(m.name)}</h1><p>${esc(m.summary)}</p>
-    <div class="phead-stat"><button type="button" class="btn sm${modsDone.has(m.id) ? ' solved' : ''}" id="mod-done">${modsDone.has(m.id) ? tr('✓ Complete', '✓ Complete') : tr('Mark module complete', 'Module complete mark karo')}</button></div></div>
-  ${hasVideo ? `<section class="tvideo"><h2>${tr('Watch: short video', 'Dekho: chhota video')}</h2><div id="player-mount"></div></section>` : ''}
-  <section class="theory">
-    <div class="theory-head"><h2>${tr('Theory', 'Theory')}</h2><span class="muted">${tr('Switch to Hinglish at the top of the page.', 'English ke liye upar switch karo.')}</span></div>
-    <article class="prose">${L() === 'hi' ? m.hi : m.en}</article>
-  </section>
-  <section class="drills"><h2>${tr('Practice drills', 'Practice drills')} <span class="muted">${tr('Try each on paper before opening the answer.', 'Answer kholne se pehle paper pe try karo.')}</span></h2>${drills}</section>
-  <div class="next-row">${prev ? `<a class="btn" href="#m-${prev.id}">← ${esc(prev.name)}</a>` : '<span></span>'}${next ? `<a class="btn pri" href="#m-${next.id}">${esc(next.name)} →</a>` : `<a class="btn pri" href="#${m.kind === 'python' ? 'gym' : 'warmup'}">${m.kind === 'python' ? tr('On to the Logic Gym →', 'Ab Logic Gym →') : tr('On to the Warm-up 50 →', 'Ab Warm-up 50 →')}</a>`}</div>`;
+  const home = m.kind === 'python' ? 'python' : 'gym', homeName = m.kind === 'python' ? 'Python' : 'Logic Gym';
+  const nextHref = next ? '#m-' + next.id : m.kind === 'python' ? '#gym' : '#warmup';
+  const nextName = next ? next.name : m.kind === 'python' ? 'Logic Gym' : 'Warm-up 50';
+  const doneBtn = cls => `<button type="button" class="btn ${cls} mod-done" aria-pressed="false"></button>`;
+  shell(head({ crumbs: `<a href="#${home}">${homeName}</a> › <span>${tr('Module', 'Module')} ${i + 1}</span>`, kicker: `${homeName} · ${tr('module', 'module')} ${i + 1} ${tr('of', 'of')} ${list.length}`, title: esc(m.name), sub: esc(m.summary) }),
+    `${hasVideo ? `<section class="tvideo" data-toc="${tr('Video', 'Video')}"><h2>${tr('Watch: short video', 'Dekho: chhota video')}</h2><div id="player-mount"></div></section>` : ''}
+    <section class="theory">
+      <div class="theory-head"><h2>${tr('Theory', 'Theory')}</h2><span class="muted">${tr('Prefer Hinglish? Switch at the top of the page.', 'English chahiye? Upar se switch karo.')}</span></div>
+      <article class="prose">${L() === 'hi' ? m.hi : m.en}</article>
+    </section>
+    <section class="drills" data-toc="${tr('Practice drills', 'Practice drills')}"><h2>${tr('Practice drills', 'Practice drills')} <span class="muted">${tr('Try each on paper before opening the answer.', 'Answer kholne se pehle paper pe try karo.')}</span></h2>${drills}
+      <div class="finish-card"><div><b>${tr('Done with the drills?', 'Drills ho gayi?')}</b><span class="muted">${tr('Mark the module complete to track your progress.', 'Progress track karne ke liye module complete mark karo.')}</span></div>${doneBtn('pri')}</div>
+    </section>
+    <div class="next-row">${prev ? `<a class="btn" href="#m-${prev.id}">← ${esc(prev.name)}</a>` : '<span></span>'}<a class="btn pri" href="${nextHref}">${esc(nextName)} →</a></div>`,
+    { stat: { label: `${homeName} ${tr('modules', 'modules')}`, n: countMods(list), total: list.length }, actions: doneBtn('') + upNext(nextHref, nextName), toc: true, id: m.id });
+  /* theory headings join the on-this-page list */
+  view.querySelectorAll('.prose h3').forEach(h => { h.dataset.toc = h.textContent; h.dataset.tocSub = '1'; });
+  buildToc();
   hydrate(view);
-  document.getElementById('mod-done').onclick = () => { toggleMod(m.id); pageModule(id); if (modsDone.has(m.id) && window.Mascot) Mascot.react('cheer', tr('Module complete! On to the next one.', 'Module complete! Chalo agle pe.')); };
+  const paint = () => view.querySelectorAll('.mod-done').forEach(b => { const on = modsDone.has(m.id); b.classList.toggle('solved', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? tr('✓ Module complete', '✓ Module complete') : tr('Mark module complete', 'Module complete mark karo'); });
+  paint();
+  view.querySelectorAll('.mod-done').forEach(b => b.onclick = () => {
+    toggleMod(m.id); paint();
+    const st = view.querySelector('.coach-stat'); if (st) { st.querySelector('b').innerHTML = `${countMods(list)}<small> / ${list.length}</small>`; st.querySelector('.pbar i').style.width = (countMods(list) / list.length * 100) + '%'; }
+    if (modsDone.has(m.id) && window.Mascot) Mascot.react('cheer', tr('Module complete! On to the next one.', 'Module complete! Chalo agle pe.'));
+  });
   if (hasVideo) mountPlayer(document.getElementById('player-mount'), m.id);
 }
 function pageWarmup() {
-  view.innerHTML = `
-  <div class="phead"><div class="kicker">${tr('Step 4', 'Step 4')}</div><h1>Warm-up 50</h1>
-  <p>${tr('Classic beginner programs. Each page: the problem in plain words, a real-life analogy, hints one at a time, brute force, the better idea, Python code, a dry run, and a full Hinglish explanation.', 'Classic beginner programs. Har page: seedhe shabdon mein problem, real-life analogy, ek-ek hint, brute force, behtar idea, Python code, dry run, aur poora Hinglish explanation.')}</p>
-  <div class="phead-stat">${bar(countSolved(ORDER.warm), 50)} <span>${countSolved(ORDER.warm)} / 50</span></div></div>
-  <div class="note-card">${tr('<b>Before these:</b> finish the <a href="#gym">Logic Gym</a>. If a problem feels hard, revisit the matching Python module.', '<b>Isse pehle:</b> <a href="#gym">Logic Gym</a> poora karo. Koi problem mushkil lage toh matching Python module dobara dekho.')}</div>
-  ${WARM.map(t => `<section class="plist"><h2><a href="#t-${t.id}">${esc(t.name)}</a> <span class="muted">${countSolved(t.problems)}/${t.problems.length}</span></h2>${t.problems.map(pid => problemRow(pid, ORDER.warm.indexOf(pid))).join('')}</section>`).join('')}`;
+  const nx = firstUnsolved(ORDER.warm);
+  shell(head({ kicker: tr('Step 4', 'Step 4'), title: 'Warm-up 50', sub: tr('Classic beginner programs. Each page has the problem in plain words, a real-life analogy, hints one at a time, brute force, the better idea, Python code, a dry run and a full Hinglish explanation.', 'Classic beginner programs. Har page pe: seedhe shabdon mein problem, real-life analogy, ek-ek hint, brute force, behtar idea, Python code, dry run aur poora Hinglish explanation.') }),
+    `<div class="note-card">${tr('<b>Before these:</b> finish the <a href="#gym">Logic Gym</a>. If a problem feels hard, revisit the matching Python module.', '<b>Isse pehle:</b> <a href="#gym">Logic Gym</a> poora karo. Koi problem mushkil lage toh matching Python module dobara dekho.')}</div>
+    ${WARM.map(t => `<section class="plist" data-toc="${esc(t.name)}"><h2><a href="#t-${t.id}">${esc(t.name)}</a> <span class="muted">${countSolved(t.problems)}/${t.problems.length}</span></h2>${t.problems.map(pid => problemRow(pid, ORDER.warm.indexOf(pid))).join('')}</section>`).join('')}`,
+    { stat: { label: tr('Solved', 'Solved'), n: countSolved(ORDER.warm), total: 50 }, actions: nx ? upNext('#p-' + nx, P[nx].title) : upNext('#dsa150', 'DSA 150'), toc: true });
 }
 function pageDsa150() {
   const done = countSolved(ORDER.nc);
-  view.innerHTML = `
-  <div class="phead"><div class="kicker">${tr('Step 5', 'Step 5')}</div><h1>${tr('DSA 150 roadmap', 'DSA 150 roadmap')}</h1>
-  <p>${tr('Follow the arrows. Each topic starts with an explainer video, then its problems in order.', 'Arrows follow karo. Har topic ek explainer video se shuru hota hai, phir uski problems order mein.')}</p>
-  <div class="phead-stat">${bar(done, 150)} <span>${done} / 150</span></div></div>
-  <div class="tree" id="tree"><svg class="tree-lines" id="tree-lines" aria-hidden="true"></svg>
-    ${LEVELS.map(lv => `<div class="tlevel">${lv.map(id => { const t = TOPIC[id]; const c = countSolved(t.problems); return `<a class="tnode${c === t.problems.length ? ' complete' : ''}" href="#t-${id}" data-id="${id}"><span class="tn-name">${esc(t.name)}</span><span class="tn-prog">${bar(c, t.problems.length)}<span>${c}/${t.problems.length}</span></span></a>`; }).join('')}</div>`).join('')}
-  </div>
-  <section class="plist all">
-    <div class="plist-head"><h2>${tr('All 150 problems', 'Saari 150 problems')}</h2>
-      <div class="filters" role="group" aria-label="Filter">${['All', 'Easy', 'Medium', 'Hard', 'Unsolved'].map((f, i) => `<button type="button" class="fbtn${i ? '' : ' on'}" data-f="${f}">${f}</button>`).join('')}</div></div>
-    <div id="all-list">${NC.map(t => `<h3 class="grp"><a href="#t-${t.id}">${esc(t.name)}</a></h3>${t.problems.map(pid => problemRow(pid, ORDER.nc.indexOf(pid))).join('')}`).join('')}</div>
-  </section>`;
+  const by = d => ORDER.nc.filter(id => P[id].diff === d);
+  const nx = firstUnsolved(ORDER.nc);
+  shell(head({ kicker: tr('Step 5', 'Step 5'), title: tr('DSA 150 roadmap', 'DSA 150 roadmap'), sub: tr('Follow the arrows. Each topic starts with an explainer video, then its problems in order.', 'Arrows follow karo. Har topic ek explainer video se shuru hota hai, phir uski problems order mein.') }),
+    `<div class="tree" id="tree" data-toc="${tr('Roadmap', 'Roadmap')}"><svg class="tree-lines" id="tree-lines" aria-hidden="true"></svg>
+      ${LEVELS.map(lv => `<div class="tlevel">${lv.map(id => { const t = TOPIC[id]; const c = countSolved(t.problems); return `<a class="tnode${c === t.problems.length ? ' complete' : c ? ' started' : ''}" href="#t-${id}" data-id="${id}"><span class="tn-name">${esc(t.name)}</span><span class="tn-prog">${bar(c, t.problems.length)}<span>${c}/${t.problems.length}</span></span></a>`; }).join('')}</div>`).join('')}
+    </div>
+    <section class="plist all" data-toc="${tr('All 150 problems', 'Saari 150 problems')}">
+      <div class="plist-head"><h2>${tr('All 150 problems', 'Saari 150 problems')}</h2>
+        <div class="filters" role="group" aria-label="${tr('Filter problems', 'Problems filter karo')}">${['All', 'Easy', 'Medium', 'Hard', 'Unsolved'].map((f, i) => `<button type="button" class="fbtn${i ? '' : ' on'}" data-f="${f}" aria-pressed="${!i}">${f}</button>`).join('')}</div></div>
+      <div id="all-list">${NC.map(t => `<h3 class="grp"><a href="#t-${t.id}">${esc(t.name)}</a></h3>${t.problems.map(pid => problemRow(pid, ORDER.nc.indexOf(pid))).join('')}`).join('')}</div>
+    </section>`,
+    { stat: { label: tr('Solved', 'Solved'), n: done, total: 150, note: `<span class="d-easy">${tr('Easy', 'Easy')} ${countSolved(by('Easy'))}/${by('Easy').length}</span> · <span class="d-medium">${tr('Medium', 'Medium')} ${countSolved(by('Medium'))}/${by('Medium').length}</span> · <span class="d-hard">${tr('Hard', 'Hard')} ${countSolved(by('Hard'))}/${by('Hard').length}</span>` },
+      actions: nx ? upNext('#p-' + nx, P[nx].title) : '', toc: true });
   const f = view.querySelectorAll('.fbtn');
   f.forEach(b => b.onclick = () => {
-    f.forEach(x => x.classList.toggle('on', x === b));
+    f.forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
     const k = b.dataset.f;
     view.querySelectorAll('#all-list .prow').forEach(r => { const pid = r.getAttribute('href').slice(3); r.hidden = !(k === 'All' || P[pid].diff === k || (k === 'Unsolved' && !isSolved(pid))); });
+    view.querySelectorAll('#all-list .grp').forEach(g => { let n = g.nextElementSibling, any = false; while (n && n.classList.contains('prow')) { if (!n.hidden) any = true; n = n.nextElementSibling; } g.hidden = !any; });
   });
   drawTree();
 }
@@ -246,15 +324,14 @@ function pageTopic(id) {
   const si = siblings.indexOf(t);
   const intro = notes.intro ? (typeof notes.intro === 'string' ? notes.intro : notes.intro[L()] || notes.intro.en) : '';
   const signals = notes.signals ? (Array.isArray(notes.signals) ? notes.signals : notes.signals[L()] || notes.signals.en) : null;
-  view.innerHTML = `
-  <nav class="crumbs"><a href="${t.warm ? '#warmup' : '#dsa150'}">${t.warm ? 'Warm-up 50' : 'DSA 150'}</a> › <span>${esc(t.name)}</span></nav>
-  <div class="phead"><div class="kicker">${t.warm ? tr('Warm-up group', 'Warm-up group') : tr('Topic', 'Topic') + ' ' + (si + 1) + ' / 18'}</div><h1>${esc(t.name)}</h1>
-  ${intro ? `<p>${intro}</p>` : ''}
-  <div class="phead-stat">${bar(c, t.problems.length)} <span>${c} / ${t.problems.length}</span></div></div>
-  ${Ls ? `<section class="tvideo"><h2>${tr('Watch first', 'Pehle dekho')}: ${esc(t.name)}</h2><div id="player-mount"></div></section>` : (t.warm ? `<div class="note-card">${tr('These use ideas from the <a href="#python">Python course</a> and the <a href="#gym">Logic Gym</a>.', 'Inme <a href="#python">Python course</a> aur <a href="#gym">Logic Gym</a> ke ideas lagte hain.')}</div>` : '')}
-  ${signals ? `<section class="keyideas"><div><h2>${tr('When to reach for it', 'Kab use karna hai')}</h2><ul>${signals.map(s => `<li>${s}</li>`).join('')}</ul></div>${notes.template ? `<div><h2>${esc(notes.templateTitle || tr('Template to remember', 'Yaad rakhne wala template'))}</h2>${codeBlock(notes.template, notes.templateFile || 'template.py')}</div>` : ''}</section>` : ''}
-  <section class="plist"><h2>${tr('Problems, in order', 'Problems, order mein')}</h2>${t.problems.map(pid => problemRow(pid, list.indexOf(pid))).join('')}</section>
-  <div class="next-row">${si > 0 ? `<a class="btn" href="#t-${siblings[si - 1].id}">← ${esc(siblings[si - 1].name)}</a>` : '<span></span>'}${si < siblings.length - 1 ? `<a class="btn" href="#t-${siblings[si + 1].id}">${esc(siblings[si + 1].name)} →</a>` : ''}</div>`;
+  const nx = firstUnsolved(t.problems);
+  const nextTopic = siblings[si + 1];
+  shell(head({ crumbs: `<a href="${t.warm ? '#warmup' : '#dsa150'}">${t.warm ? 'Warm-up 50' : 'DSA 150'}</a> › <span>${esc(t.name)}</span>`, kicker: t.warm ? tr('Warm-up group', 'Warm-up group') : `${tr('Topic', 'Topic')} ${si + 1} ${tr('of', 'of')} 18`, title: esc(t.name), sub: intro }),
+    `${Ls ? `<section class="tvideo" data-toc="${tr('Video', 'Video')}"><h2>${tr('Watch first', 'Pehle dekho')}</h2><div id="player-mount"></div></section>` : (t.warm ? `<div class="note-card">${tr('These use ideas from the <a href="#python">Python course</a> and the <a href="#gym">Logic Gym</a>.', 'Inme <a href="#python">Python course</a> aur <a href="#gym">Logic Gym</a> ke ideas lagte hain.')}</div>` : '')}
+    ${signals ? `<section class="keyideas" data-toc="${tr('When to use it', 'Kab use karna hai')}"><div><h2>${tr('When to reach for it', 'Kab use karna hai')}</h2><ul>${signals.map(s => `<li>${s}</li>`).join('')}</ul></div>${notes.template ? `<div><h2>${esc(notes.templateTitle || tr('Template to remember', 'Yaad rakhne wala template'))}</h2>${codeBlock(notes.template, notes.templateFile || 'template.py')}</div>` : ''}</section>` : ''}
+    <section class="plist" data-toc="${tr('Problems', 'Problems')}"><h2>${tr('Problems, in order', 'Problems, order mein')}</h2>${t.problems.map(pid => problemRow(pid, list.indexOf(pid))).join('')}</section>
+    <div class="next-row">${si > 0 ? `<a class="btn" href="#t-${siblings[si - 1].id}">← ${esc(siblings[si - 1].name)}</a>` : '<span></span>'}${nextTopic ? `<a class="btn" href="#t-${nextTopic.id}">${esc(nextTopic.name)} →</a>` : ''}</div>`,
+    { stat: { label: tr('Solved in this topic', 'Is topic mein solved'), n: c, total: t.problems.length }, actions: nx ? upNext('#p-' + nx, P[nx].title) : nextTopic ? upNext('#t-' + nextTopic.id, nextTopic.name) : '', toc: true });
   hydrate(view);
   if (Ls) mountPlayer(document.getElementById('player-mount'), id);
 }
@@ -267,16 +344,12 @@ function pageProblem(pid) {
   const prev = list[i - 1], next = list[i + 1];
   const reveal = store.get('reveal', false);
   const hi = L() === 'hi';
-  const links = [];
-  if (p.slug) links.push(`<a href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener">LeetCode ${p.lcnum} ↗</a>`);
   const sec = (n, title, body, spoiler) => spoiler
-    ? `<details class="sec"${reveal ? ' open' : ''}><summary><span class="sn">${n}</span>${title}<span class="sum-hint">${tr('Try first, then open', 'Pehle try karo, phir kholo')}</span></summary><div class="sbody">${body}</div></details>`
-    : `<section class="sec open"><h2><span class="sn">${n}</span>${title}</h2><div class="sbody">${body}</div></section>`;
+    ? `<details class="sec" data-toc="${esc(title)}"${reveal ? ' open' : ''}><summary><span class="sn">${n}</span>${title}<span class="sum-hint">${tr('Try first, then open', 'Pehle try karo, phir kholo')}</span></summary><div class="sbody">${body}</div></details>`
+    : `<section class="sec open" data-toc="${esc(title)}"><h2><span class="sn">${n}</span>${title}</h2><div class="sbody">${body}</div></section>`;
   let n = 0;
   const parts = [];
-  if (hi && p.hinglish) {
-    parts.push(`<section class="sec open hing"><h2><span class="sn">HI</span>Hinglish mein samjho</h2><div class="sbody prose">${p.hinglish}</div></section>`);
-  }
+  if (hi && p.hinglish) parts.push(`<section class="sec open hing" data-toc="Hinglish mein samjho"><h2><span class="sn">HI</span>Hinglish mein samjho</h2><div class="sbody prose">${p.hinglish}</div></section>`);
   parts.push(sec(++n, tr('The problem in plain words', 'Problem seedhe shabdon mein (English)'), `${p.problem}${p.example ? `<div class="example"><span>${tr('Example', 'Example')}</span><code>${esc(p.example)}</code></div>` : ''}`));
   if (p.analogy) parts.push(sec(++n, tr('Real-life analogy', 'Real-life analogy (English)'), `<div class="callout analogy">${p.analogy}</div>`));
   if (p.ask && p.ask.length) parts.push(sec(++n, tr('Questions to ask before solving', 'Solve karne se pehle ke sawaal'), `<ul>${p.ask.map(a => `<li>${a}</li>`).join('')}</ul>`));
@@ -288,24 +361,24 @@ function pageProblem(pid) {
   parts.push(sec(++n, tr('Python solution', 'Python solution'), codeBlock(p.code, p.title.replace(/[^A-Za-z0-9]+/g, '_').toLowerCase() + '.py') + (needs ? `<p class="muted">${tr('Uses', 'Isme')} <code>${/TreeNode/.test(p.code) ? 'TreeNode' : 'ListNode'}</code> ${tr('from the', 'use hota hai, definition')} <a href="#t-${/TreeNode/.test(p.code) ? 'trees' : 'linked-list'}">${tr('topic page', 'topic page pe')}</a>.</p>` : '') + `<p class="muted">${tr('On LeetCode, paste the body inside the method of <code>class Solution</code> and add <code>self</code>.', 'LeetCode pe body ko <code>class Solution</code> ke method ke andar paste karo aur <code>self</code> jodo.')}</p>`, true));
   if (p.trace) parts.push(sec(++n, tr('Dry run on the example', 'Example pe dry run'), traceHTML(p.trace), true));
   if (p.mistakes && p.mistakes.length) parts.push(sec(++n, tr('Mistakes to avoid', 'In galtiyon se bacho'), `<ul class="mist">${p.mistakes.map(m => `<li>${m}</li>`).join('')}</ul>`, true));
-  if (!hi && p.hinglish) parts.push(`<details class="sec"><summary><span class="sn">HI</span>Hinglish mein samjho<span class="sum-hint">Hindi + English</span></summary><div class="sbody prose">${p.hinglish}</div></details>`);
-
-  view.innerHTML = `
-  <nav class="crumbs"><a href="${t.warm ? '#warmup' : '#dsa150'}">${t.warm ? 'Warm-up 50' : 'DSA 150'}</a> › <a href="#t-${t.id}">${esc(t.name)}</a> › <span>#${i + 1}</span></nav>
-  <header class="prob-head">
-    <div><h1>${esc(p.title)}</h1><div class="meta-row">${diffPill(p.diff)}<span class="chip">${esc(p.pattern || '')}</span>${links.join('')}</div></div>
-    <div class="prob-actions">
-      <button type="button" class="btn${isSolved(pid) ? ' solved' : ''}" id="solve-btn" aria-pressed="${isSolved(pid)}">${isSolved(pid) ? tr('✓ Solved', '✓ Solve ho gaya') : tr('Mark as solved', 'Solved mark karo')}</button>
-      <label class="rev"><input type="checkbox" id="reveal"${reveal ? ' checked' : ''}> ${tr('Show all answers', 'Saare answers dikhao')}</label>
-    </div>
-  </header>
-  <div class="prob-body">${parts.join('')}</div>
-  <div class="next-row">${prev ? `<a class="btn" href="#p-${prev}">← ${esc(P[prev].title)}</a>` : '<span></span>'}${next ? `<a class="btn pri" href="#p-${next}">${esc(P[next].title)} →</a>` : `<a class="btn pri" href="#${t.warm ? 'dsa150' : 'path'}">${t.warm ? tr('On to DSA 150 →', 'Ab DSA 150 →') : tr('Back to your path', 'Raaste pe wapas')}</a>`}</div>`;
+  if (!hi && p.hinglish) parts.push(`<details class="sec" data-toc="Hinglish mein samjho"><summary><span class="sn">HI</span>Hinglish mein samjho<span class="sum-hint">Hindi + English</span></summary><div class="sbody prose">${p.hinglish}</div></details>`);
+  const nextHref = next ? '#p-' + next : t.warm ? '#dsa150' : '#path', nextName = next ? P[next].title : t.warm ? 'DSA 150' : tr('Your path', 'Tumhara raasta');
+  shell(head({ crumbs: `<a href="${t.warm ? '#warmup' : '#dsa150'}">${t.warm ? 'Warm-up 50' : 'DSA 150'}</a> › <a href="#t-${t.id}">${esc(t.name)}</a> › <span>#${i + 1}</span>`, title: esc(p.title),
+      extra: `<div class="meta-row">${diffPill(p.diff)}<span class="chip">${esc(p.pattern || '')}</span>${p.slug ? `<a href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener">LeetCode ${p.lcnum} ↗</a>` : ''}</div>` }),
+    `<div class="prob-body">${parts.join('')}</div>
+    <div class="next-row">${prev ? `<a class="btn" href="#p-${prev}">← ${esc(P[prev].title)}</a>` : '<span></span>'}<a class="btn pri" href="${nextHref}">${esc(nextName)} →</a></div>`,
+    { stat: { label: esc(t.name), n: countSolved(t.problems), total: t.problems.length },
+      actions: `<button type="button" class="btn pri solve-btn" id="solve-btn" aria-pressed="${isSolved(pid)}"></button><label class="rev"><input type="checkbox" id="reveal"${reveal ? ' checked' : ''}> ${tr('Show all answers', 'Saare answers dikhao')}</label>${upNext(nextHref, nextName)}`, toc: true });
   hydrate(view);
   const nh = document.getElementById('next-hint');
   if (nh) nh.onclick = () => { const h = view.querySelector('.hints li[hidden]'); if (h) h.hidden = false; const shown = view.querySelectorAll('.hints li:not([hidden])').length; nh.textContent = shown >= p.hints.length ? tr('All hints shown', 'Saare hints dikh gaye') : `${tr('Show next hint', 'Agla hint')} (${shown} / ${p.hints.length})`; nh.disabled = shown >= p.hints.length; };
-  document.getElementById('solve-btn').onclick = e => { toggleSolved(pid); const b = e.currentTarget; const s = isSolved(pid); cheerSolved(s); b.classList.toggle('solved', s); b.textContent = s ? tr('✓ Solved', '✓ Solve ho gaya') : tr('Mark as solved', 'Solved mark karo'); b.setAttribute('aria-pressed', String(s)); };
-  document.getElementById('reveal').onchange = e => { store.set('reveal', e.target.checked); pageProblem(pid); };
+  const sb = document.getElementById('solve-btn');
+  const paint = () => { const s = isSolved(pid); sb.classList.toggle('solved', s); sb.textContent = s ? tr('✓ Solved', '✓ Solve ho gaya') : tr('Mark as solved', 'Solved mark karo'); sb.setAttribute('aria-pressed', String(s)); const st = view.querySelector('.coach-stat'); if (st) { const c = countSolved(t.problems); st.querySelector('b').innerHTML = `${c}<small> / ${t.problems.length}</small>`; st.querySelector('.pbar i').style.width = (c / t.problems.length * 100) + '%'; } };
+  paint();
+  sb.onclick = () => { toggleSolved(pid); paint(); cheerSolved(isSolved(pid)); };
+  document.getElementById('reveal').onchange = e => { store.set('reveal', e.target.checked); pageProblem(pid); mascotRoute('p-' + pid); };
+  /* mark sections in the on-this-page list once they have been opened */
+  view.querySelectorAll('details.sec').forEach(d => d.addEventListener('toggle', () => { const a = view.querySelector(`#toc-list a[data-to="${d.id}"]`); if (a && d.open) a.classList.add('seen'); }));
   wireTrace(view);
 }
 function traceHTML(t) {
@@ -323,7 +396,10 @@ function wireTrace(root) {
     upd();
   });
 }
-function pageNotFound() { view.innerHTML = `<div class="phead"><h1>${tr("That page doesn't exist", 'Ye page nahi mila')}</h1><p><a href="#path">${tr('Back to your path', 'Raaste pe wapas')}</a>.</p></div>`; }
+function pageNotFound() {
+  shell(head({ title: tr("That page doesn't exist", 'Ye page nahi mila'), sub: tr('The link may be old, or it has a typo.', 'Link purana ho sakta hai, ya usmein typo hai.') }),
+    `<p><a class="btn pri" href="#path">${tr('Back to your path', 'Raaste pe wapas')}</a></p>`, {});
+}
 
 function routeLabel(r) {
   if (r.startsWith('p-')) return P[r.slice(2)] ? P[r.slice(2)].title : null;
@@ -377,20 +453,21 @@ function mascotFor(r) {
   if (r === 'dsa150' || r.startsWith('t-')) return ['climb', 'dsa'];
   return ['confused', 'lost'];
 }
-let lastLineKey = null, quietRoute = false, routePose = 'idle', spoilerNudged = false;
+let routePose = 'idle', spoilerNudged = false;
 function mascotRoute(r) {
-  if (!window.Mascot || !Mascot.el) return;
+  if (!window.Mascot) return;
+  const host = document.getElementById('bitu-host');
+  if (!host) return;
+  Mascot.mount(host);
   const [pose, key] = mascotFor(r === 'neet' + 'code' ? 'dsa150' : r);
   spoilerNudged = false;
+  const returning = key === 'home' && (store.get('last', null) || solved.size || modsDone.size);
+  Mascot.say(say2(key === 'home' ? LINES.home[returning ? 1 : 0] : pick(LINES[key])));
   if (pose === 'wave') { routePose = 'idle'; Mascot.pose('idle'); Mascot.react('wave'); }
   else { routePose = pose; Mascot.pose(pose); }
-  if (quietRoute) { quietRoute = false; lastLineKey = key; return; }
-  if (key !== lastLineKey) Mascot.say(say2(pick(LINES[key])), key === 'home' ? 6500 : 4200);
-  lastLineKey = key;
 }
 function setupMascot() {
   if (!window.Mascot) return;
-  Mascot.mount();
   document.addEventListener('poke', () => Mascot.react(pick(['cheer', 'wave', 'nod', 'idea']), say2(pick(LINES.tips))));
   document.addEventListener('toggle', e => {
     const d = e.target;
