@@ -306,8 +306,9 @@ def main():
     shell = (D / 'shell.html').read_text()
     js = [(D / f).read_text() for f in ('engine.js',)]
     js += [f.read_text() for f in sorted(D.glob('lessons/*.js'))]
+    js.append((D / 'mascot.js').read_text())
     js.append((D / 'app.js').read_text())
-    out = (shell.replace('{{CSS}}', (D / 'style.css').read_text() + (D / 'app.css').read_text())
+    out = (shell.replace('{{CSS}}', (D / 'style.css').read_text() + (D / 'app.css').read_text() + (D / 'mascot.css').read_text())
            .replace('{{DATA}}', json.dumps(data, ensure_ascii=False).replace('</', '<\\/'))
            .replace('{{JS}}', '\n;\n'.join(js)))
     (D / 'index.html').write_text(out)

@@ -542,6 +542,7 @@ function start(L, root) {
   });
 
   function ui() {
+    if (playing !== ui.was) { ui.was = playing; window.dispatchEvent(new CustomEvent('lessonstate', { detail: playing ? 'play' : 'pause' })); }
     tocBtns.forEach((b, i) => { b.classList.toggle('cur', i === si); b.classList.toggle('seen', i < seen); });
     segs.forEach((sg, i) => { sg.firstChild.style.width = i < si ? '100%' : i > si ? '0%' : ((SC[si].est.slice(0, bi).reduce((a, b) => a + b, 0) / SC[si].sec) * 100) + '%'; });
     const el0 = SC.slice(0, si).reduce((a, s) => a + s.sec, 0) + SC[si].est.slice(0, bi).reduce((a, b) => a + b, 0);
@@ -672,6 +673,7 @@ function start(L, root) {
   function hideOv() { ov.hidden = true; }
   function ending() {
     ov.hidden = false;
+    window.dispatchEvent(new CustomEvent('lessonstate', { detail: 'done' }));
     ov.innerHTML = `<div class="ov-t">${UI[LANG].done}</div><div class="ov-s">${esc(say(L.outro || ''))}</div><button class="ov-alt" type="button" id="again">${UI[LANG].again}</button>`;
     $('again').onclick = () => { hideOv(); goto(0, 0, true); };
   }

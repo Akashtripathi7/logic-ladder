@@ -65,7 +65,7 @@ function paintLang() {
   document.querySelectorAll('.nav a').forEach(a => { a.textContent = labels[a.dataset.k][L() === 'hi' ? 1 : 0]; });
   document.documentElement.lang = L() === 'hi' ? 'hi-Latn' : 'en';
 }
-document.querySelectorAll('.lang button').forEach(b => b.onclick = () => { E.setLang(b.dataset.l); paintLang(); route(); });
+document.querySelectorAll('.lang button').forEach(b => b.onclick = () => { const changed = b.dataset.l !== L(); E.setLang(b.dataset.l); paintLang(); paintTheme(); quietRoute = changed; route(); if (changed && window.Mascot) L() === 'hi' ? Mascot.react('namaste', 'Namaste! Ab sab Hinglish mein.') : Mascot.react('wave', 'Hello! Switched to English.'); });
 
 /* ---------- helpers ---------- */
 const diffPill = d => `<span class="pill d-${d.toLowerCase()}">${d}</span>`;
@@ -192,7 +192,7 @@ function pageModule(id) {
   <section class="drills"><h2>${tr('Practice drills', 'Practice drills')} <span class="muted">${tr('Try each on paper before opening the answer.', 'Answer kholne se pehle paper pe try karo.')}</span></h2>${drills}</section>
   <div class="next-row">${prev ? `<a class="btn" href="#m-${prev.id}">← ${esc(prev.name)}</a>` : '<span></span>'}${next ? `<a class="btn pri" href="#m-${next.id}">${esc(next.name)} →</a>` : `<a class="btn pri" href="#${m.kind === 'python' ? 'gym' : 'warmup'}">${m.kind === 'python' ? tr('On to the Logic Gym →', 'Ab Logic Gym →') : tr('On to the Warm-up 50 →', 'Ab Warm-up 50 →')}</a>`}</div>`;
   hydrate(view);
-  document.getElementById('mod-done').onclick = () => { toggleMod(m.id); pageModule(id); };
+  document.getElementById('mod-done').onclick = () => { toggleMod(m.id); pageModule(id); if (modsDone.has(m.id) && window.Mascot) Mascot.react('cheer', tr('Module complete! On to the next one.', 'Module complete! Chalo agle pe.')); };
   if (hasVideo) mountPlayer(document.getElementById('player-mount'), m.id);
 }
 function pageWarmup() {
@@ -304,7 +304,7 @@ function pageProblem(pid) {
   hydrate(view);
   const nh = document.getElementById('next-hint');
   if (nh) nh.onclick = () => { const h = view.querySelector('.hints li[hidden]'); if (h) h.hidden = false; const shown = view.querySelectorAll('.hints li:not([hidden])').length; nh.textContent = shown >= p.hints.length ? tr('All hints shown', 'Saare hints dikh gaye') : `${tr('Show next hint', 'Agla hint')} (${shown} / ${p.hints.length})`; nh.disabled = shown >= p.hints.length; };
-  document.getElementById('solve-btn').onclick = e => { toggleSolved(pid); const b = e.currentTarget; const s = isSolved(pid); b.classList.toggle('solved', s); b.textContent = s ? tr('✓ Solved', '✓ Solve ho gaya') : tr('Mark as solved', 'Solved mark karo'); b.setAttribute('aria-pressed', String(s)); };
+  document.getElementById('solve-btn').onclick = e => { toggleSolved(pid); const b = e.currentTarget; const s = isSolved(pid); cheerSolved(s); b.classList.toggle('solved', s); b.textContent = s ? tr('✓ Solved', '✓ Solve ho gaya') : tr('Mark as solved', 'Solved mark karo'); b.setAttribute('aria-pressed', String(s)); };
   document.getElementById('reveal').onchange = e => { store.set('reveal', e.target.checked); pageProblem(pid); };
   wireTrace(view);
 }
@@ -351,8 +351,87 @@ function route() {
   if (r && r !== 'path' && routeLabel(r)) store.set('last', r);
   window.scrollTo(0, 0);
   updateChip();
+  mascotRoute(r);
 }
+/* ---------- Bitu (mascot) + night mode ---------- */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const LINES = {
+  home: [['Hi, I am Bitu! One rung at a time, and we reach DSA together.', 'Namaste, main Bitu hoon! Ek-ek seedhi chadh ke DSA tak saath pahunchenge.'], ['Welcome back! Continue where you left off.', 'Wapas aaye! Jahan chhoda tha wahin se shuru karo.']],
+  math: [['Maths first. It makes every loop easier.', 'Pehle maths. Isse har loop aasaan lagega.'], ['Pause at every timer and try it yourself!', 'Har timer pe ruko aur khud try karo!']],
+  python: [['Type along with the videos. Your fingers learn too!', 'Video ke saath type karo. Ungliyan bhi seekhti hain!'], ['Predict the output before you run it.', 'Chalane se pehle output predict karo.']],
+  gym: [['Logic is a muscle. Let us train it!', 'Logic ek muscle hai. Chalo train karein!'], ['Do the drills on paper first. No peeking!', 'Drills pehle kaagaz pe karo. Chupke se mat dekhna!']],
+  warmup: [['Warm-ups first. No skipping the stretches!', 'Pehle warm-up. Stretching skip nahi!'], ['Small problems build big logic.', 'Chhote problems se bada logic banta hai.']],
+  dsa: [['150 rungs. We climb one at a time.', '150 seedhiyan. Ek-ek karke chadhenge.'], ['Watch the topic video before its problems.', 'Problems se pehle topic ka video dekho.']],
+  problem: [['Try it yourself first. Stuck for 15 minutes? Open one hint.', 'Pehle khud try karo. 15 minute atke? Ek hint kholo.'], ['Solve a tiny example by hand. Your brain is the algorithm.', 'Chhota example haath se solve karo. Tumhara dimaag hi algorithm hai.']],
+  lost: [['Hmm, I cannot find this page.', 'Hmm, ye page mujhe nahi mila.']],
+  tips: [['Stuck? Write the brute force first. Then ask: what work am I repeating?', 'Atke? Pehle brute force likho. Phir poocho: kaunsa kaam dohra raha hoon?'], ['Say the first and last value of every loop out loud.', 'Har loop ki pehli aur aakhri value zor se bolo.'], ['Constraints are hints. n up to 10^5 means aim for O(n log n).', 'Constraints hint hain. n 10^5 tak ho toh O(n log n) ka target rakho.'], ['Seen before? Use a set. Counting? Use a dict.', 'Pehle dekha? Set use karo. Ginti? Dict use karo.'], ['Revisit a solved problem after 3 days. Can you still do it?', '3 din baad solved problem dobara karo. Ab bhi ho raha hai?'], ['Draw it! Arrays as boxes, pointers as arrows.', 'Bana ke dekho! Arrays dabbe, pointers teer.']]
+};
+const say2 = l => tr(l[0], l[1]);
+function mascotFor(r) {
+  if (r === '' || r === 'path') return ['wave', 'home'];
+  if (r === 'video-math') return ['math', 'math'];
+  if (r === 'python' || r.startsWith('m-py')) return ['type', 'python'];
+  if (r === 'gym' || r.startsWith('m-g')) return ['lift', 'gym'];
+  if (r.startsWith('p-')) return ['think', 'problem'];
+  if (r === 'warmup' || r.startsWith('t-w-')) return ['jog', 'warmup'];
+  if (r === 'dsa150' || r.startsWith('t-')) return ['climb', 'dsa'];
+  return ['confused', 'lost'];
+}
+let lastLineKey = null, quietRoute = false, routePose = 'idle', spoilerNudged = false;
+function mascotRoute(r) {
+  if (!window.Mascot || !Mascot.el) return;
+  const [pose, key] = mascotFor(r === 'neet' + 'code' ? 'dsa150' : r);
+  spoilerNudged = false;
+  if (pose === 'wave') { routePose = 'idle'; Mascot.pose('idle'); Mascot.react('wave'); }
+  else { routePose = pose; Mascot.pose(pose); }
+  if (quietRoute) { quietRoute = false; lastLineKey = key; return; }
+  if (key !== lastLineKey) Mascot.say(say2(pick(LINES[key])), key === 'home' ? 6500 : 4200);
+  lastLineKey = key;
+}
+function setupMascot() {
+  if (!window.Mascot) return;
+  Mascot.mount();
+  document.addEventListener('poke', () => Mascot.react(pick(['cheer', 'wave', 'nod', 'idea']), say2(pick(LINES.tips))));
+  document.addEventListener('toggle', e => {
+    const d = e.target;
+    if (!d.open || !d.matches) return;
+    if (d.matches('.dans')) Mascot.react('nod', tr('Did you predict it right?', 'Sahi predict kiya?'));
+    else if (d.matches('.sec') && !spoilerNudged) { spoilerNudged = true; Mascot.react('idea', tr('Got the idea? Close it and write the code yourself.', 'Idea mil gaya? Band karo aur code khud likho.')); }
+  }, true);
+  window.addEventListener('lessonstate', e => {
+    if (e.detail === 'play') Mascot.pose('watch');
+    else if (e.detail === 'pause') Mascot.pose(routePose);
+    else if (e.detail === 'done') { Mascot.pose(routePose); Mascot.react('cheer', tr('You finished the video! Now the drills.', 'Video poora ho gaya! Ab drills.')); }
+  });
+}
+function cheerSolved(on) {
+  if (!window.Mascot || !on) return;
+  const n = countSolved(ORDER.warm) + countSolved(ORDER.nc);
+  Mascot.react('cheer', n % 10 === 0 ? tr(`${n} solved! That is a big rung. Keep climbing!`, `${n} solve ho gaye! Badi seedhi chadh li. Chadhte raho!`) : pick([tr('Solved! Great work.', 'Solve ho gaya! Shabaash!'), tr('Another rung climbed!', 'Ek aur seedhi chadh li!')]));
+}
+/* night mode: follows the system until you choose */
+const sysDark = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => (document.documentElement.dataset.theme || (sysDark.matches ? 'dark' : 'light')) === 'dark';
+function paintTheme() {
+  const b = document.getElementById('theme-btn'); if (!b) return;
+  const lab = isDark() ? tr('Switch to day mode', 'Day mode on karo') : tr('Switch to night mode', 'Night mode on karo');
+  b.setAttribute('aria-label', lab); b.title = lab; b.setAttribute('aria-pressed', String(isDark()));
+}
+function toggleTheme() {
+  const next = isDark() ? 'light' : 'dark';
+  const h = document.documentElement;
+  h.classList.add('theme-anim');
+  h.dataset.theme = next;
+  store.set('theme', next);
+  setTimeout(() => h.classList.remove('theme-anim'), 450);
+  paintTheme();
+  if (window.Mascot) next === 'dark' ? Mascot.react('sleep', tr('Night mode on. Easy on the eyes.', 'Night mode on. Aankhon ko aaram.')) : Mascot.react('stretch', tr('Good morning! Day mode on.', 'Good morning! Day mode on.'));
+}
+document.getElementById('theme-btn').onclick = toggleTheme;
+sysDark.addEventListener('change', paintTheme);
+setupMascot();
 window.addEventListener('hashchange', route);
 paintLang();
+paintTheme();
 route();
 })();
