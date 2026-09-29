@@ -479,7 +479,7 @@ const PLAYER_HTML = () => `<div class="layout">
         <button id="ns" type="button" title="Next scene (L)" aria-label="Next scene"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
         <span class="time" id="time"></span>
         <span class="sp"></span>
-        <select id="rate" aria-label="Speed"><option value="0.8">0.8×</option><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select>
+        <select id="rate" aria-label="Speed"><option value="0.7">0.7×</option><option value="0.8">0.8×</option><option value="1">1×</option><option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option></select>
         <select id="voice" aria-label="Narrator voice"></select>
         <button id="mute" type="button"></button>
         <button id="fs" type="button" title="Fullscreen (F)" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 0h2v6h-6v-2h4z"/></svg></button>
@@ -490,6 +490,8 @@ const PLAYER_HTML = () => `<div class="layout">
     <aside class="toc" id="toc" aria-label="Chapters"></aside>
   </div>`;
 function start(L, root) {
+  /* breathing room after every step; beginner lessons ask for more (L.pause, in ms) */
+  const PAUSE = L.pause || 380;
   root.innerHTML = PLAYER_HTML();
   const $ = id => document.getElementById(id);
   const stage = $('stage'), body = $('body'), chip = $('chip'), chap = $('chap'), cap = $('cap'), sw = $('sw');
@@ -501,7 +503,7 @@ function start(L, root) {
   const beatSec = b => {
     const o = b[2] || {};
     const seq = o.seq ? (o.seq.length * (o.gap || 700) + (o.hold || 0)) / 1000 : (o.hold || 0) / 1000;
-    return Math.max(words(say(b[0])) / 2.55 + 0.5, seq) + (o.think || 0) + 0.35;
+    return Math.max(words(say(b[0])) / 2.55 + 0.5, seq) + (o.think || 0) + PAUSE / 1000;
   };
   SC.forEach(s => { s.est = s.beats.map(beatSec); s.sec = s.est.reduce((a, b) => a + b, 0); });
   const total = SC.reduce((a, s) => a + s.sec, 0);
@@ -640,7 +642,7 @@ function start(L, root) {
       await Promise.all([speak(say(b[0]), my), seqP]);
       if (my !== RUN) return;
       if (o.think) { await think(o.think, my); if (my !== RUN) return; }
-      await new Promise(r => later(r, 380 / rate));
+      await new Promise(r => later(r, PAUSE / rate));
       if (my !== RUN) return;
       bi++;
       if (bi >= s.beats.length) {

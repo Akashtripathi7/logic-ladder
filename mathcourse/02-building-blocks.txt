@@ -1,0 +1,698 @@
+## module: mt05 | Digits and place value
+summary: Ones, tens and hundreds; peeling the last digit with % 10 and dropping it with // 10; counting, summing and reversing digits.
+=== en
+### The big idea
+In the number 472, each digit has a **job** decided by its **place**: 4 hundreds, 7 tens, 2 ones. Two tiny tricks, `% 10` and `// 10`, let a program pull a number apart digit by digit.
+
+### Place value
+| Hundreds | Tens | Ones |
+|---|---|---|
+| 4 | 7 | 2 |
+
+472 = 4 × 100 + 7 × 10 + 2 × 1.
+
+Every place is worth **10 times** the place to its right. That is why we call it "base 10": we have ten digits, 0 to 9, and each step left multiplies by ten.
+
+> **Analogy:** Think of money. ₹472 could be four ₹100 notes, seven ₹10 notes and two ₹1 coins. The digit tells you **how many** of each note; the place tells you **which** note.
+
+### Peel off the last digit: % 10
+Dividing by 10 leaves the **ones digit** as the remainder.
+- `472 % 10` is **2**
+- `90 % 10` is **0**
+- `7 % 10` is **7**
+
+### Drop the last digit: // 10
+Whole-number division by 10 simply **chops off** the last digit.
+- `472 // 10` is **47**
+- `47 // 10` is **4**
+- `4 // 10` is **0**
+
+### The digit loop
+Put them together and you can visit every digit, from right to left:
+```python
+n = 472
+while n > 0:
+    digit = n % 10     # look at the last digit
+    print(digit)
+    n = n // 10        # remove it
+```
+This prints 2, then 7, then 4. The loop stops when nothing is left (n becomes 0).
+
+| step | n | n % 10 | n // 10 |
+|---|---|---|---|
+| 1 | 472 | 2 | 47 |
+| 2 | 47 | 7 | 4 |
+| 3 | 4 | 4 | 0 |
+
+With this one loop you can **count** digits (add 1 each time), **sum** digits (add the digit), or **reverse** a number:
+```python
+rev = 0
+while n > 0:
+    rev = rev * 10 + n % 10   # shift left, then add the new digit
+    n //= 10
+```
+Reversing 472: rev goes 0 → 2 → 27 → 274.
+
+> **Mistake:** `while n > 0` skips the loop entirely for n = 0, so "count the digits of 0" gives 0 instead of 1. Handle 0 as a special case when it matters.
+
+> **Tip:** When you only need to read the digits, `str(n)` also works: `len(str(472))` is 3. The arithmetic version matters when a problem forbids converting to a string, or when you need the digits as numbers.
+
+### Where this shows up in DSA
+- Palindrome Number, Reverse Integer, Happy Number, Add Digits, Plus One.
+- Building a number digit by digit: `num = num * 10 + d`.
+
+> **Remember:** `n % 10` gives the last digit, `n // 10` removes it. Loop while n > 0.
+
+=== hi
+### Bada idea
+472 mein har digit ka ek **kaam** hai jo uski **jagah** tay karti hai: 4 sau, 7 das, 2 ek. Do chhoti tricks, `% 10` aur `// 10`, se program number ko digit-digit karke khol sakta hai.
+
+### Place value
+| Sau | Das | Ek |
+|---|---|---|
+| 4 | 7 | 2 |
+
+472 = 4 × 100 + 7 × 10 + 2 × 1.
+
+Har jagah apne right wali jagah se **10 guna** keemti hai. Isliye ise "base 10" kehte hain: humare paas das digits hain, 0 se 9, aur har kadam left pe das guna.
+
+> **Analogy:** Paise socho. ₹472 matlab chaar ₹100 ke note, saat ₹10 ke note aur do ₹1 ke sikke. Digit batati hai ki **kitne** note; jagah batati hai ki **kaunsa** note.
+
+### Aakhri digit nikaalo: % 10
+10 se bhaag dene pe **ones digit** remainder mein bachti hai.
+- `472 % 10` = **2**
+- `90 % 10` = **0**
+- `7 % 10` = **7**
+
+### Aakhri digit hatao: // 10
+10 se whole-number bhaag aakhri digit ko bas **kaat** deta hai.
+- `472 // 10` = **47**
+- `47 // 10` = **4**
+- `4 // 10` = **0**
+
+### Digit wala loop
+Dono milao toh har digit ko right se left dekh sakte ho:
+```python
+n = 472
+while n > 0:
+    digit = n % 10     # aakhri digit dekho
+    print(digit)
+    n = n // 10        # use hatao
+```
+Ye 2, phir 7, phir 4 print karta hai. Jab kuch nahi bachta (n 0 ho jaata hai) toh loop ruk jaata hai.
+
+| step | n | n % 10 | n // 10 |
+|---|---|---|---|
+| 1 | 472 | 2 | 47 |
+| 2 | 47 | 7 | 4 |
+| 3 | 4 | 4 | 0 |
+
+Isi ek loop se tum digits **gin** sakte ho (har baar 1 jodo), digits ka **sum** nikaal sakte ho (digit jodo), ya number **ulta** kar sakte ho:
+```python
+rev = 0
+while n > 0:
+    rev = rev * 10 + n % 10   # left khiskao, phir nayi digit jodo
+    n //= 10
+```
+472 ulta karna: rev 0 → 2 → 27 → 274.
+
+> **Galti:** `while n > 0` n = 0 ke liye loop chalata hi nahi, toh "0 ke digits gino" 1 ki jagah 0 deta hai. Jab zaroori ho, 0 ko alag handle karo.
+
+> **Tip:** Sirf digits padhne hain toh `str(n)` bhi chalta hai: `len(str(472))` = 3. Arithmetic wala tareeka tab zaroori hai jab problem string mein badalna mana kare, ya digits numbers ki tarah chahiye.
+
+### DSA mein kahan aata hai
+- Palindrome Number, Reverse Integer, Happy Number, Add Digits, Plus One.
+- Digit-digit number banana: `num = num * 10 + d`.
+
+> **Yaad rakho:** `n % 10` aakhri digit deta hai, `n // 10` use hatata hai. Jab tak n > 0 hai, loop chalao.
+
+=== drills
+--- d
+q: What does this print?
+code:
+n = 5906
+print(n % 10)
+print(n // 10)
+print(n // 100 % 10)
+answer:
+6
+590
+9
+en: % 10 keeps the ones digit. // 10 drops it. // 100 drops two digits (59), then % 10 keeps the new last one: 9, the hundreds digit.
+hi: % 10 ones digit rakhta hai. // 10 use hatata hai. // 100 do digits hatata hai (59), phir % 10 nayi aakhri digit rakhta hai: 9, sau wali digit.
+--- d
+q: Trace the loop and predict the output.
+code:
+n = 381
+total = 0
+while n > 0:
+    total += n % 10
+    n //= 10
+print(total)
+answer:
+12
+en: Digits are picked from the right: 1, 8, 3. Their sum is 12.
+hi: Digits right se uthti hain: 1, 8, 3. Unka sum 12.
+--- d
+kind: write
+q: Write `count_digits(n)` for a non-negative integer, using `% 10` and `// 10` (no strings). 0 has 1 digit.
+answer:
+def count_digits(n):
+    if n == 0:
+        return 1
+    count = 0
+    while n > 0:
+        count += 1
+        n //= 10
+    return count
+test:
+check(count_digits(472), 3)
+check(count_digits(7), 1)
+check(count_digits(0), 1)
+check(count_digits(1000000), 7)
+en: Each // 10 removes one digit, so count how many times you can do it. 0 needs its own case because the loop never runs.
+hi: Har // 10 ek digit hatata hai, toh gino kitni baar kar sakte ho. 0 ka alag case chahiye kyunki loop chalta hi nahi.
+--- d
+kind: write
+q: Write `reverse_number(n)` that reverses the digits of a non-negative integer (1200 → 21, 472 → 274).
+answer:
+def reverse_number(n):
+    rev = 0
+    while n > 0:
+        rev = rev * 10 + n % 10
+        n //= 10
+    return rev
+test:
+check(reverse_number(472), 274)
+check(reverse_number(1200), 21)
+check(reverse_number(5), 5)
+check(reverse_number(0), 0)
+en: Multiply rev by 10 to make room, then add the peeled digit.
+hi: rev ko 10 se guna karke jagah banao, phir nikaali hui digit jodo.
+
+## module: mt06 | Factors, multiples, primes and GCD
+summary: Which numbers divide which; multiples; prime numbers and the square-root shortcut; greatest common divisor and least common multiple.
+=== en
+### The big idea
+Some numbers split neatly into equal groups and some do not. **Factors** are the neat group sizes. Numbers with no neat split except 1 and themselves are **primes**, the building blocks of every other number.
+
+### Factors
+A **factor** of 12 is any number that divides 12 with **no remainder**. Picture 12 chocolates arranged into a perfect rectangle:
+- 1 row of 12, 2 rows of 6, 3 rows of 4, 4 rows of 3, 6 rows of 2, 12 rows of 1.
+
+So the factors of 12 are **1, 2, 3, 4, 6, 12**. In code: `d` is a factor of `n` when `n % d == 0`.
+
+Notice the factors come in **pairs** that multiply to 12: 1 × 12, 2 × 6, 3 × 4. This fact gives us a big shortcut later.
+
+### Multiples
+**Multiples** go the other way: the multiples of 4 are 4, 8, 12, 16, 20… (the 4 times table). 12 is a multiple of 4, and 4 is a factor of 12. Same relationship, seen from two sides.
+
+### Prime numbers
+A **prime** has exactly two factors: 1 and itself. 2, 3, 5, 7, 11, 13, 17, 19, 23, 29… You cannot arrange 7 chocolates in any rectangle except one long row.
+
+- 1 is **not** prime (only one factor).
+- 2 is the only even prime; every other even number has 2 as a factor.
+
+> **Analogy:** Primes are like the basic LEGO bricks. Every whole number above 1 can be built by multiplying primes: 12 = 2 × 2 × 3, 30 = 2 × 3 × 5.
+
+### The square-root shortcut
+To check whether 97 is prime, do we test every number up to 96? No. Factors come in pairs, and in every pair one of the two is **at most √n**. If n had a factor bigger than √n, its partner would be smaller than √n, and we would already have found it.
+
+So test only up to √97 ≈ 9.8: 2, 3, 4, …, 9. None divide 97, so 97 is prime. In code we write the condition `d * d <= n` instead of using square roots:
+```python
+def is_prime(n):
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+```
+For a number around a million, that is about 1,000 checks instead of a million.
+
+### Greatest common divisor (GCD)
+The **GCD** of two numbers is the biggest number that divides both. GCD(12, 18) = 6: you can cut a 12 × 18 sheet into squares of side 6 with nothing wasted.
+
+**Euclid's trick** (over 2,000 years old): replace the pair (a, b) with (b, a % b) until b is 0.
+- (18, 12) → (12, 6) → (6, 0). The answer is **6**.
+
+Python has it built in: `math.gcd(18, 12)`.
+
+The **LCM** (least common multiple) is the first number both divide into: LCM(4, 6) = 12. Handy formula: `a * b // gcd(a, b)`.
+
+### Where this shows up in DSA
+- Counting primes, checking divisibility, simplifying fractions, grouping into equal parts.
+- The `d * d <= n` loop is a pattern you will reuse whenever factors come in pairs.
+
+> **Remember:** d is a factor when `n % d == 0`. Primes have exactly two factors. Test divisors only while `d * d <= n`.
+
+=== hi
+### Bada idea
+Kuch numbers barabar groups mein saaf bant jaate hain, kuch nahi. **Factors** wo saaf group sizes hain. Jo numbers 1 aur khud ke alawa kisi mein saaf nahi bantte, wo **primes** hain, baaki har number ke building blocks.
+
+### Factors
+12 ka **factor** wo number hai jo 12 ko **bina remainder** divide kare. 12 chocolates ko ek perfect rectangle mein sajao:
+- 12 ki 1 row, 6 ki 2 rows, 4 ki 3 rows, 3 ki 4 rows, 2 ki 6 rows, 1 ki 12 rows.
+
+Toh 12 ke factors hain **1, 2, 3, 4, 6, 12**. Code mein: `d`, `n` ka factor hai jab `n % d == 0`.
+
+Dhyaan do, factors **jodiyon** mein aate hain jinka guna 12 hai: 1 × 12, 2 × 6, 3 × 4. Ye baat aage ek bada shortcut deti hai.
+
+### Multiples
+**Multiples** ulti taraf chalte hain: 4 ke multiples 4, 8, 12, 16, 20… (4 ka pahada). 12, 4 ka multiple hai, aur 4, 12 ka factor. Ek hi rishta, do taraf se.
+
+### Prime numbers
+**Prime** ke theek do factors hote hain: 1 aur khud. 2, 3, 5, 7, 11, 13, 17, 19, 23, 29… 7 chocolates ko ek lambi row ke alawa kisi rectangle mein nahi saja sakte.
+
+- 1 prime **nahi** hai (sirf ek factor).
+- 2 akela even prime hai; baaki har even number ka factor 2 hai.
+
+> **Analogy:** Primes basic LEGO bricks jaise hain. 1 se bada har number primes ke guna se ban sakta hai: 12 = 2 × 2 × 3, 30 = 2 × 3 × 5.
+
+### Square-root shortcut
+97 prime hai kya, ye check karne ke liye kya 96 tak har number test karein? Nahi. Factors jodiyon mein aate hain, aur har jodi mein ek number **zyada se zyada √n** hota hai. Agar n ka factor √n se bada hota, toh uska partner √n se chhota hota, aur wo humein pehle hi mil jaata.
+
+Toh sirf √97 ≈ 9.8 tak test karo: 2, 3, 4, …, 9. Koi bhi 97 ko divide nahi karta, toh 97 prime hai. Code mein square root ki jagah condition `d * d <= n` likhte hain:
+```python
+def is_prime(n):
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+```
+Das lakh ke aas-paas ke number ke liye das lakh ki jagah lagbhag 1,000 checks.
+
+### Greatest common divisor (GCD)
+Do numbers ka **GCD** wo sabse bada number hai jo dono ko divide kare. GCD(12, 18) = 6: 12 × 18 ki sheet ko 6 side wale squares mein bina waste kaat sakte ho.
+
+**Euclid ki trick** (2,000 saal se purani): jodi (a, b) ko (b, a % b) se badlo jab tak b 0 na ho.
+- (18, 12) → (12, 6) → (6, 0). Jawab **6**.
+
+Python mein built-in hai: `math.gcd(18, 12)`.
+
+**LCM** (least common multiple) wo pehla number hai jismein dono divide ho jaayein: LCM(4, 6) = 12. Kaam ka formula: `a * b // gcd(a, b)`.
+
+### DSA mein kahan aata hai
+- Primes ginna, divisibility check karna, fractions chhote karna, barabar hisson mein baantna.
+- `d * d <= n` wala loop ek pattern hai jo tum har baar use karoge jab factors jodiyon mein aate hain.
+
+> **Yaad rakho:** d factor hai jab `n % d == 0`. Primes ke theek do factors. Divisors tabhi tak test karo jab tak `d * d <= n`.
+
+=== drills
+--- d
+q: What does this print?
+code:
+n = 18
+print([d for d in range(1, n + 1) if n % d == 0])
+answer:
+[1, 2, 3, 6, 9, 18]
+en: Every number that leaves no remainder. They pair up: 1 × 18, 2 × 9, 3 × 6.
+hi: Har wo number jo remainder nahi chhodta. Jodiyan: 1 × 18, 2 × 9, 3 × 6.
+--- d
+q: Trace Euclid's trick and predict the output.
+code:
+a, b = 48, 18
+while b != 0:
+    a, b = b, a % b
+    print(a, b)
+answer:
+18 12
+12 6
+6 0
+en: (48, 18) → (18, 12) → (12, 6) → (6, 0). When b reaches 0, a holds the GCD: 6.
+hi: (48, 18) → (18, 12) → (12, 6) → (6, 0). b 0 hote hi a mein GCD hai: 6.
+--- d
+kind: write
+q: Write `is_prime(n)` that tests divisors only while `d * d <= n`.
+answer:
+def is_prime(n):
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+test:
+check(is_prime(2), True)
+check(is_prime(97), True)
+check(is_prime(1), False)
+check(is_prime(91), False)
+check(is_prime(49), False)
+check(is_prime(0), False)
+en: 91 = 7 × 13 and 49 = 7 × 7 are caught by d = 7 because 7 × 7 ≤ n. Numbers below 2 are not prime.
+hi: 91 = 7 × 13 aur 49 = 7 × 7, d = 7 pe pakde jaate hain kyunki 7 × 7 ≤ n. 2 se chhote numbers prime nahi.
+--- d
+kind: write
+q: Write `gcd(a, b)` using Euclid's trick (without math.gcd), and `lcm(a, b)` using it.
+answer:
+def gcd(a, b):
+    while b != 0:
+        a, b = b, a % b
+    return a
+
+def lcm(a, b):
+    return a * b // gcd(a, b)
+test:
+check(gcd(48, 18), 6)
+check(gcd(7, 5), 1)
+check(gcd(10, 0), 10)
+check(lcm(4, 6), 12)
+check(lcm(3, 5), 15)
+en: Keep swapping in the remainder until it is 0. LCM multiplies and divides out the shared part once.
+hi: Remainder ko andar laate raho jab tak wo 0 na ho. LCM guna karta hai aur common hissa ek baar bhaag deta hai.
+
+## module: mt07 | Powers and square roots
+summary: Repeated multiplication, powers of 2 and 10, how fast doubling grows, squares and square roots, and ** in Python.
+=== en
+### The big idea
+A **power** is repeated multiplication: 2⁵ means 2 × 2 × 2 × 2 × 2 = 32. Powers grow **shockingly fast**, and that speed explains why some programs finish instantly and others never finish.
+
+### Reading a power
+In 2⁵, the **2** is the **base** (the number being multiplied) and the **5** is the **exponent** (how many copies). In Python you write `2 ** 5`.
+
+| Power | Means | Value |
+|---|---|---|
+| 2¹ | 2 | 2 |
+| 2² | 2 × 2 | 4 |
+| 2³ | 2 × 2 × 2 | 8 |
+| 2¹⁰ | ten 2s | 1,024 |
+| 10³ | 10 × 10 × 10 | 1,000 |
+
+Anything to the power **0** is **1**: `2 ** 0` is 1. (Each step down divides by the base: 8, 4, 2, then 1.)
+
+### How fast doubling grows
+> **Analogy:** Fold a sheet of paper in half: 2 layers. Fold again: 4. Again: 8. After 10 folds you have 1,024 layers. After 42 folds the stack would reach the Moon. That is exponential growth.
+
+This matters in coding. A problem that tries **every subset** of n items does 2ⁿ pieces of work. For n = 20 that is about a million (fine). For n = 60 it is more than a billion billion (impossible).
+
+Useful landmarks:
+- 2¹⁰ ≈ 1,000 (a thousand)
+- 2²⁰ ≈ 1,000,000 (a million)
+- 2³⁰ ≈ 1,000,000,000 (a billion)
+
+### Powers of 10
+10ⁿ is 1 followed by n zeros. Problem statements write limits this way: "n ≤ 10⁵" means n is at most 100,000.
+
+### Squares and square roots
+**Squaring** is a power of 2: 7² = 49, the area of a 7 × 7 square.
+The **square root** goes backwards: √49 = 7, "which side gives this area?"
+
+- √16 = 4, √81 = 9, √2 ≈ 1.414 (not a whole number)
+- `math.sqrt(49)` is 7.0, and `math.isqrt(50)` is 7 (the whole-number part)
+- Perfect squares: 1, 4, 9, 16, 25, 36…
+
+> **Tip:** To avoid decimals, compare squares instead of roots: "is d ≤ √n?" is the same as `d * d <= n`. You met this in topic 6.
+
+### In Python
+```python
+print(2 ** 10)          # 1024
+print(10 ** 5)          # 100000
+print(3 ** 0)           # 1
+import math
+print(math.isqrt(50))   # 7
+print(pow(2, 5))        # 32, another way to write it
+```
+
+> **Mistake:** `2 ^ 5` in Python is **not** a power; `^` is a bit operation (topic 9). Use `**`.
+
+### Where this shows up in DSA
+- 2ⁿ subsets in backtracking; n × n grids; checking "is this a perfect square?".
+- Fast power (Pow(x, n)) uses the fact that x¹⁰ = (x⁵)².
+
+> **Remember:** `a ** b` is a multiplied b times. Doubling explodes: 2¹⁰ ≈ a thousand, 2²⁰ ≈ a million. Square root undoes squaring.
+
+=== hi
+### Bada idea
+**Power** matlab baar-baar guna: 2⁵ matlab 2 × 2 × 2 × 2 × 2 = 32. Powers **hairaan karne wali tezi** se badhte hain, aur yahi tezi batati hai ki kuch programs turant kyun khatam hote hain aur kuch kabhi nahi.
+
+### Power padhna
+2⁵ mein **2** **base** hai (jis number ka guna ho raha hai) aur **5** **exponent** hai (kitni copies). Python mein likhte ho `2 ** 5`.
+
+| Power | Matlab | Value |
+|---|---|---|
+| 2¹ | 2 | 2 |
+| 2² | 2 × 2 | 4 |
+| 2³ | 2 × 2 × 2 | 8 |
+| 2¹⁰ | das 2 | 1,024 |
+| 10³ | 10 × 10 × 10 | 1,000 |
+
+Kisi bhi cheez ki power **0** = **1**: `2 ** 0` = 1. (Har kadam neeche base se bhaag hota hai: 8, 4, 2, phir 1.)
+
+### Doubling kitni tez badhti hai
+> **Analogy:** Kaagaz ko aadha modo: 2 parten. Phir modo: 4. Phir: 8. 10 baar modne pe 1,024 parten. 42 baar modne pe wo dher chaand tak pahunch jaata. Yahi exponential growth hai.
+
+Coding mein ye zaroori hai. Jo problem n items ke **har subset** ko try karti hai wo 2ⁿ kaam karti hai. n = 20 pe lagbhag das lakh (theek hai). n = 60 pe arabon-arab se bhi zyada (impossible).
+
+Kaam ke nishaan:
+- 2¹⁰ ≈ 1,000 (hazaar)
+- 2²⁰ ≈ 1,000,000 (das lakh)
+- 2³⁰ ≈ 1,000,000,000 (sau crore)
+
+### 10 ki powers
+10ⁿ matlab 1 ke baad n zero. Problem statements limits aise likhte hain: "n ≤ 10⁵" matlab n zyada se zyada 1,00,000.
+
+### Square aur square root
+**Square** 2 ki power hai: 7² = 49, 7 × 7 square ka area.
+**Square root** ulta chalta hai: √49 = 7, "kaunsi side ye area deti hai?"
+
+- √16 = 4, √81 = 9, √2 ≈ 1.414 (poora number nahi)
+- `math.sqrt(49)` = 7.0, aur `math.isqrt(50)` = 7 (poora hissa)
+- Perfect squares: 1, 4, 9, 16, 25, 36…
+
+> **Tip:** Decimals se bachne ke liye roots ki jagah squares compare karo: "kya d ≤ √n?" bilkul `d * d <= n` jaisa hai. Ye topic 6 mein dekha.
+
+### Python mein
+```python
+print(2 ** 10)          # 1024
+print(10 ** 5)          # 100000
+print(3 ** 0)           # 1
+import math
+print(math.isqrt(50))   # 7
+print(pow(2, 5))        # 32, likhne ka doosra tareeka
+```
+
+> **Galti:** Python mein `2 ^ 5` power **nahi** hai; `^` ek bit operation hai (topic 9). `**` use karo.
+
+### DSA mein kahan aata hai
+- Backtracking mein 2ⁿ subsets; n × n grids; "kya ye perfect square hai?" check.
+- Fast power (Pow(x, n)) is baat pe chalta hai ki x¹⁰ = (x⁵)².
+
+> **Yaad rakho:** `a ** b` matlab a ka b baar guna. Doubling phat padti hai: 2¹⁰ ≈ hazaar, 2²⁰ ≈ das lakh. Square root square ko ulta karta hai.
+
+=== drills
+--- d
+q: What does this print?
+code:
+print(2 ** 3, 3 ** 2)
+print(5 ** 0)
+print(10 ** 3 + 1)
+answer:
+8 9
+1
+1001
+en: 2 × 2 × 2 = 8 but 3 × 3 = 9: order matters. Anything to the power 0 is 1. Powers happen before addition.
+hi: 2 × 2 × 2 = 8 par 3 × 3 = 9: order matter karta hai. Power 0 hamesha 1. Power jod se pehle hoti hai.
+--- d
+q: How many folds does it take for the paper to have more than 1,000 layers?
+code:
+layers = 1
+folds = 0
+while layers <= 1000:
+    layers *= 2
+    folds += 1
+print(folds, layers)
+answer:
+10 1024
+en: 2¹⁰ = 1,024 is the first power of 2 above 1,000. This is the "2¹⁰ ≈ a thousand" landmark.
+hi: 2¹⁰ = 1,024, 1,000 se upar pehli 2 ki power hai. Yahi "2¹⁰ ≈ hazaar" wala nishaan hai.
+--- d
+kind: write
+q: Write `is_perfect_square(n)` for n ≥ 0 without using floats.
+answer:
+import math
+
+def is_perfect_square(n):
+    r = math.isqrt(n)
+    return r * r == n
+test:
+check(is_perfect_square(49), True)
+check(is_perfect_square(50), False)
+check(is_perfect_square(0), True)
+check(is_perfect_square(1), True)
+check(is_perfect_square(99980001), True)
+en: isqrt gives the whole-number square root. Square it back: only perfect squares return to n exactly.
+hi: isqrt poora square root deta hai. Wapas square karo: sirf perfect squares hi theek n pe lautte hain.
+--- d
+kind: write
+q: Write `power(base, exp)` using a loop (not **), for exp ≥ 0.
+answer:
+def power(base, exp):
+    result = 1
+    for _ in range(exp):
+        result *= base
+    return result
+test:
+check(power(2, 10), 1024)
+check(power(3, 4), 81)
+check(power(7, 0), 1)
+check(power(10, 3), 1000)
+en: Start at 1, the "do nothing" value for multiplication, and multiply exp times.
+hi: 1 se shuru karo, jo guna ke liye "kuch mat karo" value hai, aur exp baar guna karo.
+
+## module: mt08 | Logarithms: how many halvings?
+summary: The log as a counting question: how many times can you halve before reaching 1? Why halving is so powerful, and binary search.
+=== en
+### The big idea
+A logarithm answers one simple question: **how many times do I halve n to get down to 1?** That number is small even for huge n, which is why "halve the problem each step" is the most powerful speed-up in all of DSA.
+
+### Halving until 1
+Start with 16 and keep halving: 16 → 8 → 4 → 2 → 1. That took **4 halvings**. So **log₂ 16 = 4**.
+
+It is the reverse of powers: 2⁴ = 16, so log₂ 16 = 4.
+
+| n | halvings to reach 1 | log₂ n |
+|---|---|---|
+| 2 | 1 | 1 |
+| 8 | 3 | 3 |
+| 1,024 | 10 | 10 |
+| 1,000,000 | about 20 | ≈ 20 |
+| 1,000,000,000 | about 30 | ≈ 30 |
+
+A **billion** items need only about **30 halvings**. That is the magic.
+
+> **Analogy:** The number-guessing game. I think of a number from 1 to 100 and you guess; I say "higher" or "lower". Always guess the middle and every answer throws away half the numbers: 100 → 50 → 25 → 13 → 7 → 4 → 2 → 1. At most **7 guesses**, because log₂ 100 ≈ 6.6.
+
+### When n is not a power of 2
+Halving 100 does not land exactly on 1, so we round: after 6 halvings you still have 2 left, after 7 you are done. For code, "how many halvings" usually means rounding **up**. The exact decimal (6.64…) rarely matters; the size does.
+
+### Counting halvings in code
+```python
+n = 1000
+steps = 0
+while n > 1:
+    n //= 2
+    steps += 1
+print(steps)   # 9
+```
+With whole-number halving, 1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1: nine steps.
+
+> **Tip:** Python's `math.log2(1024)` gives 10.0. You will rarely call it in solutions, but it is handy for checking your intuition.
+
+### Why this matters: binary search
+Looking for a word in a dictionary, you open the middle, see if your word is before or after, and throw away half. A sorted list of a million items takes about **20 looks** instead of up to a million. We say this takes **O(log n)** time (you will meet this notation in topic 15).
+
+### Where this shows up in DSA
+- Binary search and "binary search on the answer" (Koko Eating Bananas).
+- Balanced trees have height about log₂ n; heaps push and pop in log n steps.
+- Sorting well (merge sort) does n × log n work.
+
+> **Remember:** log₂ n = how many halvings from n to 1. A billion needs only about 30. Halving the problem each step is enormously fast.
+
+=== hi
+### Bada idea
+Logarithm ek simple sawaal ka jawab hai: **n ko kitni baar aadha karun ki 1 pe pahunch jaaun?** Ye number bahut bade n ke liye bhi chhota hota hai, isliye "har kadam problem aadhi karo" DSA ka sabse taakatwar speed-up hai.
+
+### 1 tak aadha karna
+16 se shuru karke aadha karte raho: 16 → 8 → 4 → 2 → 1. **4 baar aadha** karna pada. Toh **log₂ 16 = 4**.
+
+Ye powers ka ulta hai: 2⁴ = 16, toh log₂ 16 = 4.
+
+| n | 1 tak kitni baar aadha | log₂ n |
+|---|---|---|
+| 2 | 1 | 1 |
+| 8 | 3 | 3 |
+| 1,024 | 10 | 10 |
+| 10,00,000 | lagbhag 20 | ≈ 20 |
+| 100,00,00,000 | lagbhag 30 | ≈ 30 |
+
+**Sau crore** items ko bhi sirf lagbhag **30 baar aadha** karna padta hai. Yahi jaadu hai.
+
+> **Analogy:** Number guess karne ka game. Main 1 se 100 tak ka number sochta hoon, tum guess karo; main bolta hoon "upar" ya "neeche". Hamesha beech ka guess karo toh har jawab aadhe numbers hata deta hai: 100 → 50 → 25 → 13 → 7 → 4 → 2 → 1. Zyada se zyada **7 guess**, kyunki log₂ 100 ≈ 6.6.
+
+### Jab n, 2 ki power na ho
+100 ko aadha karne pe theek 1 nahi aata, toh round karte hain: 6 baar aadha karke bhi 2 bachte hain, 7 baar pe khatam. Code mein "kitni baar aadha" aksar **upar** round hota hai. Exact decimal (6.64…) kam hi matter karta hai; size matter karta hai.
+
+### Code mein aadha karna ginna
+```python
+n = 1000
+steps = 0
+while n > 1:
+    n //= 2
+    steps += 1
+print(steps)   # 9
+```
+Whole-number aadha karne se, 1000 → 500 → 250 → 125 → 62 → 31 → 15 → 7 → 3 → 1: nau steps.
+
+> **Tip:** Python ka `math.log2(1024)` 10.0 deta hai. Solutions mein kam hi use hoga, par apni samajh check karne ke liye kaam ka hai.
+
+### Ye kyun zaroori hai: binary search
+Dictionary mein shabd dhoondhte waqt beech mein kholte ho, dekhte ho shabd pehle hai ya baad mein, aur aadhi dictionary chhod dete ho. Das lakh items ki sorted list mein das lakh ki jagah lagbhag **20 baar dekhna** padta hai. Ise kehte hain **O(log n)** time (ye notation topic 15 mein milega).
+
+### DSA mein kahan aata hai
+- Binary search aur "answer pe binary search" (Koko Eating Bananas).
+- Balanced trees ki height lagbhag log₂ n; heaps log n steps mein push aur pop karte hain.
+- Achhi sorting (merge sort) n × log n kaam karti hai.
+
+> **Yaad rakho:** log₂ n = n se 1 tak kitni baar aadha. Sau crore ko sirf lagbhag 30 chahiye. Har kadam problem aadhi karna bahut tez hai.
+
+=== drills
+--- d
+q: Count the halvings.
+code:
+for n in [16, 100, 1]:
+    steps = 0
+    while n > 1:
+        n //= 2
+        steps += 1
+    print(steps)
+answer:
+4
+6
+0
+en: 16 → 8 → 4 → 2 → 1 is 4 steps. 100 → 50 → 25 → 12 → 6 → 3 → 1 is 6 with whole-number halving. 1 is already there.
+hi: 16 → 8 → 4 → 2 → 1, 4 steps. 100 → 50 → 25 → 12 → 6 → 3 → 1, whole-number aadha karke 6. 1 pehle se wahin hai.
+--- d
+q: The guessing game: the secret is 71, guesses always take the middle of what is left.
+code:
+lo, hi = 1, 100
+secret = 71
+guesses = 0
+while True:
+    mid = (lo + hi) // 2
+    guesses += 1
+    if mid == secret:
+        break
+    if mid < secret:
+        lo = mid + 1
+    else:
+        hi = mid - 1
+print(guesses)
+answer:
+5
+en: The middles are 50 (too low), 75 (too high), 62 (too low), 68 (too low), 71 (found): 5 guesses. Each guess throws away half of what is left, so 100 numbers never need more than 7.
+hi: Middles: 50 (chhota), 75 (bada), 62 (chhota), 68 (chhota), 71 (mil gaya): 5 guess. Har guess bache hue ka aadha hata deta hai, toh 100 numbers mein kabhi 7 se zyada nahi lagte.
+--- d
+kind: write
+q: Write `halvings(n)` that returns how many times n (n ≥ 1) can be halved with `// 2` before it becomes 1.
+answer:
+def halvings(n):
+    steps = 0
+    while n > 1:
+        n //= 2
+        steps += 1
+    return steps
+test:
+check(halvings(1), 0)
+check(halvings(16), 4)
+check(halvings(1000), 9)
+check(halvings(10 ** 9), 29)
+en: This is the whole-number log₂. A billion needs only 29 halvings.
+hi: Ye whole-number log₂ hai. Sau crore ko sirf 29 baar aadha karna padta hai.

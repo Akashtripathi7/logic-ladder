@@ -414,15 +414,15 @@ details.sec[open] .sum-hint{display:none}
 /* pace: a 14-week timeline */
 .gantt{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:var(--surface);overflow-x:auto}
 .g-weeks,.g-row{display:grid;grid-template-columns:110px minmax(560px,1fr);align-items:center}
-.g-weeks{grid-template-columns:110px repeat(14,minmax(40px,1fr));font-family:var(--f-mono);font-size:11px;color:var(--muted);padding-bottom:6px}
+.g-weeks{grid-template-columns:110px repeat(var(--weeks,14),minmax(40px,1fr));font-family:var(--f-mono);font-size:11px;color:var(--muted);padding-bottom:6px}
 .g-weeks span:first-child{grid-column:2}
 .g-row{min-height:36px;border-top:1px solid var(--line)}
 .g-name{font-weight:700;font-size:14px}
-.g-track{position:relative;height:36px;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / 14 - 1px),var(--line) calc(100% / 14 - 1px) calc(100% / 14))}
-.g-bar{position:absolute;top:9px;height:18px;border-radius:9px;left:calc(var(--s) / 14 * 100%);width:calc(var(--l) / 14 * 100% - 4px);transform-origin:left;animation:bar-grow .9s calc(.15s + var(--i) * .12s) cubic-bezier(.3,.8,.3,1) backwards}
+.g-track{position:relative;height:36px;background:repeating-linear-gradient(90deg,transparent 0 calc(100% / var(--weeks,14) - 1px),var(--line) calc(100% / var(--weeks,14) - 1px) calc(100% / var(--weeks,14)))}
+.g-bar{position:absolute;top:9px;height:18px;border-radius:9px;left:calc(var(--s) / var(--weeks,14) * 100%);width:calc(var(--l) / var(--weeks,14) * 100% - 4px);transform-origin:left;animation:bar-grow .9s calc(.15s + var(--i) * .12s) cubic-bezier(.3,.8,.3,1) backwards}
 @keyframes bar-grow{from{transform:scaleX(0)}}
 .b-math{background:#e6a100}.b-python{background:var(--accent)}.b-gym{background:#ff8b7b}.b-warm{background:#6ec6ff}.b-dsa{background:var(--easy)}
-.g-sun{position:absolute;top:13px;width:10px;height:10px;border-radius:50%;background:var(--muted);left:calc((var(--s) + .82) / 14 * 100% - 5px)}
+.g-sun{position:absolute;top:13px;width:10px;height:10px;border-radius:50%;background:var(--muted);left:calc((var(--s) + .82) / var(--weeks,14) * 100% - 5px)}
 .pace-note{color:var(--muted);font-size:14px;margin:12px 2px 0}
 
 .home-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:64px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
@@ -474,3 +474,6 @@ details.sec[open] .sum-hint{display:none}
   .st-line i,.st-panel.swap .sp-main,.st-panel.swap .sp-list li{animation:none!important}
 }
 
+
+.mod-part{margin:22px 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-family:var(--f-mono);font-weight:600}
+.plist .mod-part:first-child{margin-top:0}

@@ -65,7 +65,8 @@ def md(text):
             flush()
             rows = []
             while i < len(lines) and lines[i].strip().startswith('|'):
-                cells = [c.strip() for c in lines[i].strip().strip('|').split('|')]
+                # a cell may contain a literal pipe written as \|
+                cells = [c.strip().replace('\\|', '|') for c in re.split(r'(?<!\\)\|', lines[i].strip().strip('|'))]
                 if not all(re.match(r'^:?-{2,}:?$', c) for c in cells):
                     rows.append(cells)
                 i += 1
@@ -286,6 +287,8 @@ def main():
             n = len(tr['cols'])
             tr['rows'] = [(r + [''] * n)[:n] if len(r) < n else r for r in tr['rows']]
     mods = []
+    for f in sorted(D.glob('mathcourse/*.txt')):
+        mods += parse_modules(f, 'math')
     for f in sorted(D.glob('pycourse/*.txt')):
         mods += parse_modules(f, 'python')
     for f in sorted(D.glob('gym/*.txt')):

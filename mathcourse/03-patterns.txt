@@ -1,0 +1,609 @@
+## module: mt09 | Binary numbers and bits
+summary: Counting with only 0 and 1, place values 1, 2, 4, 8…, converting to and from binary, and the bit operations & | ^ << >>.
+=== en
+### The big idea
+Computers store everything with switches that are either **off (0)** or **on (1)**. Binary is simply counting with those two digits. Each switch is a **bit**, and each place is worth **double** the one to its right.
+
+### Place values: 1, 2, 4, 8
+In base 10 the places are worth 1, 10, 100, 1000. In binary (base 2) they are worth **1, 2, 4, 8, 16, 32…**, doubling each time.
+
+> **Analogy:** A row of light switches. Each switch has a price tag: 8, 4, 2, 1. To show a number, switch on the tags that add up to it. 13 = 8 + 4 + 1, so the switches read **1101**.
+
+| 8 | 4 | 2 | 1 | value |
+|---|---|---|---|---|
+| 0 | 1 | 0 | 1 | 4 + 1 = 5 |
+| 1 | 1 | 0 | 1 | 8 + 4 + 1 = 13 |
+| 1 | 1 | 1 | 1 | 15 |
+
+### Counting in binary
+0, 1, 10, 11, 100, 101, 110, 111, 1000… The rightmost bit flips **every** step; the next flips every 2 steps; the next every 4. When all bits are 1 (like 111 = 7), adding one rolls over to 1000 = 8, just like 999 + 1 = 1000 in decimal.
+
+### Decimal to binary
+Keep dividing by 2 and collect the remainders (this is the digit loop from topic 5, with 2 instead of 10):
+- 13 % 2 = 1, 13 // 2 = 6
+- 6 % 2 = 0, 6 // 2 = 3
+- 3 % 2 = 1, 3 // 2 = 1
+- 1 % 2 = 1, 1 // 2 = 0 → stop
+
+Read the remainders **bottom to top**: **1101**. In Python: `bin(13)` gives `'0b1101'`, and `int('1101', 2)` gives 13.
+
+### Bit operations
+Python can work on all the bits of a number at once:
+
+| Operator | Name | Rule for each pair of bits | Example (12 = 1100, 10 = 1010) |
+|---|---|---|---|
+| `&` | AND | 1 only if **both** are 1 | 12 & 10 = 1000 = 8 |
+| `\|` | OR | 1 if **either** is 1 | 12 \| 10 = 1110 = 14 |
+| `^` | XOR | 1 if they are **different** | 12 ^ 10 = 0110 = 6 |
+| `<<` | shift left | move bits left, double per step | 3 << 2 = 12 |
+| `>>` | shift right | move bits right, halve per step | 12 >> 2 = 3 |
+
+Two facts you will use again and again:
+- `n & 1` is the **last bit**: 1 for odd, 0 for even (the same as `n % 2`).
+- `x ^ x` is **0**, and `x ^ 0` is **x**. So XOR-ing a list where everything appears twice except one number leaves only that number.
+
+> **Mistake:** `^` is XOR, not a power. `2 ^ 3` is 1, not 8. Powers use `**`.
+
+### Where this shows up in DSA
+- Single Number (XOR cancels pairs), Number of 1 Bits, Counting Bits, Reverse Bits, Missing Number.
+- Subsets as bitmasks: with n items, the numbers 0 to 2ⁿ − 1 describe every subset.
+
+> **Remember:** Binary places are 1, 2, 4, 8… `n & 1` is the last bit. `x ^ x == 0`. Shifting left doubles, right halves.
+
+=== hi
+### Bada idea
+Computer sab kuch aise switches se store karta hai jo ya toh **off (0)** hain ya **on (1)**. Binary bas in do digits se ginna hai. Har switch ek **bit** hai, aur har jagah apne right wali se **dugni** keemti hai.
+
+### Place values: 1, 2, 4, 8
+Base 10 mein jagahon ki keemat 1, 10, 100, 1000 hai. Binary (base 2) mein **1, 2, 4, 8, 16, 32…**, har baar dugni.
+
+> **Analogy:** Light switches ki ek row. Har switch pe price tag hai: 8, 4, 2, 1. Koi number dikhane ke liye wo tags on karo jinka jod wo number ho. 13 = 8 + 4 + 1, toh switches **1101** padhte hain.
+
+| 8 | 4 | 2 | 1 | value |
+|---|---|---|---|---|
+| 0 | 1 | 0 | 1 | 4 + 1 = 5 |
+| 1 | 1 | 0 | 1 | 8 + 4 + 1 = 13 |
+| 1 | 1 | 1 | 1 | 15 |
+
+### Binary mein ginna
+0, 1, 10, 11, 100, 101, 110, 111, 1000… Sabse right wala bit **har** step palatta hai; agla har 2 steps pe; uske baad wala har 4 pe. Jab saare bits 1 ho jaayein (jaise 111 = 7), ek jodne pe 1000 = 8 ban jaata hai, bilkul decimal ke 999 + 1 = 1000 jaisa.
+
+### Decimal se binary
+2 se bhaag dete raho aur remainders ikatthe karo (ye topic 5 ka digit loop hi hai, 10 ki jagah 2):
+- 13 % 2 = 1, 13 // 2 = 6
+- 6 % 2 = 0, 6 // 2 = 3
+- 3 % 2 = 1, 3 // 2 = 1
+- 1 % 2 = 1, 1 // 2 = 0 → ruko
+
+Remainders **neeche se upar** padho: **1101**. Python mein: `bin(13)` deta hai `'0b1101'`, aur `int('1101', 2)` deta hai 13.
+
+### Bit operations
+Python ek number ke saare bits pe ek saath kaam kar sakta hai:
+
+| Operator | Naam | Har bit jodi ka rule | Example (12 = 1100, 10 = 1010) |
+|---|---|---|---|
+| `&` | AND | 1 tabhi jab **dono** 1 | 12 & 10 = 1000 = 8 |
+| `\|` | OR | 1 agar **koi bhi** 1 | 12 \| 10 = 1110 = 14 |
+| `^` | XOR | 1 agar dono **alag** | 12 ^ 10 = 0110 = 6 |
+| `<<` | left shift | bits left khiskao, har step dugna | 3 << 2 = 12 |
+| `>>` | right shift | bits right khiskao, har step aadha | 12 >> 2 = 3 |
+
+Do baatein jo baar-baar kaam aayengi:
+- `n & 1` **aakhri bit** hai: odd ke liye 1, even ke liye 0 (`n % 2` jaisa hi).
+- `x ^ x` = **0**, aur `x ^ 0` = **x**. Toh aisi list ko XOR karo jismein ek number chhod ke sab do baar aate hain, toh sirf wahi number bachta hai.
+
+> **Galti:** `^` XOR hai, power nahi. `2 ^ 3` = 1, 8 nahi. Power ke liye `**`.
+
+### DSA mein kahan aata hai
+- Single Number (XOR jodiyan kaat deta hai), Number of 1 Bits, Counting Bits, Reverse Bits, Missing Number.
+- Bitmask se subsets: n items ke saath, 0 se 2ⁿ − 1 tak ke numbers har subset batate hain.
+
+> **Yaad rakho:** Binary jagahein 1, 2, 4, 8… `n & 1` aakhri bit hai. `x ^ x == 0`. Left shift dugna, right shift aadha.
+
+=== drills
+--- d
+q: What does this print?
+code:
+print(bin(13))
+print(int('1101', 2))
+print(0b101 + 1)
+answer:
+0b1101
+13
+6
+en: 13 = 8 + 4 + 1 = 1101. Reading 1101 back gives 13. 0b101 is 5, plus 1 is 6.
+hi: 13 = 8 + 4 + 1 = 1101. 1101 wapas padho toh 13. 0b101 = 5, plus 1 = 6.
+--- d
+q: Predict each bit operation (12 is 1100, 10 is 1010).
+code:
+print(12 & 10, 12 | 10, 12 ^ 10)
+print(3 << 2, 12 >> 2)
+print(7 & 1, 8 & 1)
+answer:
+8 14 6
+12 3
+1 0
+en: AND keeps shared 1s (1000), OR keeps any 1s (1110), XOR keeps differing bits (0110). Shifting by 2 multiplies or divides by 4. & 1 reads the last bit: odd or even.
+hi: AND common 1s rakhta hai (1000), OR koi bhi 1 (1110), XOR alag bits (0110). 2 se shift matlab 4 se guna ya bhaag. & 1 aakhri bit padhta hai: odd ya even.
+--- d
+kind: write
+q: Write `to_binary(n)` that returns the binary digits of n ≥ 0 as a string, without using bin(). `to_binary(13)` is `"1101"` and `to_binary(0)` is `"0"`.
+answer:
+def to_binary(n):
+    if n == 0:
+        return "0"
+    digits = ""
+    while n > 0:
+        digits = str(n % 2) + digits
+        n //= 2
+    return digits
+test:
+check(to_binary(13), "1101")
+check(to_binary(0), "0")
+check(to_binary(1), "1")
+check(to_binary(8), "1000")
+en: Collect remainders of dividing by 2. Adding each new one on the front gives the bottom-to-top order directly.
+hi: 2 se bhaag ke remainders ikatthe karo. Har naya aage jodne se neeche-se-upar wala order seedha milta hai.
+--- d
+kind: write
+q: Every number in `nums` appears twice except one. Write `single(nums)` that finds it using XOR.
+answer:
+def single(nums):
+    result = 0
+    for x in nums:
+        result ^= x
+    return result
+test:
+check(single([4, 1, 2, 1, 2]), 4)
+check(single([7]), 7)
+check(single([3, 9, 3]), 9)
+en: Pairs cancel because x ^ x = 0, and XOR-ing with 0 changes nothing, so only the lonely number survives.
+hi: Jodiyan kat jaati hain kyunki x ^ x = 0, aur 0 se XOR kuch nahi badalta, toh sirf akela number bachta hai.
+
+## module: mt10 | Patterns and sums
+summary: Spotting patterns in sequences, adding 1 to n with Gauss's trick, running totals, prefix sums and range sums.
+=== en
+### The big idea
+Many problems are really **patterns**. Once you spot the rule, you can often replace a long loop with one small formula, or reuse work you have already done instead of repeating it.
+
+### Spotting a pattern
+- 3, 6, 9, 12, … adds **3** each time. The k-th term (starting at k = 1) is `3 * k`.
+- 5, 8, 11, 14, … starts at 5 and adds 3: the k-th term is `5 + 3 * (k - 1)`.
+- 1, 2, 4, 8, 16, … **doubles** each time: the k-th term is `2 ** (k - 1)`.
+- 1, 4, 9, 16, 25, … are the **squares**: `k * k`.
+
+> **Tip:** When a sequence confuses you, write the **differences** between neighbours. Constant differences mean "add the same amount each time".
+
+### Adding 1 to n: Gauss's trick
+The story goes that a young Carl Friedrich Gauss was told to add 1 + 2 + … + 100. He paired the numbers from both ends:
+- 1 + 100 = 101, 2 + 99 = 101, 3 + 98 = 101 … all 50 pairs make 101.
+- 50 × 101 = **5,050**.
+
+The general formula: **1 + 2 + … + n = n × (n + 1) / 2**. In Python use `n * (n + 1) // 2` to stay with whole numbers.
+
+> **Analogy:** Build a staircase of blocks: 1 block, then 2, then 3, up to n. Make a copy, turn it upside down and push the two together. You get a neat rectangle n wide and n + 1 tall. The staircase is exactly half of it.
+
+You will meet this number constantly: it is also the number of **pairs** in a list (topic 11) and the work done by two nested loops.
+
+### Running totals and prefix sums
+A **running total** adds as it goes:
+
+| day | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| sales | 3 | 1 | 4 | 1 | 5 |
+| total so far | 3 | 4 | 8 | 9 | 14 |
+
+Store those totals in a list called a **prefix sum**, with a 0 in front:
+```python
+nums = [3, 1, 4, 1, 5]
+prefix = [0]
+for x in nums:
+    prefix.append(prefix[-1] + x)
+# prefix == [0, 3, 4, 8, 9, 14]
+```
+Now the sum of any stretch is **one subtraction**. The sum of `nums[1..3]` (1 + 4 + 1) is `prefix[4] - prefix[1]` = 9 − 3 = **6**.
+
+> **Analogy:** A car's odometer. To know how far you drove between 2 pm and 5 pm, you do not re-drive the road: you subtract the 2 pm reading from the 5 pm reading.
+
+### Where this shows up in DSA
+- Missing Number: the expected sum `n * (n + 1) // 2` minus the actual sum.
+- Range sum queries, Subarray Sum Equals K, Product of Array Except Self (the same idea with multiplication).
+
+> **Remember:** 1 + … + n = n(n + 1)/2. A prefix sum turns "add up a stretch" into one subtraction.
+
+=== hi
+### Bada idea
+Bahut saari problems asal mein **patterns** hain. Rule dikh gaya toh aksar lamba loop ek chhote formula se badal jaata hai, ya jo kaam ho chuka hai use dobara karne ki jagah reuse kar lete ho.
+
+### Pattern pehchaanna
+- 3, 6, 9, 12, … har baar **3** jodta hai. k-th term (k = 1 se) `3 * k` hai.
+- 5, 8, 11, 14, … 5 se shuru, 3 jodta hai: k-th term `5 + 3 * (k - 1)`.
+- 1, 2, 4, 8, 16, … har baar **dugna**: k-th term `2 ** (k - 1)`.
+- 1, 4, 9, 16, 25, … **squares** hain: `k * k`.
+
+> **Tip:** Koi sequence confuse kare toh padosiyon ke beech ke **farak** likho. Farak same hai matlab "har baar utna hi jodo".
+
+### 1 se n tak jodna: Gauss ki trick
+Kehte hain chhote Carl Friedrich Gauss ko 1 + 2 + … + 100 jodne ko kaha gaya. Unhone dono kinaron se jodiyan banayi:
+- 1 + 100 = 101, 2 + 99 = 101, 3 + 98 = 101 … saari 50 jodiyan 101.
+- 50 × 101 = **5,050**.
+
+General formula: **1 + 2 + … + n = n × (n + 1) / 2**. Python mein whole numbers ke liye `n * (n + 1) // 2` likho.
+
+> **Analogy:** Blocks ki seedhi banao: 1 block, phir 2, phir 3, n tak. Ek copy banao, ulti karo aur dono ko saath chipkao. n chaudi aur n + 1 oonchi ek saaf rectangle banti hai. Seedhi theek uska aadha hai.
+
+Ye number baar-baar milega: list mein **jodiyon** ki ginti bhi yahi hai (topic 11), aur do nested loops ka kaam bhi.
+
+### Running total aur prefix sum
+**Running total** chalte-chalte jodta hai:
+
+| din | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| sales | 3 | 1 | 4 | 1 | 5 |
+| ab tak total | 3 | 4 | 8 | 9 | 14 |
+
+Ye totals ek list mein rakho jise **prefix sum** kehte hain, aage ek 0 ke saath:
+```python
+nums = [3, 1, 4, 1, 5]
+prefix = [0]
+for x in nums:
+    prefix.append(prefix[-1] + x)
+# prefix == [0, 3, 4, 8, 9, 14]
+```
+Ab kisi bhi hisse ka sum **ek ghatana** hai. `nums[1..3]` ka sum (1 + 4 + 1) = `prefix[4] - prefix[1]` = 9 − 3 = **6**.
+
+> **Analogy:** Car ka odometer. 2 baje se 5 baje tak kitna chalaye, ye jaanne ke liye sadak dobara nahi chalte: 5 baje ki reading se 2 baje ki reading ghata dete ho.
+
+### DSA mein kahan aata hai
+- Missing Number: expected sum `n * (n + 1) // 2` minus asli sum.
+- Range sum queries, Subarray Sum Equals K, Product of Array Except Self (wahi idea guna ke saath).
+
+> **Yaad rakho:** 1 + … + n = n(n + 1)/2. Prefix sum "ek hissa jodo" ko ek ghatane mein badal deta hai.
+
+=== drills
+--- d
+q: Compare the loop with Gauss's formula.
+code:
+n = 100
+total = 0
+for i in range(1, n + 1):
+    total += i
+print(total)
+print(n * (n + 1) // 2)
+answer:
+5050
+5050
+en: Both give 5,050. The formula does it in one step instead of 100.
+hi: Dono 5,050 dete hain. Formula 100 ki jagah ek step mein karta hai.
+--- d
+q: Build the prefix sums and use them.
+code:
+nums = [3, 1, 4, 1, 5]
+prefix = [0]
+for x in nums:
+    prefix.append(prefix[-1] + x)
+print(prefix)
+print(prefix[4] - prefix[1])
+answer:
+[0, 3, 4, 8, 9, 14]
+6
+en: prefix[i] is the sum of the first i numbers. The stretch nums[1..3] is prefix[4] − prefix[1] = 1 + 4 + 1.
+hi: prefix[i] pehle i numbers ka sum hai. nums[1..3] = prefix[4] − prefix[1] = 1 + 4 + 1.
+--- d
+kind: write
+q: A list contains every number from 0 to n exactly once except one. Write `missing(nums)` using the sum formula (n is the length of the list).
+answer:
+def missing(nums):
+    n = len(nums)
+    return n * (n + 1) // 2 - sum(nums)
+test:
+check(missing([3, 0, 1]), 2)
+check(missing([0, 1]), 2)
+check(missing([1]), 0)
+check(missing([9, 6, 4, 2, 3, 5, 7, 0, 1]), 8)
+en: With one number missing, the list has n items drawn from 0..n. The full sum is n(n + 1)/2; the gap is the missing number.
+hi: Ek number missing hai toh list mein 0..n mein se n items hain. Poora sum n(n + 1)/2; farak hi missing number hai.
+--- d
+kind: write
+q: Write `range_sum(nums, i, j)` that returns nums[i] + … + nums[j] (both included) by building a prefix sum.
+answer:
+def range_sum(nums, i, j):
+    prefix = [0]
+    for x in nums:
+        prefix.append(prefix[-1] + x)
+    return prefix[j + 1] - prefix[i]
+test:
+check(range_sum([3, 1, 4, 1, 5], 1, 3), 6)
+check(range_sum([3, 1, 4, 1, 5], 0, 4), 14)
+check(range_sum([3, 1, 4, 1, 5], 2, 2), 4)
+en: prefix[j + 1] is everything up to and including j; subtract everything before i.
+hi: prefix[j + 1] matlab j tak sab (j bhi); i se pehle ka sab ghata do.
+
+## module: mt11 | Counting: pairs, subsets and arrangements
+summary: The multiplication rule, how many pairs, how many subsets, how many orders, and how counting predicts how slow a solution is.
+=== en
+### The big idea
+Before writing a solution, good programmers **count how many possibilities there are**. That number tells you whether trying them all is fine or hopeless. Four small rules cover almost everything.
+
+### Rule 1: multiply the choices
+You have 3 shirts and 2 pairs of trousers. How many outfits? For **each** shirt there are 2 trousers: 3 × 2 = **6**.
+
+> **Analogy:** A restaurant combo: pick 1 of 4 burgers, 1 of 3 drinks, 1 of 2 desserts. 4 × 3 × 2 = 24 different combos. Each independent choice multiplies.
+
+In code, this is **nested loops**: an outer loop over shirts and an inner loop over trousers runs 3 × 2 = 6 times.
+
+### Rule 2: pairs
+5 friends, and everyone shakes hands with everyone else once. How many handshakes?
+- Each person shakes 4 hands: 5 × 4 = 20. But that counts A–B and B–A separately, so halve it: **10**.
+
+The number of pairs from n items is **n × (n − 1) / 2**. For n = 1,000 that is almost half a million pairs. This is why "check every pair" is slow for big inputs.
+
+```python
+for i in range(n):
+    for j in range(i + 1, n):   # j starts after i: each pair once
+        ...
+```
+
+### Rule 3: subsets (take it or leave it)
+Pizza with 3 possible toppings: cheese, olives, corn. How many different pizzas, including a plain one? For each topping you decide **yes or no**: 2 × 2 × 2 = **8**.
+
+With n items there are **2ⁿ subsets**. That doubles with every extra item: 10 items give 1,024 subsets, 20 give about a million, 40 give about a trillion.
+
+### Rule 4: arrangements (order matters)
+In how many orders can 4 runners finish a race? The winner can be any of 4, second place any of the remaining 3, then 2, then 1: 4 × 3 × 2 × 1 = **24**. This is **4 factorial**, written 4!.
+
+Factorials explode even faster than powers: 10! is 3,628,800.
+
+| Question | Count | n = 10 |
+|---|---|---|
+| Independent choices a and b | a × b | — |
+| Pairs | n(n − 1)/2 | 45 |
+| Subsets | 2ⁿ | 1,024 |
+| Orders | n! | 3,628,800 |
+
+### Where this shows up in DSA
+- Nested loops cost n²; Subsets costs 2ⁿ; Permutations cost n!.
+- Constraints warn you: if n can be 20, 2ⁿ is fine; if n can be 100,000, even n² is too slow.
+
+> **Remember:** Independent choices multiply. Pairs: n(n − 1)/2. Subsets: 2ⁿ. Orders: n!.
+
+=== hi
+### Bada idea
+Solution likhne se pehle achhe programmers **gin lete hain ki kitni possibilities hain**. Wo number batata hai ki sab try karna theek hai ya bekaar. Chaar chhote rules lagbhag sab cover karte hain.
+
+### Rule 1: choices ka guna
+3 shirts aur 2 pants hain. Kitne outfits? **Har** shirt ke liye 2 pants: 3 × 2 = **6**.
+
+> **Analogy:** Restaurant ka combo: 4 burgers mein se 1, 3 drinks mein se 1, 2 desserts mein se 1. 4 × 3 × 2 = 24 alag combos. Har alag choice guna karti hai.
+
+Code mein ye **nested loops** hain: shirts pe outer loop aur pants pe inner loop 3 × 2 = 6 baar chalta hai.
+
+### Rule 2: jodiyan
+5 dost, har koi har doosre se ek baar haath milata hai. Kitne handshakes?
+- Har insaan 4 haath milata hai: 5 × 4 = 20. Par isme A–B aur B–A alag gine gaye, toh aadha karo: **10**.
+
+n items se jodiyon ki ginti **n × (n − 1) / 2** hai. n = 1,000 ke liye lagbhag 5 lakh jodiyan. Isliye bade inputs ke liye "har jodi check karo" slow hai.
+
+```python
+for i in range(n):
+    for j in range(i + 1, n):   # j, i ke baad se: har jodi ek baar
+        ...
+```
+
+### Rule 3: subsets (lo ya chhodo)
+Pizza, 3 toppings ke options: cheese, olives, corn. Kitne alag pizzas, plain wala bhi? Har topping ke liye **haan ya naa**: 2 × 2 × 2 = **8**.
+
+n items ke **2ⁿ subsets** hote hain. Har extra item pe dugna: 10 items pe 1,024, 20 pe lagbhag das lakh, 40 pe lagbhag ek lakh crore.
+
+### Rule 4: arrangements (order matter karta hai)
+4 runners race kitne orders mein khatam kar sakte hain? Winner 4 mein se koi bhi, second 3 mein se, phir 2, phir 1: 4 × 3 × 2 × 1 = **24**. Ye **4 factorial** hai, likhte hain 4!.
+
+Factorials powers se bhi tez phat-te hain: 10! = 36,28,800.
+
+| Sawaal | Ginti | n = 10 |
+|---|---|---|
+| Alag choices a aur b | a × b | — |
+| Jodiyan | n(n − 1)/2 | 45 |
+| Subsets | 2ⁿ | 1,024 |
+| Orders | n! | 36,28,800 |
+
+### DSA mein kahan aata hai
+- Nested loops ka kharcha n²; Subsets ka 2ⁿ; Permutations ka n!.
+- Constraints chetaavni dete hain: n 20 tak ho sakta hai toh 2ⁿ theek; n 1,00,000 tak ho toh n² bhi slow.
+
+> **Yaad rakho:** Alag choices guna hoti hain. Jodiyan: n(n − 1)/2. Subsets: 2ⁿ. Orders: n!.
+
+=== drills
+--- d
+q: How many times does the inner line run?
+code:
+count = 0
+for shirt in ["red", "blue", "green"]:
+    for pants in ["jeans", "shorts"]:
+        count += 1
+print(count)
+answer:
+6
+en: 3 shirts × 2 trousers = 6. Nested loops multiply.
+hi: 3 shirts × 2 pants = 6. Nested loops guna karte hain.
+--- d
+q: Count the handshakes among 5 friends.
+code:
+n = 5
+count = 0
+for i in range(n):
+    for j in range(i + 1, n):
+        count += 1
+print(count, n * (n - 1) // 2)
+answer:
+10 10
+en: Starting j after i visits each pair once. The formula agrees: 5 × 4 / 2.
+hi: j ko i ke baad se shuru karne se har jodi ek baar aati hai. Formula bhi 5 × 4 / 2 bolta hai.
+--- d
+q: What does this print?
+code:
+import math
+print(2 ** 3)
+print(math.factorial(4))
+print(math.comb(5, 2))
+answer:
+8
+24
+10
+en: 3 toppings give 2³ = 8 pizzas. 4 runners finish in 4! = 24 orders. comb(5, 2) counts pairs from 5: 10.
+hi: 3 toppings se 2³ = 8 pizzas. 4 runners 4! = 24 orders mein. comb(5, 2) 5 mein se jodiyan ginta hai: 10.
+--- d
+kind: write
+q: Write `all_subsets(items)` that returns every subset of a list, in any order, as lists.
+answer:
+def all_subsets(items):
+    result = [[]]
+    for x in items:
+        result += [s + [x] for s in result]
+    return result
+test:
+check_u(all_subsets([1, 2, 3]), [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]])
+check(len(all_subsets([1, 2, 3, 4])), 16)
+check(all_subsets([]), [[]])
+en: For each new item, keep every old subset and add a copy with the item. The count doubles each time: 2ⁿ.
+hi: Har naye item ke liye har purana subset rakho aur item ke saath ek copy jodo. Ginti har baar dugni: 2ⁿ.
+
+## module: mt12 | Ranges, rounding and off-by-one
+summary: Counting the numbers from a to b, inclusive and exclusive ends, the fence-post mistake, Python's range and slices, floor and ceiling.
+=== en
+### The big idea
+"How many numbers from 3 to 7?" Many people say 4. The answer is **5**: 3, 4, 5, 6, 7. Being off by exactly one is the **most common bug in all of programming**, and it has a name: the **off-by-one error**.
+
+### Counting a range
+- From a to b, **both included**: **b − a + 1** numbers. 3 to 7 → 7 − 3 + 1 = 5.
+- From a up to b, **b not included**: **b − a** numbers. 3 up to 7 → 4 numbers (3, 4, 5, 6).
+
+> **Analogy:** The fence-post problem. A fence 10 metres long with a post every metre needs **11 posts**, not 10: one at the start plus one at the end of every metre. Gaps and posts differ by one.
+
+### Python's range stops early
+`range(a, b)` gives a, a + 1, …, **b − 1**. The stop value is **never included**. That is why:
+- `range(5)` is 0, 1, 2, 3, 4: five numbers, and it matches the indexes of a list of length 5.
+- To include b, write `range(a, b + 1)`.
+
+Slices follow the same rule: `s[2:5]` takes indexes 2, 3, 4.
+
+> **Tip:** Before running a loop, say its **first** and **last** value out loud. For `range(1, n)`, the last value is n − 1. If you wanted n, you need `range(1, n + 1)`.
+
+### Indexes of a list
+A list of length n has indexes **0 to n − 1**. The last item is `a[n - 1]` (or `a[-1]`). Asking for `a[n]` crashes with `IndexError`. When comparing each item with the next one, loop to `n - 1` so that `i + 1` still exists:
+```python
+for i in range(len(a) - 1):
+    if a[i] > a[i + 1]:
+        ...
+```
+
+### Overlapping ranges
+Two meetings [1, 5] and [4, 8] overlap because each starts **before the other ends**: `start1 <= end2 and start2 <= end1`. Whether touching ends count as overlapping ([1, 5] and [5, 9]) depends on the problem; read it carefully.
+
+### Rounding: floor and ceiling
+- **Floor** rounds **down**: floor(3.7) = 3. Python: `math.floor(3.7)` or `7 // 2` for whole numbers.
+- **Ceiling** rounds **up**: ceil(3.2) = 4. Python: `math.ceil(3.2)`, or `(a + b - 1) // b` for whole numbers (topic 3).
+- `round(2.5)` in Python gives 2 (it rounds halves to the even number), so do not rely on it for "always up".
+
+### Where this shows up in DSA
+- Binary search boundaries (`lo <= hi` vs `lo < hi`, `mid + 1`, `mid - 1`).
+- Sliding window lengths (`right - left + 1`), Merge Intervals, Meeting Rooms.
+
+> **Remember:** a to b inclusive has b − a + 1 numbers. `range(a, b)` stops before b. A list of length n ends at index n − 1.
+
+=== hi
+### Bada idea
+"3 se 7 tak kitne numbers?" Bahut log 4 kehte hain. Jawab **5** hai: 3, 4, 5, 6, 7. Theek ek se galat hona **programming ka sabse common bug** hai, aur iska naam hai **off-by-one error**.
+
+### Range ginna
+- a se b, **dono shaamil**: **b − a + 1** numbers. 3 se 7 → 7 − 3 + 1 = 5.
+- a se b tak, **b shaamil nahi**: **b − a** numbers. 3 se 7 tak → 4 numbers (3, 4, 5, 6).
+
+> **Analogy:** Fence-post problem. 10 metre lambi baad mein har metre pe khamba ho toh **11 khambe** chahiye, 10 nahi: ek shuru mein plus har metre ke end pe ek. Gaps aur khambe ek se alag hote hain.
+
+### Python ka range pehle ruk jaata hai
+`range(a, b)` deta hai a, a + 1, …, **b − 1**. Stop value **kabhi shaamil nahi**. Isliye:
+- `range(5)` = 0, 1, 2, 3, 4: paanch numbers, aur ye 5 length wali list ke indexes se match karta hai.
+- b shaamil karna hai toh `range(a, b + 1)` likho.
+
+Slices bhi yahi rule follow karte hain: `s[2:5]` indexes 2, 3, 4 leta hai.
+
+> **Tip:** Loop chalane se pehle uski **pehli** aur **aakhri** value zor se bolo. `range(1, n)` ki aakhri value n − 1 hai. n chahiye tha toh `range(1, n + 1)` chahiye.
+
+### List ke indexes
+n length wali list ke indexes **0 se n − 1** hain. Aakhri item `a[n - 1]` (ya `a[-1]`). `a[n]` maangoge toh `IndexError` crash. Har item ko agle se compare karte waqt `n - 1` tak loop chalao taaki `i + 1` bhi maujood ho:
+```python
+for i in range(len(a) - 1):
+    if a[i] > a[i + 1]:
+        ...
+```
+
+### Overlap karti ranges
+Do meetings [1, 5] aur [4, 8] overlap karti hain kyunki har ek doosri ke **khatam hone se pehle** shuru hoti hai: `start1 <= end2 and start2 <= end1`. Chhoote hue ends ([1, 5] aur [5, 9]) overlap gine jaayein ya nahi, ye problem pe depend karta hai; dhyaan se padho.
+
+### Rounding: floor aur ceiling
+- **Floor** **neeche** round karta hai: floor(3.7) = 3. Python: `math.floor(3.7)`, ya whole numbers ke liye `7 // 2`.
+- **Ceiling** **upar** round karta hai: ceil(3.2) = 4. Python: `math.ceil(3.2)`, ya whole numbers ke liye `(a + b - 1) // b` (topic 3).
+- Python mein `round(2.5)` 2 deta hai (aadhe ko even number ki taraf round karta hai), toh "hamesha upar" ke liye iske bharose mat raho.
+
+### DSA mein kahan aata hai
+- Binary search ki boundaries (`lo <= hi` vs `lo < hi`, `mid + 1`, `mid - 1`).
+- Sliding window ki length (`right - left + 1`), Merge Intervals, Meeting Rooms.
+
+> **Yaad rakho:** a se b inclusive mein b − a + 1 numbers. `range(a, b)` b se pehle rukta hai. n length ki list index n − 1 pe khatam hoti hai.
+
+=== drills
+--- d
+q: Count carefully.
+code:
+print(len(range(3, 8)))
+print(list(range(3, 8)))
+print(7 - 3 + 1)
+answer:
+5
+[3, 4, 5, 6, 7]
+5
+en: range(3, 8) stops before 8, so it holds 3 to 7: five numbers, the same as 7 − 3 + 1.
+hi: range(3, 8), 8 se pehle rukta hai, toh 3 se 7: paanch numbers, 7 − 3 + 1 jitna.
+--- d
+q: What does this print?
+code:
+import math
+s = "LADDER"
+print(s[1:4])
+print(math.floor(3.7), math.ceil(3.2))
+print(len(s) - 1)
+answer:
+ADD
+3 4
+5
+en: The slice takes indexes 1, 2, 3 (not 4). Floor rounds down, ceiling up. The last index of a 6-letter string is 5.
+hi: Slice indexes 1, 2, 3 leta hai (4 nahi). Floor neeche, ceiling upar round karta hai. 6 letter ki string ka aakhri index 5.
+--- d
+kind: fix
+q: This function should count the numbers from a to b, both included, but it is wrong. Find the off-by-one and fix it.
+code:
+def count_between(a, b):
+    return b - a
+answer:
+def count_between(a, b):
+    return b - a + 1
+test:
+check(count_between(3, 7), 5)
+check(count_between(5, 5), 1)
+check(count_between(1, 100), 100)
+en: b − a counts the gaps, not the numbers. Add one for the fence post at the start.
+hi: b − a gaps ginta hai, numbers nahi. Shuru wale khambe ke liye ek jodo.
+--- d
+kind: write
+q: Write `overlaps(a, b)` where each argument is a meeting `[start, end]`. Return True if they share any moment, counting touching ends as overlapping.
+answer:
+def overlaps(a, b):
+    return a[0] <= b[1] and b[0] <= a[1]
+test:
+check(overlaps([1, 5], [4, 8]), True)
+check(overlaps([1, 5], [5, 9]), True)
+check(overlaps([1, 3], [4, 6]), False)
+check(overlaps([2, 9], [3, 4]), True)
+en: Each meeting must start no later than the other one ends. The last test shows one meeting fully inside another.
+hi: Har meeting doosri ke khatam hone se pehle (ya usi waqt) shuru honi chahiye. Aakhri test mein ek meeting doosri ke andar poori hai.

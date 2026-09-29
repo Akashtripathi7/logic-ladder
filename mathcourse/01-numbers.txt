@@ -1,0 +1,654 @@
+## module: mt01 | Numbers and the number line
+summary: Whole numbers, negatives and zero on a number line; comparing numbers; distance and absolute value.
+=== en
+### The big idea
+Every number has a **place on a line**. Once you can picture that line, comparing numbers, counting steps between them and handling negatives all become "just walking".
+
+### The number line
+Draw a long straight line. Put **0** in the middle. Walk right and the numbers grow: 1, 2, 3, 4… Walk left and they shrink below zero: −1, −2, −3…
+
+> **Analogy:** Think of the floors in a tall building with a basement. Floor 0 is the ground floor. Floors 1, 2, 3 are above ground. Floors −1, −2 are the basement levels. Going **up** always means a **bigger** number, even in the basement: −1 is higher than −3.
+
+The numbers we use most in coding are **integers**: whole numbers with no decimal part, like −7, 0, 12 and 1000. In Python their type is `int`.
+
+### Comparing numbers
+A number further **right** on the line is **bigger**.
+- 7 > 3 because 7 is to the right of 3.
+- −1 > −5 because −1 is to the right of −5. (Being in debt by ₹1 is better than being in debt by ₹5.)
+- 0 is bigger than every negative number and smaller than every positive one.
+
+| Symbol | Read it as | Example |
+|---|---|---|
+| `<` | is less than | `2 < 9` |
+| `>` | is greater than | `9 > 2` |
+| `<=` | is less than or equal to | `4 <= 4` |
+| `>=` | is greater than or equal to | `5 >= 1` |
+| `==` | is equal to | `3 == 3` |
+| `!=` | is not equal to | `3 != 4` |
+
+> **Mistake:** A single `=` **stores** a value (`x = 5`). A double `==` **asks** whether two values are equal (`x == 5`). Mixing them up is one of the most common beginner bugs.
+
+### Distance between two numbers
+How many steps from 3 to 8? Walk it: 4, 5, 6, 7, 8. That is **5 steps**, and 8 − 3 = 5.
+
+How many steps from −2 to 3? −1, 0, 1, 2, 3: again **5 steps**, and 3 − (−2) = 5.
+
+Distance is never negative. Walking from 8 back to 3 is still 5 steps. To make sure a difference is never negative, use **absolute value**: it throws away the minus sign.
+
+- `abs(8 - 3)` is 5
+- `abs(3 - 8)` is also 5
+- `abs(-12)` is 12, `abs(12)` is 12
+
+> **Tip:** "How far apart are a and b?" is always `abs(a - b)`, whichever is bigger.
+
+### In Python
+```python
+a = -4
+b = 7
+print(a < b)        # True
+print(b - a)        # 11
+print(abs(a - b))   # 11
+print(max(a, b))    # 7, the one further right
+print(min(a, b))    # -4, the one further left
+```
+
+### Where this shows up in DSA
+- Finding the **closest** value to a target (smallest `abs(x - target)`).
+- Sorting: numbers go from left to right on the line.
+- Temperatures, stock prices and heights are all points on a number line; "the biggest jump" is the biggest distance.
+
+> **Remember:** Right means bigger. Distance is `abs(a - b)`. `=` stores, `==` compares.
+
+=== hi
+### Bada idea
+Har number ki **line pe ek jagah** hoti hai. Jab tum ye line dimaag mein dekh lete ho, toh numbers compare karna, unke beech steps ginna aur negatives samajhna sab "bas chalna" ban jaata hai.
+
+### Number line
+Ek lambi seedhi line banao. Beech mein **0** rakho. Right chalo toh numbers badhte hain: 1, 2, 3, 4… Left chalo toh zero se neeche jaate hain: −1, −2, −3…
+
+> **Analogy:** Ek oonchi building socho jismein basement bhi hai. Floor 0 ground floor hai. Floor 1, 2, 3 upar hain. Floor −1, −2 basement ke levels hain. **Upar** jaana hamesha **bada** number hai, basement mein bhi: −1, −3 se upar hai.
+
+Coding mein sabse zyada **integers** use hote hain: bina decimal wale poore numbers, jaise −7, 0, 12 aur 1000. Python mein inka type `int` hai.
+
+### Numbers compare karna
+Line pe jo number zyada **right** hai, wo **bada** hai.
+- 7 > 3 kyunki 7, 3 ke right mein hai.
+- −1 > −5 kyunki −1, −5 ke right mein hai. (₹1 ka udhaar, ₹5 ke udhaar se behtar hai.)
+- 0 har negative se bada aur har positive se chhota hai.
+
+| Symbol | Kaise padhein | Example |
+|---|---|---|
+| `<` | se chhota hai | `2 < 9` |
+| `>` | se bada hai | `9 > 2` |
+| `<=` | se chhota ya barabar | `4 <= 4` |
+| `>=` | se bada ya barabar | `5 >= 1` |
+| `==` | ke barabar hai | `3 == 3` |
+| `!=` | ke barabar nahi hai | `3 != 4` |
+
+> **Galti:** Ek `=` value **rakhta** hai (`x = 5`). Do `==` **poochte** hain ki dono barabar hain kya (`x == 5`). Inhe mix karna beginners ka sabse common bug hai.
+
+### Do numbers ke beech doori
+3 se 8 tak kitne steps? Chal ke dekho: 4, 5, 6, 7, 8. Ye **5 steps** hain, aur 8 − 3 = 5.
+
+−2 se 3 tak kitne steps? −1, 0, 1, 2, 3: phir se **5 steps**, aur 3 − (−2) = 5.
+
+Doori kabhi negative nahi hoti. 8 se wapas 3 chalo toh bhi 5 steps. Difference ko hamesha positive rakhne ke liye **absolute value** use karo: ye minus sign hata deta hai.
+
+- `abs(8 - 3)` = 5
+- `abs(3 - 8)` bhi 5
+- `abs(-12)` = 12, `abs(12)` = 12
+
+> **Tip:** "a aur b kitne door hain?" hamesha `abs(a - b)` hai, chahe koi bhi bada ho.
+
+### Python mein
+```python
+a = -4
+b = 7
+print(a < b)        # True
+print(b - a)        # 11
+print(abs(a - b))   # 11
+print(max(a, b))    # 7, jo zyada right hai
+print(min(a, b))    # -4, jo zyada left hai
+```
+
+### DSA mein kahan aata hai
+- Target ke **sabse paas** wali value dhoondhna (sabse chhota `abs(x - target)`).
+- Sorting: numbers line pe left se right jaate hain.
+- Temperature, stock price aur height sab number line ke points hain; "sabse bada jump" matlab sabse badi doori.
+
+> **Yaad rakho:** Right matlab bada. Doori `abs(a - b)` hai. `=` rakhta hai, `==` compare karta hai.
+
+=== drills
+--- d
+q: What does this print?
+code:
+print(-3 < -8)
+print(0 > -1)
+print(abs(-9))
+answer:
+False
+True
+9
+en: −3 is to the right of −8 on the number line, so it is bigger, not smaller. 0 is right of −1. abs drops the minus sign.
+hi: Number line pe −3, −8 ke right mein hai, toh bada hai, chhota nahi. 0, −1 ke right mein hai. abs minus hata deta hai.
+--- d
+q: How far apart are these temperatures?
+code:
+morning = -6
+noon = 9
+print(noon - morning)
+print(abs(morning - noon))
+answer:
+15
+15
+en: From −6 up to 0 is 6 steps, then 9 more to reach 9: 15. abs gives the same answer whichever order you subtract in.
+hi: −6 se 0 tak 6 steps, phir 9 aur: 15. abs dono order mein same jawab deta hai.
+--- d
+kind: write
+q: Write `distance(a, b)` that returns how many steps apart two numbers are on the number line.
+answer:
+def distance(a, b):
+    return abs(a - b)
+test:
+check(distance(3, 8), 5)
+check(distance(8, 3), 5)
+check(distance(-2, 3), 5)
+check(distance(-7, -7), 0)
+en: Distance is the size of the difference, so wrap it in abs().
+hi: Doori difference ka size hai, toh use abs() mein lapeto.
+--- d
+kind: write
+q: Write `closest(nums, target)` that returns the number in `nums` nearest to `target`. If two are equally near, return the one that appears first.
+answer:
+def closest(nums, target):
+    best = nums[0]
+    for x in nums:
+        if abs(x - target) < abs(best - target):
+            best = x
+    return best
+test:
+check(closest([1, 8, 5, 12], 6), 5)
+check(closest([-10, -3, 4], 0), -3)
+check(closest([2, 6], 4), 2)
+en: Keep the best so far. A number is better when its distance abs(x - target) is strictly smaller.
+hi: Ab tak ka best rakho. Wo number behtar hai jiski doori abs(x - target) sach mein chhoti ho.
+
+## module: mt02 | The four operations and their order
+summary: Adding, subtracting, multiplying and dividing as actions; which one happens first; brackets; shortcuts like +=.
+=== en
+### The big idea
+The four operations are four **actions**: join, take away, repeat, share. When several appear together, maths has fixed **rules about which happens first**, and Python follows the same rules.
+
+### Four actions
+| Operation | Action | Picture | Python |
+|---|---|---|---|
+| Addition | **join** groups | 3 apples + 4 apples = 7 apples | `3 + 4` |
+| Subtraction | **take away**, or find the gap | 10 sweets, eat 3, 7 left | `10 - 3` |
+| Multiplication | **repeat** a group | 4 bags of 5 marbles = 20 | `4 * 5` |
+| Division | **share** equally | 20 marbles for 4 kids = 5 each | `20 / 4` |
+
+> **Analogy:** Multiplication is fast addition. 4 × 5 means "5 + 5 + 5 + 5". Imagine 4 rows of 5 chairs: count them one by one, or multiply once.
+
+Python uses `*` for multiply (there is no × key on the keyboard) and `/` for divide.
+
+### Which one goes first?
+What is 2 + 3 × 4? If you go left to right you get 5 × 4 = 20. But the rule says **multiply and divide before add and subtract**, so it is 2 + 12 = **14**.
+
+The order, from first to last:
+1. **Brackets** `( )`
+2. **Powers** `**` (you will meet these in topic 7)
+3. **Multiply and divide** `*  /  //  %`, left to right
+4. **Add and subtract** `+  -`, left to right
+
+> **Tip:** When in doubt, add brackets. `(2 + 3) * 4` is 20, and anyone reading it knows exactly what you meant. Brackets cost nothing.
+
+Worked example: `10 - 2 * 3 + 8 / 4`
+- Multiply first: 2 * 3 = 6 → `10 - 6 + 8 / 4`
+- Divide: 8 / 4 = 2.0 → `10 - 6 + 2.0`
+- Left to right: 10 − 6 = 4, 4 + 2.0 = **6.0**
+
+Why 6.0 and not 6? Because `/` always gives a decimal number (a `float`) in Python. Topic 3 shows how to get whole-number answers.
+
+### Updating a value
+In code we often change a number using its old value:
+```python
+score = 10
+score = score + 5   # score is now 15
+score += 5          # the same thing, shorter: now 20
+score -= 3          # 17
+score *= 2          # 34
+```
+Read `score += 5` as "score grows by 5". The right side is worked out first, using the **old** value, then stored.
+
+### Where this shows up in DSA
+- Every formula in a solution follows these rules: `mid = lo + (hi - lo) // 2` works only because the subtraction is inside brackets.
+- Running totals (`total += x`) are the heart of countless loops.
+
+> **Remember:** Brackets, then powers, then × ÷, then + −. `/` gives a decimal. `x += 1` means "x becomes one bigger".
+
+=== hi
+### Bada idea
+Chaar operations chaar **kaam** hain: jodna, ghatana, dohraana, baantna. Jab kai ek saath aate hain, toh maths ke fixed **rules hain ki pehle kaun**, aur Python bhi wahi rules follow karta hai.
+
+### Chaar kaam
+| Operation | Kaam | Picture | Python |
+|---|---|---|---|
+| Jod | groups **milaao** | 3 seb + 4 seb = 7 seb | `3 + 4` |
+| Ghatao | **nikaalo**, ya farak dhoondho | 10 toffee, 3 khaayi, 7 bachi | `10 - 3` |
+| Guna | group ko **dohraao** | 5-5 kanchon ke 4 bag = 20 | `4 * 5` |
+| Bhaag | barabar **baanto** | 20 kanche 4 bachchon mein = 5-5 | `20 / 4` |
+
+> **Analogy:** Guna tez jod hai. 4 × 5 matlab "5 + 5 + 5 + 5". 5-5 kursiyon ki 4 rows socho: ek-ek gino, ya ek baar guna karo.
+
+Python mein guna ke liye `*` hai (keyboard pe × key nahi hai) aur bhaag ke liye `/`.
+
+### Pehle kaun?
+2 + 3 × 4 kitna? Left se right chalo toh 5 × 4 = 20. Par rule kehta hai **guna-bhaag pehle, jod-ghatao baad mein**, toh 2 + 12 = **14**.
+
+Order, pehle se aakhri tak:
+1. **Brackets** `( )`
+2. **Powers** `**` (topic 7 mein milenge)
+3. **Guna aur bhaag** `*  /  //  %`, left se right
+4. **Jod aur ghatao** `+  -`, left se right
+
+> **Tip:** Shak ho toh brackets lagao. `(2 + 3) * 4` = 20, aur padhne wala bhi samajh jaata hai. Brackets free hain.
+
+Example: `10 - 2 * 3 + 8 / 4`
+- Pehle guna: 2 * 3 = 6 → `10 - 6 + 8 / 4`
+- Bhaag: 8 / 4 = 2.0 → `10 - 6 + 2.0`
+- Left se right: 10 − 6 = 4, 4 + 2.0 = **6.0**
+
+6 nahi, 6.0 kyun? Kyunki Python mein `/` hamesha decimal number (`float`) deta hai. Poora number kaise milta hai, topic 3 mein.
+
+### Value update karna
+Code mein aksar purani value se number badalte hain:
+```python
+score = 10
+score = score + 5   # ab score 15
+score += 5          # wahi cheez, chhoti: ab 20
+score -= 3          # 17
+score *= 2          # 34
+```
+`score += 5` ko padho "score 5 badh gaya". Right side pehle **purani** value se nikalti hai, phir store hoti hai.
+
+### DSA mein kahan aata hai
+- Har solution ka formula inhi rules pe chalta hai: `mid = lo + (hi - lo) // 2` sirf isliye sahi hai kyunki ghatana brackets mein hai.
+- Running total (`total += x`) anginat loops ka dil hai.
+
+> **Yaad rakho:** Brackets, phir powers, phir × ÷, phir + −. `/` decimal deta hai. `x += 1` matlab "x ek bada ho gaya".
+
+=== drills
+--- d
+q: Work it out with the order rules, then check.
+code:
+print(2 + 3 * 4)
+print((2 + 3) * 4)
+print(20 - 8 - 2)
+answer:
+14
+20
+10
+en: Multiply before adding. Brackets go first. Subtraction runs left to right: (20 − 8) − 2 = 10, not 20 − 6.
+hi: Guna jod se pehle. Brackets sabse pehle. Ghatana left se right: (20 − 8) − 2 = 10, 20 − 6 nahi.
+--- d
+q: What does this print?
+code:
+print(8 / 4)
+print(10 - 2 * 3 + 8 / 4)
+answer:
+2.0
+6.0
+en: `/` always gives a float, even when the answer is whole. 10 − 6 + 2.0 = 6.0.
+hi: `/` hamesha float deta hai, jawab poora ho tab bhi. 10 − 6 + 2.0 = 6.0.
+--- d
+q: Follow the value of `total` line by line.
+code:
+total = 5
+total += 3
+total *= 2
+total -= 4
+print(total)
+answer:
+12
+en: 5 → 8 → 16 → 12. Each line uses the value left by the line before.
+hi: 5 → 8 → 16 → 12. Har line pichhli line ki value use karti hai.
+--- d
+kind: write
+q: A shop sells pens at ₹12 each and gives ₹5 off the whole bill. Write `bill(pens)` that returns the amount to pay.
+answer:
+def bill(pens):
+    return pens * 12 - 5
+test:
+check(bill(1), 7)
+check(bill(10), 115)
+check(bill(3), 31)
+en: Multiplication happens first, so pens * 12 - 5 already means "(pens × 12) − 5". Brackets would also be fine.
+hi: Guna pehle hota hai, toh pens * 12 - 5 pehle se hi "(pens × 12) − 5" hai. Brackets lagao toh bhi theek.
+
+## module: mt03 | Division with remainders
+summary: Sharing equally, what is left over, whole-number division with //, the remainder with %, and how they fit together.
+=== en
+### The big idea
+When you share things that cannot be cut, some may be **left over**. Division gives two answers: **how many each person gets** and **how many are left**. Python has one operator for each: `//` and `%`.
+
+### Sharing sweets
+You have **14 sweets** and **4 friends**. You hand them out one round at a time: each friend gets 1, then 2, then 3. After 3 rounds you have used 12 sweets. Only 2 remain, not enough for another full round.
+
+- Each friend gets **3**. This is the **quotient**.
+- **2** are left over. This is the **remainder**.
+
+| Question | Maths | Python | Answer |
+|---|---|---|---|
+| How many each? | 14 ÷ 4, whole part | `14 // 4` | 3 |
+| How many left? | remainder of 14 ÷ 4 | `14 % 4` | 2 |
+| Exact share | 14 ÷ 4 | `14 / 4` | 3.5 |
+
+> **Analogy:** `//` is "how many full boxes can I fill?" and `%` is "how many items are loose?". Packing 23 eggs into boxes of 6: `23 // 6` is 3 full boxes, `23 % 6` is 5 loose eggs.
+
+### The check that always works
+The quotient and remainder fit back together:
+
+**number = divisor × quotient + remainder**
+
+14 = 4 × 3 + 2. 23 = 6 × 3 + 5. If this does not add up, you made a mistake.
+
+The remainder is always **smaller than the divisor**. When dividing by 4, the remainder can only be 0, 1, 2 or 3. If you had 4 left over, you could give everyone one more.
+
+### When nothing is left
+`12 % 4` is 0: 12 sweets share perfectly among 4 friends. A remainder of **0** means "divides exactly". This is how code checks divisibility:
+```python
+if n % 4 == 0:
+    print("n is a multiple of 4")
+```
+
+### Two special cases
+- **Dividing a smaller number:** `3 // 5` is 0 (nobody gets a whole sweet) and `3 % 5` is 3 (all 3 are left).
+- **Dividing by zero** is impossible: sharing among 0 friends makes no sense. Python stops with `ZeroDivisionError`.
+
+> **Mistake:** In Python, `//` rounds **down** towards the smaller number. For negatives this surprises people: `-7 // 2` is −4, not −3. For the problems in this course you will almost always use positive numbers, so just remember it exists.
+
+### Rounding up
+Sometimes you need to round **up**: 14 people, cars that seat 4. `14 // 4` is 3 cars, but 2 people are left on the road. You need **4 cars**. A neat trick for positive numbers:
+
+`(a + b - 1) // b` gives a ÷ b rounded up. (14 + 3) // 4 = 17 // 4 = **4**.
+
+### Where this shows up in DSA
+- `% 2` for even and odd, `% k` for "every k-th", `// 2` for halving in binary search.
+- Rounding up: Koko Eating Bananas, pages per day, trips needed.
+
+> **Remember:** `//` = how many whole groups. `%` = how many left. number = divisor × quotient + remainder.
+
+=== hi
+### Bada idea
+Jab aisi cheezein baantte ho jo kaati nahi ja sakti, toh kuch **bach** sakti hain. Bhaag ke do jawab hote hain: **har ek ko kitna milega** aur **kitna bachega**. Python mein dono ke liye ek-ek operator hai: `//` aur `%`.
+
+### Toffee baantna
+Tumhare paas **14 toffee** aur **4 dost** hain. Ek-ek round mein do: har dost ko 1, phir 2, phir 3. 3 round ke baad 12 toffee lag gayi. Sirf 2 bachi, ek aur poore round ke liye kaafi nahi.
+
+- Har dost ko **3** mili. Ye **quotient** hai.
+- **2** bachi. Ye **remainder** hai.
+
+| Sawaal | Maths | Python | Jawab |
+|---|---|---|---|
+| Har ek ko kitni? | 14 ÷ 4, poora hissa | `14 // 4` | 3 |
+| Kitni bachi? | 14 ÷ 4 ka remainder | `14 % 4` | 2 |
+| Exact hissa | 14 ÷ 4 | `14 / 4` | 3.5 |
+
+> **Analogy:** `//` matlab "kitne poore dabbe bhar sakta hoon?" aur `%` matlab "kitne items khule bache?". 23 ande 6-6 wale dabbon mein: `23 // 6` = 3 poore dabbe, `23 % 6` = 5 khule ande.
+
+### Ye check hamesha chalta hai
+Quotient aur remainder wapas jud jaate hain:
+
+**number = divisor × quotient + remainder**
+
+14 = 4 × 3 + 2. 23 = 6 × 3 + 5. Agar ye match nahi karta, toh galti hui hai.
+
+Remainder hamesha **divisor se chhota** hota hai. 4 se bhaag mein remainder sirf 0, 1, 2 ya 3 ho sakta hai. 4 bachte toh sabko ek aur mil jaata.
+
+### Jab kuch na bache
+`12 % 4` = 0: 12 toffee 4 doston mein perfectly bant jaati hain. **0** remainder matlab "poora bant gaya". Code divisibility aise check karta hai:
+```python
+if n % 4 == 0:
+    print("n is a multiple of 4")
+```
+
+### Do special cases
+- **Chhote number ka bhaag:** `3 // 5` = 0 (kisi ko poori toffee nahi) aur `3 % 5` = 3 (teeno bachi).
+- **Zero se bhaag** impossible hai: 0 doston mein baantna matlab kuch nahi. Python `ZeroDivisionError` se ruk jaata hai.
+
+> **Galti:** Python mein `//` **neeche** ki taraf round karta hai. Negatives mein ye chaunkata hai: `-7 // 2` = −4, −3 nahi. Is course ki problems mein aksar positive numbers hi honge, bas yaad rakho ki aisa hota hai.
+
+### Upar round karna
+Kabhi **upar** round karna padta hai: 14 log, har car mein 4 seat. `14 // 4` = 3 cars, par 2 log sadak pe reh gaye. Chahiye **4 cars**. Positive numbers ke liye ek badhiya trick:
+
+`(a + b - 1) // b` = a ÷ b upar round karke. (14 + 3) // 4 = 17 // 4 = **4**.
+
+### DSA mein kahan aata hai
+- Even/odd ke liye `% 2`, "har k-th" ke liye `% k`, binary search mein aadha karne ke liye `// 2`.
+- Upar round: Koko Eating Bananas, roz ke pages, kitne trips chahiye.
+
+> **Yaad rakho:** `//` = kitne poore groups. `%` = kitna bacha. number = divisor × quotient + remainder.
+
+=== drills
+--- d
+q: 23 eggs go into boxes of 6. Predict all three lines.
+code:
+eggs = 23
+print(eggs // 6)
+print(eggs % 6)
+print(6 * (eggs // 6) + eggs % 6)
+answer:
+3
+5
+23
+en: 3 full boxes use 18 eggs, 5 are loose. Putting them back together always gives the original number.
+hi: 3 poore dabbe mein 18 ande, 5 khule. Wapas jodne pe hamesha original number milta hai.
+--- d
+q: What does this print?
+code:
+print(3 // 5, 3 % 5)
+print(20 // 5, 20 % 5)
+print(7 / 2, 7 // 2)
+answer:
+0 3
+4 0
+3.5 3
+en: Sharing 3 among 5: nobody gets a whole one, all 3 remain. 20 shares exactly. `/` keeps the decimal, `//` drops it.
+hi: 3 ko 5 mein baanto: kisi ko poora nahi, teeno bachte hain. 20 poora bant jaata hai. `/` decimal rakhta hai, `//` hata deta hai.
+--- d
+kind: write
+q: Write `cars_needed(people, seats)` that returns how many cars are needed so that everyone gets a seat.
+answer:
+def cars_needed(people, seats):
+    return (people + seats - 1) // seats
+test:
+check(cars_needed(14, 4), 4)
+check(cars_needed(12, 4), 3)
+check(cars_needed(1, 4), 1)
+check(cars_needed(0, 4), 0)
+en: This is division rounded up. The +(seats − 1) pushes any leftover people into one more car, but does nothing when the division is exact.
+hi: Ye upar round kiya hua bhaag hai. +(seats − 1) bache hue logon ko ek aur car mein bhejta hai, par exact bhaag mein kuch nahi badalta.
+--- d
+kind: write
+q: Write `split_minutes(total)` that turns a number of minutes into `(hours, minutes)`, for example 135 → (2, 15).
+answer:
+def split_minutes(total):
+    return total // 60, total % 60
+test:
+check(split_minutes(135), (2, 15))
+check(split_minutes(60), (1, 0))
+check(split_minutes(59), (0, 59))
+en: Hours are the full groups of 60, minutes are what is left over.
+hi: Hours matlab 60 ke poore groups, minutes matlab jo bacha.
+
+## module: mt04 | Modulo: even, odd, clocks and cycles
+summary: The remainder as a tool: even and odd, divisibility, wrapping around like a clock, repeating patterns and FizzBuzz.
+=== en
+### The big idea
+`%` gives the remainder, and remainders **go round in circles**. That makes `%` the tool for anything that repeats: even and odd, days of the week, turns in a game, positions that wrap around.
+
+### Even and odd
+A number is **even** if it splits into two equal groups with nothing left over. So `n % 2` is 0 for even numbers and 1 for odd ones.
+
+| n | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| n % 2 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
+
+The remainders go 0, 1, 0, 1… forever. That repeating pattern is the whole secret of modulo.
+
+### The clock
+A clock shows 1 to 12, then starts again. If it is 10 o'clock now, what time is it 5 hours later? Count on: 11, 12, 1, 2, **3**. Not 15.
+
+> **Analogy:** Modulo is a clock with n positions, numbered 0 to n − 1. Any number, however large, lands somewhere on that clock. `n % 5` is "where do I land on a 5-hour clock?".
+
+Days of the week work the same way. If today is day 2 (Tuesday, counting Sunday as 0), what day is it 100 days later? `(2 + 100) % 7` = 102 % 7 = **4**, a Thursday. No calendar needed.
+
+### Divisibility
+"Is n divisible by k?" is exactly `n % k == 0`.
+- `36 % 4 == 0`: yes, 36 is a multiple of 4.
+- `37 % 4 == 1`: no, one left over.
+
+**FizzBuzz**, a classic warm-up: for numbers 1 to 15, print "Fizz" for multiples of 3, "Buzz" for multiples of 5, and "FizzBuzz" for multiples of both.
+```python
+for n in range(1, 16):
+    if n % 15 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)
+```
+> **Tip:** Check the "both" case first. If you check `% 3` first, 15 prints "Fizz" and never reaches "FizzBuzz".
+
+### Wrapping around a list
+A list of 5 players takes turns: 0, 1, 2, 3, 4, then back to 0. The player for turn t is `t % 5`. Moving right along a circular list: `(i + 1) % n`. The last position wraps back to 0 automatically.
+
+### Where this shows up in DSA
+- Even and odd checks everywhere, "every k-th element", round-robin turns.
+- Circular arrays (Gas Station, rotating an array), hashing (`key % size`), cycles in Happy Number.
+
+> **Remember:** `n % 2 == 0` means even. `n % k == 0` means divisible by k. `% n` wraps any number onto a clock of size n.
+
+=== hi
+### Bada idea
+`%` remainder deta hai, aur remainders **gol-gol ghoomte hain**. Isliye `%` har us cheez ka tool hai jo dohraati hai: even aur odd, hafte ke din, game mein baari, positions jo ghoom ke wapas aati hain.
+
+### Even aur odd
+Number **even** hai agar wo do barabar groups mein bina bache bant jaaye. Toh even numbers ke liye `n % 2` = 0 aur odd ke liye 1.
+
+| n | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|---|
+| n % 2 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
+
+Remainders 0, 1, 0, 1… hamesha chalte rehte hain. Yahi dohraata pattern modulo ka poora raaz hai.
+
+### Ghadi
+Ghadi 1 se 12 dikhati hai, phir dobara shuru. Abhi 10 baje hain, 5 ghante baad kitne bajenge? Aage gino: 11, 12, 1, 2, **3**. 15 nahi.
+
+> **Analogy:** Modulo n positions wali ghadi hai, 0 se n − 1 tak. Koi bhi number, kitna bhi bada, us ghadi pe kahin na kahin girta hai. `n % 5` matlab "5 ghante wali ghadi pe main kahan girunga?".
+
+Hafte ke din bhi aise hi. Aaj din 2 hai (Tuesday, Sunday ko 0 maano), 100 din baad kaunsa din? `(2 + 100) % 7` = 102 % 7 = **4**, Thursday. Calendar ki zaroorat nahi.
+
+### Divisibility
+"Kya n, k se divide hota hai?" bilkul `n % k == 0` hai.
+- `36 % 4 == 0`: haan, 36, 4 ka multiple hai.
+- `37 % 4 == 1`: nahi, ek bacha.
+
+**FizzBuzz**, ek classic warm-up: 1 se 15 tak, 3 ke multiples pe "Fizz", 5 ke multiples pe "Buzz", aur dono ke multiples pe "FizzBuzz" print karo.
+```python
+for n in range(1, 16):
+    if n % 15 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)
+```
+> **Tip:** "Dono" wala case pehle check karo. Agar `% 3` pehle check kiya, toh 15 "Fizz" print karega aur "FizzBuzz" tak kabhi nahi pahunchega.
+
+### List mein ghoom ke wapas
+5 players baari-baari khelte hain: 0, 1, 2, 3, 4, phir wapas 0. Turn t ka player `t % 5` hai. Circular list mein right jaana: `(i + 1) % n`. Aakhri position apne aap 0 pe aa jaati hai.
+
+### DSA mein kahan aata hai
+- Har jagah even/odd check, "har k-th element", round-robin baari.
+- Circular arrays (Gas Station, array rotate karna), hashing (`key % size`), Happy Number mein cycles.
+
+> **Yaad rakho:** `n % 2 == 0` matlab even. `n % k == 0` matlab k se divisible. `% n` kisi bhi number ko n size ki ghadi pe le aata hai.
+
+=== drills
+--- d
+q: What does this print?
+code:
+for n in [7, 10, 0, 13]:
+    print(n % 2)
+answer:
+1
+0
+0
+1
+en: Odd numbers leave 1, even numbers (including 0) leave 0.
+hi: Odd numbers 1 chhodte hain, even numbers (0 bhi) 0 chhodte hain.
+--- d
+q: It is 10 o'clock on a 12-hour clock. Hours are counted 0 to 11 here, with 0 meaning 12. Predict the times.
+code:
+now = 10
+print((now + 5) % 12)
+print((now + 2) % 12)
+print((now + 24) % 12)
+answer:
+3
+0
+10
+en: 15 wraps to 3. 12 wraps to 0, which a clock shows as 12. Adding a full 24 hours brings you back to 10.
+hi: 15 ghoom ke 3. 12 ghoom ke 0, jise ghadi 12 dikhati hai. Poore 24 ghante jodo toh wapas 10.
+--- d
+q: Predict the FizzBuzz output for 9 to 15.
+code:
+for n in range(9, 16):
+    if n % 15 == 0:
+        print("FizzBuzz")
+    elif n % 3 == 0:
+        print("Fizz")
+    elif n % 5 == 0:
+        print("Buzz")
+    else:
+        print(n)
+answer:
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+en: 9 and 12 are multiples of 3, 10 of 5, and 15 of both, so the first branch catches it.
+hi: 9 aur 12, 3 ke multiples; 10, 5 ka; aur 15 dono ka, toh pehli branch pakad leti hai.
+--- d
+kind: write
+q: Write `day_after(today, days)` where days of the week are numbered 0 (Sunday) to 6 (Saturday). Return the day number `days` days after `today`.
+answer:
+def day_after(today, days):
+    return (today + days) % 7
+test:
+check(day_after(2, 100), 4)
+check(day_after(6, 1), 0)
+check(day_after(3, 7), 3)
+check(day_after(0, 0), 0)
+en: Add, then wrap onto a 7-position clock with % 7.
+hi: Jodo, phir % 7 se 7 positions wali ghadi pe le aao.
+--- d
+kind: write
+q: Write `next_player(i, n)` that returns whose turn is after player `i` when `n` players sit in a circle numbered 0 to n − 1.
+answer:
+def next_player(i, n):
+    return (i + 1) % n
+test:
+check(next_player(0, 5), 1)
+check(next_player(4, 5), 0)
+check(next_player(2, 3), 0)
+en: Step forward by one; % n sends the last player back to 0.
+hi: Ek aage badho; % n aakhri player ko wapas 0 pe bhej deta hai.
