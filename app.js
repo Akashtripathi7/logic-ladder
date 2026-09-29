@@ -151,80 +151,116 @@ function buildToc() {
 
 /* ---------- pages ---------- */
 function stepsDef() {
+  const drills = list => list.reduce((a, m) => a + m.drills.length, 0);
   return [
-    { n: 1, t: tr('Math for Logic', 'Logic ke liye Math'), kind: tr('Video', 'Video'), d: tr('Modulo, digits, primes, powers, logs, binary, counting, ranges, grids and Big O: the ideas every problem quietly uses.', 'Modulo, digits, primes, powers, logs, binary, counting, ranges, grids aur Big O: wo ideas jo har problem chupke se use karti hai.'), href: '#video-math', prog: () => lessonProgress('math'), label: () => { const f = lessonProgress('math'); return f >= 1 ? tr('Watched', 'Dekh liya') : f > 0 ? Math.round(f * 100) + '% ' + tr('watched', 'dekha') : tr('Not started', 'Shuru nahi kiya'); } },
-    { n: 2, t: tr('Python from zero', 'Python bilkul shuru se'), kind: tr('21 modules', '21 modules'), d: tr('A short video, a deep theory page and practice drills for each module. From print() to heapq.', 'Har module mein chhota video, gehri theory aur practice drills. print() se heapq tak.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length} ${tr('complete', 'complete')}` },
-    { n: 3, t: 'Logic Gym', kind: tr('6 modules', '6 modules'), d: tr('How to think, then drills on loops, patterns, lists, strings and debugging. Finish this before the warm-ups.', 'Kaise sochein, phir loops, patterns, lists, strings aur debugging ke drills. Warm-ups se pehle ye poora karo.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length} ${tr('complete', 'complete')}` },
-    { n: 4, t: 'Warm-up 50', kind: tr('50 problems', '50 problems'), d: tr('Reverse a string, largest number, anagram, palindrome, primes, sorting. Each with an analogy and a Hinglish explanation.', 'String reverse, sabse bada number, anagram, palindrome, primes, sorting. Har ek analogy aur Hinglish explanation ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50 ${tr('solved', 'solve kiye')}` },
-    { n: 5, t: 'DSA 150', kind: tr('18 topics · 150 problems', '18 topics · 150 problems'), d: tr('An explainer video per topic, then problems from brute force to the best approach, in Python.', 'Har topic ka explainer video, phir problems brute force se best approach tak, Python mein.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150 ${tr('solved', 'solve kiye')}` }
+    { n: 1, key: 'math', t: tr('Math for Logic', 'Logic ke liye Math'), when: tr('Week 1', 'Week 1'), meta: [tr('1 video', '1 video'), tr('14 short levels', '14 chhote levels')], d: tr('Modulo, digits, primes, powers, binary, counting and Big O: the maths hiding inside every problem.', 'Modulo, digits, primes, powers, binary, counting aur Big O: har problem ke andar chupa maths.'), href: '#video-math', prog: () => lessonProgress('math'), label: () => { const f = lessonProgress('math'); return f >= 1 ? tr('Watched', 'Dekh liya') : f > 0 ? Math.round(f * 100) + '% ' + tr('watched', 'dekha') : tr('Not started', 'Shuru nahi kiya'); } },
+    { n: 2, key: 'python', t: tr('Python from zero', 'Python bilkul shuru se'), when: tr('Weeks 1–2', 'Week 1–2'), meta: [`${PY.length} ${tr('modules', 'modules')}`, `${drills(PY)} ${tr('drills', 'drills')}`], d: tr('From print() to classes, recursion and heapq. Each module has a video, deep theory and drills.', 'print() se classes, recursion aur heapq tak. Har module mein video, gehri theory aur drills.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length} ${tr('complete', 'complete')}` },
+    { n: 3, key: 'gym', t: 'Logic Gym', when: tr('Week 3', 'Week 3'), meta: [`${GYM.length} ${tr('modules', 'modules')}`, `${drills(GYM)} ${tr('drills', 'drills')}`], d: tr('How to think, then loops, patterns, lists, strings and dry runs until the logic feels natural.', 'Kaise sochein, phir loops, patterns, lists, strings aur dry runs jab tak logic natural na lage.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length} ${tr('complete', 'complete')}` },
+    { n: 4, key: 'warm', t: 'Warm-up 50', when: tr('Weeks 4–5', 'Week 4–5'), meta: [tr('50 problems', '50 problems'), `${WARM.length} ${tr('groups', 'groups')}`], d: tr('Reverse a string, largest number, anagram, palindrome. Classic programs, explained with analogies.', 'String reverse, sabse bada number, anagram, palindrome. Classic programs, analogies ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50 ${tr('solved', 'solve kiye')}` },
+    { n: 5, key: 'dsa', t: 'DSA 150', when: tr('Weeks 6–14', 'Week 6–14'), meta: [tr('18 topics', '18 topics'), tr('150 problems', '150 problems')], d: tr('Arrays to dynamic programming. A video per topic, then problems from brute force to the best approach.', 'Arrays se dynamic programming tak. Har topic ka video, phir problems brute force se best approach tak.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150 ${tr('solved', 'solve kiye')}` }
   ];
 }
+/* small line icons for the five steps (stroke = currentColor) */
+const STEP_ICON = {
+  math: '<path d="M8 12h8M12 8v8"/><path d="M26 12h8"/><path d="M9 29l6 6M15 29l-6 6"/><path d="M26 32h8"/><circle cx="30" cy="28" r="1.4" class="dot"/><circle cx="30" cy="36" r="1.4" class="dot"/>',
+  python: '<path d="M15 10l-8 11 8 11"/><path d="M27 10l8 11-8 11"/><path d="M23 7l-4 28"/>',
+  gym: '<path d="M6 21h30"/><rect x="9" y="13" width="5" height="16" rx="2"/><rect x="28" y="13" width="5" height="16" rx="2"/><rect x="4" y="16" width="4" height="10" rx="1.5"/><rect x="34" y="16" width="4" height="10" rx="1.5"/>',
+  warm: '<path d="M21 37c-7 0-11-5-11-11 0-7 6-10 7-17 4 3 5 7 4 11 2-1 4-3 4-6 4 4 7 8 7 13 0 6-5 10-11 10z"/><path d="M21 37c-3 0-5-2-5-5 0-3 3-5 4-8 3 2 6 5 6 8s-2 5-5 5z"/>',
+  dsa: '<circle cx="21" cy="8" r="4"/><circle cx="10" cy="22" r="4"/><circle cx="32" cy="22" r="4"/><circle cx="16" cy="35" r="4"/><circle cx="28" cy="35" r="4"/><path d="M18 11l-5 8M24 11l5 8M12 26l3 5M30 26l-3 5"/>'
+};
+const stepIcon = k => `<svg class="step-ico ico-${k}" viewBox="0 0 42 42" aria-hidden="true">${STEP_ICON[k]}</svg>`;
 function pageHome() {
   const last = store.get('last', null);
   const lastLabel = last && routeLabel(last);
-  const done = countSolved(ORDER.warm) + countSolved(ORDER.nc);
+  const solvedN = countSolved(ORDER.warm) + countSolved(ORDER.nc);
   const steps = stepsDef();
   let cur = steps.findIndex(s => s.prog() < 1);
   const allDone = cur === -1;
   if (allDone) cur = steps.length - 1;
   const stateOf = i => steps[i].prog() >= 1 ? 'done' : i === cur ? 'current' : 'todo';
-  /* each ladder segment fills from the bottom: done = full; current = up to Bitu's rung (the middle), then by progress in that step; todo = empty */
-  const fillOf = i => { const st = stateOf(i); return st === 'done' ? 100 : st === 'current' ? 50 + Math.round(steps[i].prog() * 50) : 0; };
-  const rung = i => {
-    const s = steps[i], st = stateOf(i), here = i === cur;
-    return `<li class="lad-row ${st}" style="--fill:${fillOf(i)}%">
-      <div class="lc" aria-hidden="true"><span class="mrung"></span><span class="plate">${st === 'done' ? '✓' : s.n}</span>${here ? '<div class="bitu-host on-ladder" id="bitu-host"></div>' : ''}</div>
-      <a class="rung-card" href="${s.href}"${here ? ' aria-current="step"' : ''}>
-        <span class="rc-top"><span class="rc-kind">${tr('Step', 'Step')} ${s.n} · ${s.kind}</span>${st === 'done' ? `<span class="tag-done">${tr('Done', 'Ho gaya')}</span>` : here ? `<span class="here">${tr('You are here', 'Tum yahan ho')}</span>` : ''}</span>
-        <span class="rc-title">${esc(s.t)}</span>
-        <span class="rc-desc">${esc(s.d)}</span>
-        <span class="rc-prog">${bar(Math.round(s.prog() * 100), 100)}<span>${s.label()}</span></span>
-        ${here ? '<span class="say-slot" id="bitu-say"></span>' : ''}
-      </a>
-    </li>`;
-  };
+  /* how far up the hero ladder: markers sit at 14%, 31%, 48%, 65%, 82% of its height */
+  const markAt = i => 14 + i * 17;
+  const climb = allDone ? 94 : markAt(cur) + Math.round(steps[cur].prog() * 17);
+  const glyphs = ['for', '[ ]', '{ }', 'O(n)', 'def', '%', 'if', '≤', 'λ', 'dict', '→', 'while'];
+  const nVideos = Object.keys(E.LESSONS).length;
+  const nDrills = MODS.reduce((a, m) => a + m.drills.length, 0);
   view.innerHTML = `
-  <section class="home-hero">
-    <div class="hh-text">
-      <div class="kicker">Logic Ladder</div>
-      <h1>${tr('Climb from zero logic to DSA, one rung at a time', 'Zero logic se DSA tak, ek-ek seedhi chadh ke')}</h1>
-      <p>${tr('Five steps, bottom to top: watch, read, then practise. Everything is in Python, and every explanation is also in Hinglish.', 'Paanch steps, neeche se upar: dekho, padho, phir practice. Sab Python mein, aur har explanation Hinglish mein bhi.')}</p>
-      <div class="hero-cta">
-        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)}</a>` : `<a class="btn pri lg" href="${steps[cur].href}">${tr('Start step', 'Step shuru karo')} ${cur + 1}: ${esc(steps[cur].t)}</a>`}
-        <a class="btn lg" href="#dsa150">${tr('See the DSA 150 map', 'DSA 150 ka map dekho')}</a>
+  <section class="hx">
+    <div class="hx-text">
+      <div class="kicker">${tr('Logic Ladder · learn DSA in Python', 'Logic Ladder · Python mein DSA seekho')}</div>
+      <h1>${tr('Build your logic <span class="hl">one rung</span> at a time', 'Apna logic banao, <span class="hl">ek-ek seedhi</span> chadh ke')}</h1>
+      <p class="hx-sub">${tr('A step-by-step path for people who find logic hard: the maths you need, Python from zero, logic drills, 50 warm-ups and 150 interview problems. Every explanation is in English and Hinglish.', 'Unke liye step-by-step raasta jinhe logic mushkil lagta hai: zaroori maths, bilkul shuru se Python, logic drills, 50 warm-ups aur 150 interview problems. Har explanation English aur Hinglish mein.')}</p>
+      <div class="hx-cta">
+        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)} <span aria-hidden="true">→</span></a>` : `<a class="btn pri lg" href="${steps[cur].href}">${allDone ? tr('Review DSA 150', 'DSA 150 revise karo') : `${tr('Start step', 'Step')} ${cur + 1}: ${esc(steps[cur].t)}`} <span aria-hidden="true">→</span></a>`}
+        <a class="btn ghost lg" href="#path" id="how-link">${tr('See the 5 steps', '5 steps dekho')} <span aria-hidden="true">↓</span></a>
       </div>
+      <p class="hx-note">${lastLabel ? `${tr('You are on step', 'Tum step')} ${cur + 1} ${tr('of 5', 'of 5 pe ho')}: <a href="${steps[cur].href}">${esc(steps[cur].t)}</a> · ${steps[cur].label()}` : tr('Free. No sign-up. Your progress is saved in this browser.', 'Free. Sign-up nahi. Progress is browser mein save hota hai.')}</p>
     </div>
-    <dl class="hero-facts">
-      <div><dt>${tr('Problems solved', 'Problems solved')}</dt><dd>${done}<small> / 200</small></dd></div>
-      <div><dt>${tr('Modules complete', 'Modules complete')}</dt><dd>${modsDone.size}<small> / ${MODS.length}</small></dd></div>
-      <div><dt>${tr('Current step', 'Abhi ka step')}</dt><dd>${cur + 1}<small> / 5</small></dd></div>
-    </dl>
-  </section>
-  <section class="ladder" aria-labelledby="ladder-h">
-    <div class="lad-head"><h2 id="ladder-h">${tr('Your ladder', 'Tumhari seedhi')}</h2><span class="muted">${tr('Start at the bottom. Each finished step fills the rails.', 'Neeche se shuru karo. Har poora step rails ko bharta hai.')}</span></div>
-    <div class="lad">
-      <div class="lad-row cap ${allDone ? 'done' : 'todo'}" style="--fill:${allDone ? 100 : 0}%">
-        <div class="lc" aria-hidden="true"><svg class="flag" viewBox="0 0 40 44"><rect x="6" y="2" width="3.5" height="40" rx="1.75"/><path class="cloth" d="M9.5 4h24l-6 8 6 8h-24z"/></svg></div>
-        <div class="cap-t"><b>${tr('Goal', 'Goal')}</b> ${tr('Solve interview problems on your own, and explain your thinking.', 'Interview problems khud solve karo, aur apni soch samjhao.')}</div>
+    <div class="hx-art" aria-hidden="true" style="--climb:${climb}%">
+      <div class="hx-grid"></div>
+      ${glyphs.map((g, i) => `<span class="gl" style="--x:${(i * 37 + 11) % 88 + 4}%;--d:${(i % 5) * 1.3}s;--s:${7 + (i % 4) * 1.6}s">${g}</span>`).join('')}
+      <div class="hx-ladder">
+        <div class="hx-rails"><i class="fill"></i></div>
+        <svg class="hx-flag" viewBox="0 0 46 50"><rect x="6" y="2" width="4" height="46" rx="2"/><path class="cloth" d="M10 5h28l-7 9 7 9H10z"/></svg>
+        ${steps.map((s, i) => `<div class="hx-mark ${stateOf(i)}" style="bottom:${markAt(i)}%"><span class="hx-dot">${stateOf(i) === 'done' ? '✓' : s.n}</span><span class="hx-lab">${esc(s.t)}</span></div>`).join('')}
+        <div class="bitu-host on-hx" id="bitu-host" style="bottom:calc(${allDone ? 94 : markAt(cur)}% - 6px)"></div>
       </div>
-      <ol class="lad-steps">${[4, 3, 2, 1, 0].map(rung).join('')}</ol>
-      <div class="lad-row base ${stateOf(0)}" style="--fill:100%">
-        <div class="lc" aria-hidden="true"><span class="ground"></span></div>
-        <div class="cap-t"><b>${tr('Start here', 'Yahan se shuru')}</b> ${tr('No coding experience needed.', 'Coding ka koi experience nahi chahiye.')}</div>
-      </div>
+      <div class="hx-say" id="bitu-say" style="bottom:calc(104px + (100% - 124px) * ${(allDone ? 94 : markAt(cur)) / 100})"></div>
+      <div class="hx-ground"></div>
     </div>
   </section>
-  <section class="plan">
-    <h2>${tr('A realistic pace', 'Ek realistic speed')}</h2>
-    <ol class="plan-grid">
-      <li><b>${tr('Week 1', 'Week 1')}</b><span>${tr('Math video + Python modules 1–8. Type every example.', 'Math video + Python modules 1–8. Har example khud type karo.')}</span></li>
-      <li><b>${tr('Week 2', 'Week 2')}</b><span>${tr('Python modules 9–21.', 'Python modules 9–21.')}</span></li>
-      <li><b>${tr('Week 3', 'Week 3')}</b><span>${tr('Logic Gym. Do every drill on paper first.', 'Logic Gym. Har drill pehle paper pe.')}</span></li>
-      <li><b>${tr('Weeks 4–5', 'Week 4–5')}</b><span>${tr('Warm-up 50, about 4 a day.', 'Warm-up 50, roz lagbhag 4.')}</span></li>
-      <li><b>${tr('Weeks 6–14', 'Week 6–14')}</b><span>${tr('DSA 150, about 2 a day. Watch each topic video first.', 'DSA 150, roz lagbhag 2. Har topic ka video pehle.')}</span></li>
-      <li><b>${tr('Every Sunday', 'Har Sunday')}</b><span>${tr('Re-solve 5 old problems without looking.', '5 purani problems bina dekhe dobara solve karo.')}</span></li>
+
+  <section class="nums" aria-label="${tr('What is inside', 'Andar kya hai')}">
+    <div><b>${nVideos}</b><span>${tr('animated videos', 'animated videos')}</span></div>
+    <div><b>${MODS.length}</b><span>${tr('modules with theory', 'modules, theory ke saath')}</span></div>
+    <div><b>${nDrills}</b><span>${tr('practice drills', 'practice drills')}</span></div>
+    <div><b>200</b><span>${tr('problems, explained', 'problems, samjhaaye hue')}</span></div>
+    <div><b>722</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
+  </section>
+
+  <section class="path" id="the-path" aria-labelledby="path-h">
+    <div class="sec-head"><div class="kicker">${tr('Your path', 'Tumhara raasta')}</div><h2 id="path-h">${tr('Five steps, in this order', 'Paanch steps, isi order mein')}</h2><p>${tr('Each step unlocks the next one in your head. Skipping ahead is the most common reason people get stuck.', 'Har step agle ko aasaan banata hai. Aage kood jaana hi atakne ki sabse badi wajah hai.')}</p></div>
+    <ol class="stairs">
+      ${steps.map((s, i) => { const st = stateOf(i); const f = s.prog(); return `
+      <li class="stair ${st}" style="--i:${i}">
+        <a class="stair-card" href="${s.href}"${st === 'current' ? ' aria-current="step"' : ''}>
+          <span class="sc-head">${stepIcon(s.key)}<span class="sc-num">${tr('Step', 'Step')} ${s.n}</span>${st === 'done' ? `<span class="tag-done">✓ ${tr('Done', 'Ho gaya')}</span>` : st === 'current' ? `<span class="here">${tr('You are here', 'Tum yahan ho')}</span>` : `<span class="sc-when">${s.when}</span>`}</span>
+          <span class="sc-title">${esc(s.t)}</span>
+          <span class="sc-desc">${esc(s.d)}</span>
+          <span class="sc-meta">${s.meta.map(m => `<span>${m}</span>`).join('')}</span>
+          <span class="sc-prog"><span class="ring" style="--p:${Math.round(f * 100)}"><span>${Math.round(f * 100)}%</span></span><span class="sc-lab">${s.label()}</span><span class="sc-go">${st === 'done' ? tr('Review', 'Revise') : st === 'current' ? (f > 0 ? tr('Continue', 'Continue') : tr('Start', 'Shuru')) : tr('Open', 'Kholo')} →</span></span>
+        </a>
+      </li>`; }).join('')}
     </ol>
-  </section>`;
+  </section>
+
+  <section class="how" id="how" aria-labelledby="how-h">
+    <div class="sec-head"><div class="kicker">${tr('How it works', 'Kaise kaam karta hai')}</div><h2 id="how-h">${tr('Every lesson, the same four moves', 'Har lesson, wahi chaar kadam')}</h2></div>
+    <div class="how-grid">
+      <div class="how-card"><div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div><h3>${tr('Watch', 'Dekho')}</h3><p>${tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.')}</p></div>
+      <div class="how-card"><div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div><h3>${tr('Understand', 'Samjho')}</h3><p>${tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.')}</p></div>
+      <div class="how-card"><div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div><h3>${tr('Practise', 'Practice karo')}</h3><p>${tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.')}</p></div>
+      <div class="how-card"><div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div><h3>${tr('Track', 'Track karo')}</h3><p>${tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.')}</p></div>
+    </div>
+  </section>
+
+  <section class="pace" aria-labelledby="pace-h">
+    <div class="sec-head"><div class="kicker">${tr('A realistic pace', 'Ek realistic speed')}</div><h2 id="pace-h">${tr('About 14 weeks at 1–2 hours a day', 'Roz 1–2 ghante, lagbhag 14 hafte')}</h2></div>
+    <div class="gantt" role="img" aria-label="${tr('Week 1: math video and Python modules 1 to 8. Week 2: Python 9 to 21. Week 3: Logic Gym. Weeks 4 and 5: Warm-up 50. Weeks 6 to 14: DSA 150, about 2 a day. Every Sunday: re-solve 5 old problems.', 'Week 1: math video aur Python 1 se 8. Week 2: Python 9 se 21. Week 3: Logic Gym. Week 4 aur 5: Warm-up 50. Week 6 se 14: DSA 150, roz lagbhag 2. Har Sunday: 5 purani problems dobara.')}">
+      <div class="g-weeks">${Array.from({ length: 14 }, (_, w) => `<span>W${w + 1}</span>`).join('')}</div>
+      ${[[tr('Math video', 'Math video'), 1, 0.35, 'math'], [tr('Python', 'Python'), 1, 2, 'python'], ['Logic Gym', 3, 1, 'gym'], ['Warm-up 50', 4, 2, 'warm'], ['DSA 150', 6, 9, 'dsa']].map(([name, start, len, k], i) => `
+      <div class="g-row"><span class="g-name">${name}</span><div class="g-track"><i class="g-bar b-${k}" style="--s:${start - 1};--l:${len};--i:${i}"></i></div></div>`).join('')}
+      <div class="g-row"><span class="g-name">${tr('Review', 'Revise')}</span><div class="g-track">${Array.from({ length: 14 }, (_, w) => `<b class="g-sun" style="--s:${w}"></b>`).join('')}</div></div>
+    </div>
+    <p class="pace-note">${tr('Each dot is a Sunday: re-solve 5 old problems without looking. Watch each DSA topic video before its problems.', 'Har dot ek Sunday hai: 5 purani problems bina dekhe dobara solve karo. Har DSA topic ka video uski problems se pehle dekho.')}</p>
+  </section>
+
+  <footer class="home-foot">
+    <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
+    <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
+  </footer>`;
+  const how = document.getElementById('how-link');
+  how.onclick = e => { e.preventDefault(); const t = document.getElementById('the-path'); window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 76, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
 }
 function pageMathVideo() {
   const f = lessonProgress('math');
