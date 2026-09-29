@@ -6,7 +6,7 @@ A complete, beginner-friendly path from "never coded" to solving 150 core DSA pr
 
 ## The path
 
-1. **Math video**: the maths behind logic (division and modulo, digits, primes, powers, binary, counting, logic, Big O).
+1. **Math for Logic**: 16 short topics in four parts (numbers; building blocks; patterns and counting; thinking like a programmer). Each has a slow, animated video, theory written for complete beginners in English and Hinglish, and drills. A one-video recap is available for revision.
 2. **Python course**: 21 modules from `print` to classes, recursion, the standard library and DSA gotchas. Each module has a short video, detailed theory and drills.
 3. **Logic Gym**: 6 modules of loop, pattern, list and string logic, plus debugging by dry run and a readiness checkpoint.
 4. **Warm-up 50**: basic programs (reverse a string, largest number, anagram, palindrome…) explained step by step.
@@ -24,6 +24,7 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 |---|---|
 | `engine.js` | Lesson player: scenes, animations, narration, captions |
 | `lessons/*.js` | The animated videos (math, Python modules, gym, DSA topics) |
+| `mathcourse/*.txt` | Math for Logic theory and drills |
 | `pycourse/*.txt` | Python course theory and drills |
 | `gym/*.txt` | Logic Gym theory and drills |
 | `problems/*.txt` | Warm-up and DSA 150 problems with solutions and tests |
@@ -38,7 +39,7 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 python3 build.py
 ```
 
-This runs every solution and drill answer against its tests (722 checks), then writes the site to `public/index.html`. If any check fails, the build stops with an error, so a broken change never goes live.
+This runs every solution and drill answer against its tests (850+ checks), then writes the site to `public/index.html`. If any check fails, the build stops with an error, so a broken change never goes live.
 
 ## Deploy
 

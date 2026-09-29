@@ -1,0 +1,631 @@
+## module: mt13 | Grids and coordinates
+summary: Rows and columns, (row, col) positions, the four neighbours, staying inside the grid, and turning a 2-D position into one number.
+=== en
+### The big idea
+A grid is a table of cells, and every cell has an address: **(row, column)**. Moving around a grid is just adding or subtracting 1 from those two numbers, while making sure you do not walk off the edge.
+
+### Addresses
+> **Analogy:** Seats in a cinema. "Row C, seat 5" tells you exactly where to sit. In code we count rows and columns **from 0**, so the top-left cell is (0, 0).
+
+For a grid with 3 rows and 4 columns:
+
+| | col 0 | col 1 | col 2 | col 3 |
+|---|---|---|---|---|
+| **row 0** | (0,0) | (0,1) | (0,2) | (0,3) |
+| **row 1** | (1,0) | (1,1) | (1,2) | (1,3) |
+| **row 2** | (2,0) | (2,1) | (2,2) | (2,3) |
+
+- The **row** number grows as you go **down**.
+- The **column** number grows as you go **right**.
+- There are 3 × 4 = **12** cells.
+
+In Python a grid is a list of rows: `grid[r][c]` is row r, column c.
+```python
+grid = [[1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12]]
+print(grid[1][2])   # 7: row 1, column 2
+```
+
+> **Mistake:** `grid[r][c]` is row first, then column. Swapping them is a classic bug, and it only crashes when the grid is not square.
+
+### The four neighbours
+From cell (r, c):
+| direction | new position |
+|---|---|
+| up | (r − 1, c) |
+| down | (r + 1, c) |
+| left | (r, c − 1) |
+| right | (r, c + 1) |
+
+Store the four moves in a list and loop over them. This one pattern appears in every grid problem:
+```python
+dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+for dr, dc in dirs:
+    nr, nc = r + dr, c + dc
+    if 0 <= nr < rows and 0 <= nc < cols:
+        # (nr, nc) is a real cell next to (r, c)
+        ...
+```
+
+### Staying inside the grid
+A position is valid only if `0 <= row < rows` and `0 <= col < cols`. A corner cell has only 2 neighbours inside the grid; an edge cell has 3; a middle cell has 4. Always check before you look.
+
+### From 2-D to 1-D
+Number the cells left to right, top to bottom: 0, 1, 2, …. Cell (r, c) gets the number **r × cols + c**. Going back: row = `i // cols`, col = `i % cols`. (Topic 3's `//` and `%` again.) In the grid above, cell 7 is row 7 // 4 = 1, column 7 % 4 = 3.
+
+### Where this shows up in DSA
+- Number of Islands, Rotting Oranges, Word Search, flood fill: neighbours plus bounds checks.
+- Search a 2D Matrix treats the grid as one long sorted list using `// cols` and `% cols`.
+- Rotate Image and Spiral Matrix move through rows and columns in careful orders.
+
+> **Remember:** `grid[r][c]`, row first. Neighbours: ±1 on the row or the column. Inside means `0 <= r < rows and 0 <= c < cols`.
+
+=== hi
+### Bada idea
+Grid cells ki ek table hai, aur har cell ka ek address hai: **(row, column)**. Grid mein ghoomna bas in do numbers mein 1 jodna ya ghatana hai, dhyaan rakhte hue ki kinare se bahar na gir jao.
+
+### Address
+> **Analogy:** Cinema ki seats. "Row C, seat 5" bilkul batata hai kahan baithna hai. Code mein rows aur columns **0 se** ginte hain, toh sabse upar-left cell (0, 0) hai.
+
+3 rows aur 4 columns wali grid ke liye:
+
+| | col 0 | col 1 | col 2 | col 3 |
+|---|---|---|---|---|
+| **row 0** | (0,0) | (0,1) | (0,2) | (0,3) |
+| **row 1** | (1,0) | (1,1) | (1,2) | (1,3) |
+| **row 2** | (2,0) | (2,1) | (2,2) | (2,3) |
+
+- **Row** number **neeche** jaane pe badhta hai.
+- **Column** number **right** jaane pe badhta hai.
+- Kul 3 × 4 = **12** cells.
+
+Python mein grid rows ki list hai: `grid[r][c]` matlab row r, column c.
+```python
+grid = [[1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12]]
+print(grid[1][2])   # 7: row 1, column 2
+```
+
+> **Galti:** `grid[r][c]` mein pehle row, phir column. Inhe ulta karna classic bug hai, aur ye tabhi crash karta hai jab grid square na ho.
+
+### Chaar padosi
+Cell (r, c) se:
+| direction | nayi position |
+|---|---|
+| upar | (r − 1, c) |
+| neeche | (r + 1, c) |
+| left | (r, c − 1) |
+| right | (r, c + 1) |
+
+Chaaron moves ek list mein rakho aur unpe loop chalao. Ye ek pattern har grid problem mein aata hai:
+```python
+dirs = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+for dr, dc in dirs:
+    nr, nc = r + dr, c + dc
+    if 0 <= nr < rows and 0 <= nc < cols:
+        # (nr, nc), (r, c) ke bagal ka asli cell hai
+        ...
+```
+
+### Grid ke andar rehna
+Position tabhi valid hai jab `0 <= row < rows` aur `0 <= col < cols`. Corner cell ke grid ke andar sirf 2 padosi hain; edge cell ke 3; beech wale ke 4. Dekhne se pehle hamesha check karo.
+
+### 2-D se 1-D
+Cells ko left se right, upar se neeche number do: 0, 1, 2, …. Cell (r, c) ko number milta hai **r × cols + c**. Wapas jaana: row = `i // cols`, col = `i % cols`. (Topic 3 ka `//` aur `%` phir se.) Upar wali grid mein cell 7 matlab row 7 // 4 = 1, column 7 % 4 = 3.
+
+### DSA mein kahan aata hai
+- Number of Islands, Rotting Oranges, Word Search, flood fill: padosi plus bounds check.
+- Search a 2D Matrix grid ko `// cols` aur `% cols` se ek lambi sorted list maanta hai.
+- Rotate Image aur Spiral Matrix rows aur columns mein dhyaan se order mein chalte hain.
+
+> **Yaad rakho:** `grid[r][c]`, pehle row. Padosi: row ya column mein ±1. Andar matlab `0 <= r < rows and 0 <= c < cols`.
+
+=== drills
+--- d
+q: What does this print?
+code:
+grid = [[1, 2, 3, 4],
+        [5, 6, 7, 8],
+        [9, 10, 11, 12]]
+print(grid[2][1])
+print(len(grid), len(grid[0]))
+print(grid[1][-1])
+answer:
+10
+3 4
+8
+en: Row 2 (the third row), column 1 holds 10. There are 3 rows of 4 columns. -1 is the last column of row 1.
+hi: Row 2 (teesri row), column 1 mein 10 hai. 4 columns ki 3 rows. -1, row 1 ka aakhri column hai.
+--- d
+q: Turn cell numbers into (row, col) for a grid with 4 columns.
+code:
+cols = 4
+for i in [0, 7, 9]:
+    print(i // cols, i % cols)
+answer:
+0 0
+1 3
+2 1
+en: Full rows are counted by // cols; the position inside the row is % cols.
+hi: Poori rows // cols se ginti hain; row ke andar ki jagah % cols hai.
+--- d
+kind: write
+q: Write `neighbours(r, c, rows, cols)` that returns the list of valid (row, col) neighbours of a cell, in the order up, down, left, right.
+answer:
+def neighbours(r, c, rows, cols):
+    result = []
+    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < rows and 0 <= nc < cols:
+            result.append((nr, nc))
+    return result
+test:
+check(neighbours(1, 1, 3, 4), [(0, 1), (2, 1), (1, 0), (1, 2)])
+check(neighbours(0, 0, 3, 4), [(1, 0), (0, 1)])
+check(neighbours(2, 3, 3, 4), [(1, 3), (2, 2)])
+en: Try all four moves and keep only the ones inside the grid. A corner cell has 2 neighbours.
+hi: Chaaron moves try karo aur sirf grid ke andar wale rakho. Corner cell ke 2 padosi.
+
+## module: mt14 | True, false and logic
+summary: Booleans, and / or / not, truth tables, combining conditions, De Morgan's law and short-circuiting.
+=== en
+### The big idea
+Every decision in a program comes down to a question with a **yes or no** answer. In code, yes is `True` and no is `False`. Joining small questions with **and**, **or** and **not** builds any condition you need.
+
+### Booleans
+A value that is either `True` or `False` is called a **boolean** (after the mathematician George Boole). Comparisons produce booleans:
+```python
+age = 16
+print(age >= 18)   # False
+print(age > 12)    # True
+```
+
+### and, or, not
+> **Analogy:** To enter a movie you need a ticket **and** to be old enough. You can pay by cash **or** card. A "**no** phones" sign flips "phone allowed" to false.
+
+| A | B | A and B | A or B |
+|---|---|---|---|
+| True | True | True | True |
+| True | False | False | True |
+| False | True | False | True |
+| False | False | False | False |
+
+- **and** is True only when **both** sides are True.
+- **or** is True when **at least one** side is True.
+- **not** flips: `not True` is False.
+
+### Combining conditions
+"Is x between 1 and 10?" → `x >= 1 and x <= 10`, which Python also lets you write as `1 <= x <= 10`.
+
+"Is the character a vowel?" → `ch == 'a' or ch == 'e' or ch == 'i' or ch == 'o' or ch == 'u'`, or more simply `ch in 'aeiou'`.
+
+> **Mistake:** `ch == 'a' or 'e'` does **not** mean what it looks like. Python reads it as `(ch == 'a') or ('e')`, and a non-empty string counts as True, so the whole thing is always True. Repeat the comparison on both sides of `or`.
+
+### De Morgan's law: flipping a condition
+To write "**not** (A and B)" without the outer not: **(not A) or (not B)**.
+To write "**not** (A or B)": **(not A) and (not B)**.
+
+Example: a loop runs **while** the pointers have not met and the value is not found: `while l < r and a[l] != target`. It stops when `l >= r or a[l] == target`. Flipping and swaps to or.
+
+### Short-circuiting
+Python stops as soon as it knows the answer:
+- In `A and B`, if A is False, B is never checked.
+- In `A or B`, if A is True, B is never checked.
+
+This keeps code safe: `i < len(a) and a[i] > 0` never reads `a[i]` when `i` is out of range.
+
+### Where this shows up in DSA
+- Every `if` and `while`: bounds checks, "valid" conditions in sliding windows, visited checks in graphs.
+- Short-circuit order matters: check the index is valid **before** reading it.
+
+> **Remember:** and needs both, or needs one, not flips. Flip "and" into "or" when negating. Put the safety check first.
+
+=== hi
+### Bada idea
+Program ka har faisla ek aise sawaal pe aata hai jiska jawab **haan ya naa** ho. Code mein haan `True` aur naa `False` hai. Chhote sawaalon ko **and**, **or** aur **not** se jodke koi bhi condition ban jaati hai.
+
+### Booleans
+Jo value ya toh `True` ho ya `False`, use **boolean** kehte hain (mathematician George Boole ke naam pe). Comparisons booleans dete hain:
+```python
+age = 16
+print(age >= 18)   # False
+print(age > 12)    # True
+```
+
+### and, or, not
+> **Analogy:** Movie dekhne ke liye ticket **aur** poori umar dono chahiye. Cash **ya** card se pay kar sakte ho. "Phone **nahi**" wala board "phone allowed" ko false kar deta hai.
+
+| A | B | A and B | A or B |
+|---|---|---|---|
+| True | True | True | True |
+| True | False | False | True |
+| False | True | False | True |
+| False | False | False | False |
+
+- **and** tabhi True jab **dono** taraf True.
+- **or** True jab **kam se kam ek** taraf True.
+- **not** palatta hai: `not True` = False.
+
+### Conditions jodna
+"Kya x, 1 aur 10 ke beech hai?" → `x >= 1 and x <= 10`, jise Python `1 <= x <= 10` bhi likhne deta hai.
+
+"Kya character vowel hai?" → `ch == 'a' or ch == 'e' or ch == 'i' or ch == 'o' or ch == 'u'`, ya aasaan: `ch in 'aeiou'`.
+
+> **Galti:** `ch == 'a' or 'e'` wo matlab **nahi** rakhta jo dikhta hai. Python ise `(ch == 'a') or ('e')` padhta hai, aur khaali na ho aisi string True maani jaati hai, toh poori cheez hamesha True. `or` ke dono taraf comparison dohraao.
+
+### De Morgan ka law: condition palatna
+"**not** (A and B)" ko bina bahar wale not ke likhna: **(not A) or (not B)**.
+"**not** (A or B)": **(not A) and (not B)**.
+
+Example: loop **tab tak** chalta hai jab tak pointers mile nahi aur value mili nahi: `while l < r and a[l] != target`. Ye rukta hai jab `l >= r or a[l] == target`. Palatne pe and, or ban jaata hai.
+
+### Short-circuiting
+Python jawab pata chalte hi ruk jaata hai:
+- `A and B` mein, A False hai toh B check hi nahi hota.
+- `A or B` mein, A True hai toh B check hi nahi hota.
+
+Ye code safe rakhta hai: `i < len(a) and a[i] > 0`, `i` range se bahar ho toh `a[i]` kabhi nahi padhta.
+
+### DSA mein kahan aata hai
+- Har `if` aur `while`: bounds check, sliding window ki "valid" conditions, graphs mein visited check.
+- Short-circuit ka order zaroori hai: index valid hai ye **pehle** check karo, phir padho.
+
+> **Yaad rakho:** and ko dono chahiye, or ko ek, not palatta hai. Negate karte waqt "and" ko "or" banao. Safety check pehle rakho.
+
+=== drills
+--- d
+q: What does this print?
+code:
+x = 7
+print(x > 5 and x < 10)
+print(x < 5 or x == 7)
+print(not x > 5)
+answer:
+True
+True
+False
+en: Both sides of and are true. One side of or is true. x > 5 is True, and not flips it.
+hi: and ke dono taraf true. or ka ek taraf true. x > 5 True hai, aur not use palat deta hai.
+--- d
+q: The classic trap. Predict it.
+code:
+ch = "z"
+print(ch == "a" or "e")
+print(ch == "a" or ch == "e")
+print(ch in "aeiou")
+answer:
+e
+False
+False
+en: The first line is (ch == "a") or "e": the comparison is False, so or returns "e", which counts as true. Always repeat the comparison, or use in.
+hi: Pehli line (ch == "a") or "e" hai: comparison False hai, toh or "e" lauta deta hai, jo true maana jaata hai. Comparison hamesha dohraao, ya in use karo.
+--- d
+q: Short-circuiting keeps this safe. What does it print?
+code:
+a = [4, 0, 9]
+for i in [1, 5]:
+    print(i < len(a) and a[i] > 0)
+answer:
+False
+False
+en: For i = 1, a[1] is 0, so the second test is False. For i = 5, the first test is False, so a[5] is never read and nothing crashes.
+hi: i = 1 pe a[1] = 0 hai, toh doosra test False. i = 5 pe pehla test False hai, toh a[5] kabhi padha hi nahi jaata aur crash nahi hota.
+--- d
+kind: write
+q: Write `can_enter(age, has_ticket, with_parent)`: a child may enter a movie with a ticket if they are at least 13, or if they are with a parent.
+answer:
+def can_enter(age, has_ticket, with_parent):
+    return has_ticket and (age >= 13 or with_parent)
+test:
+check(can_enter(15, True, False), True)
+check(can_enter(10, True, True), True)
+check(can_enter(10, True, False), False)
+check(can_enter(20, False, True), False)
+en: The ticket is always needed (and); the age rule and the parent rule are alternatives (or). Brackets keep the or together.
+hi: Ticket hamesha chahiye (and); umar wala rule aur parent wala rule alternatives hain (or). Brackets or ko saath rakhte hain.
+
+## module: mt15 | Big O: how fast does the work grow?
+summary: Counting steps instead of seconds, O(1), O(log n), O(n), O(n log n), O(n²), O(2ⁿ), and reading constraints to pick an approach.
+=== en
+### The big idea
+We do not measure a solution in seconds (computers differ). We ask: **when the input gets bigger, how much more work is there?** Big O is a short label for that growth, and it tells you before you code whether an idea is fast enough.
+
+### Growth, not exact steps
+> **Analogy:** Finding a friend's seat in a cinema. If you have their seat number, you walk straight there: the size of the cinema does not matter. If you have to check every seat, a cinema twice as big takes twice as long. If you compare every person with every other person, twice the people means **four times** the work.
+
+| Label | Name | Example | n = 1,000 |
+|---|---|---|---|
+| O(1) | constant | look up `a[5]`, a set or dict lookup | 1 step |
+| O(log n) | logarithmic | binary search | about 10 |
+| O(n) | linear | one loop over the list | 1,000 |
+| O(n log n) | n log n | good sorting | about 10,000 |
+| O(n²) | quadratic | two nested loops, every pair | 1,000,000 |
+| O(2ⁿ) | exponential | every subset | more than atoms in the universe |
+
+### How to find the Big O of code
+- One loop over n items: **O(n)**.
+- A loop inside a loop, both over n: **O(n²)**.
+- Halving each step: **O(log n)** (topic 8).
+- Steps one after another **add**, and we keep only the biggest: O(n) + O(n²) is just **O(n²)**.
+- Constants are dropped: two separate loops over n is O(2n), which we still call **O(n)**.
+
+```python
+total = 0
+for x in nums:          # n times
+    total += x          # O(1) each
+# the whole thing is O(n)
+
+for i in range(n):
+    for j in range(n):  # n × n times
+        ...
+# O(n²)
+```
+
+### Space
+Big O also describes **memory**. Building a set of all n items is O(n) extra space. Using a few variables is O(1) space.
+
+### Reading constraints
+A computer does roughly **10⁸** simple steps per second. So the limit on n in a problem hints at the expected speed:
+
+| n up to | aim for |
+|---|---|
+| about 20 | O(2ⁿ) is fine (subsets, backtracking) |
+| about 5,000 | O(n²) is fine |
+| 10⁵ to 10⁶ | O(n log n) or O(n) |
+| 10⁹ or more | O(log n) or O(1) (binary search, a formula) |
+
+### Where this shows up in DSA
+Every problem: after a brute force (often O(n²)), you look for the tool that brings it to O(n log n) or O(n): a set, a map, sorting, two pointers, a sliding window.
+
+> **Remember:** Big O = how work grows with n. One loop O(n), nested loops O(n²), halving O(log n). Keep the biggest term, drop constants. Check the constraints before choosing.
+
+=== hi
+### Bada idea
+Solution ko seconds mein nahi naapte (computers alag hote hain). Poochte hain: **input bada hone pe kaam kitna zyada badhta hai?** Big O us badhne ka chhota label hai, aur ye code likhne se pehle bata deta hai ki idea kaafi tez hai ya nahi.
+
+### Growth, exact steps nahi
+> **Analogy:** Cinema mein dost ki seat dhoondhna. Seat number pata hai toh seedha wahan jao: cinema kitna bada hai, farak nahi padta. Har seat check karni pade toh dugne bade cinema mein dugna time. Har insaan ko har doosre se compare karna pade toh dugne log matlab **chaar guna** kaam.
+
+| Label | Naam | Example | n = 1,000 |
+|---|---|---|---|
+| O(1) | constant | `a[5]` dekhna, set ya dict lookup | 1 step |
+| O(log n) | logarithmic | binary search | lagbhag 10 |
+| O(n) | linear | list pe ek loop | 1,000 |
+| O(n log n) | n log n | achhi sorting | lagbhag 10,000 |
+| O(n²) | quadratic | do nested loops, har jodi | 10,00,000 |
+| O(2ⁿ) | exponential | har subset | universe ke atoms se bhi zyada |
+
+### Code ka Big O kaise nikaalein
+- n items pe ek loop: **O(n)**.
+- Loop ke andar loop, dono n pe: **O(n²)**.
+- Har step aadha: **O(log n)** (topic 8).
+- Ek ke baad ek steps **jud-te** hain, aur hum sirf sabse bada rakhte hain: O(n) + O(n²) bas **O(n²)**.
+- Constants hata diye jaate hain: n pe do alag loops O(2n) hai, jise phir bhi **O(n)** kehte hain.
+
+```python
+total = 0
+for x in nums:          # n baar
+    total += x          # har baar O(1)
+# poora O(n)
+
+for i in range(n):
+    for j in range(n):  # n × n baar
+        ...
+# O(n²)
+```
+
+### Space
+Big O **memory** bhi batata hai. Saare n items ka set banana O(n) extra space hai. Kuch variables use karna O(1) space.
+
+### Constraints padhna
+Computer lagbhag **10⁸** simple steps per second karta hai. Toh problem mein n ki limit expected speed ka ishaara deti hai:
+
+| n kitna tak | target |
+|---|---|
+| lagbhag 20 | O(2ⁿ) theek (subsets, backtracking) |
+| lagbhag 5,000 | O(n²) theek |
+| 10⁵ se 10⁶ | O(n log n) ya O(n) |
+| 10⁹ ya zyada | O(log n) ya O(1) (binary search, formula) |
+
+### DSA mein kahan aata hai
+Har problem: brute force (aksar O(n²)) ke baad wo tool dhoondhte ho jo use O(n log n) ya O(n) tak le aaye: set, map, sorting, two pointers, sliding window.
+
+> **Yaad rakho:** Big O = n ke saath kaam kaise badhta hai. Ek loop O(n), nested loops O(n²), aadha karna O(log n). Sabse bada term rakho, constants hatao. Chunne se pehle constraints dekho.
+
+=== drills
+--- d
+q: Count the steps each piece of code takes for n = 8.
+code:
+n = 8
+a = 0
+for i in range(n):
+    a += 1
+b = 0
+for i in range(n):
+    for j in range(n):
+        b += 1
+c = 0
+m = n
+while m > 1:
+    m //= 2
+    c += 1
+print(a, b, c)
+answer:
+8 64 3
+en: One loop: n = 8 (O(n)). Nested loops: n × n = 64 (O(n²)). Halving: log₂ 8 = 3 (O(log n)).
+hi: Ek loop: n = 8 (O(n)). Nested loops: n × n = 64 (O(n²)). Aadha karna: log₂ 8 = 3 (O(log n)).
+--- d
+q: Doubling n: how much does each amount of work grow?
+code:
+for n in [1000, 2000]:
+    print(n, n * n)
+answer:
+1000 1000000
+2000 4000000
+en: Doubling n doubles O(n) work but multiplies O(n²) work by four. That is why nested loops get slow so quickly.
+hi: n dugna karne pe O(n) kaam dugna, par O(n²) kaam chaar guna. Isliye nested loops itni jaldi slow hote hain.
+--- d
+kind: write
+q: Checking every pair for a repeated number is O(n²). Write `has_duplicate(nums)` that does the same job in O(n) using a set.
+answer:
+def has_duplicate(nums):
+    seen = set()
+    for x in nums:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False
+test:
+check(has_duplicate([1, 2, 3, 1]), True)
+check(has_duplicate([1, 2, 3, 4]), False)
+check(has_duplicate([]), False)
+check(has_duplicate(list(range(100000)) + [5]), True)
+en: One pass, and each "have I seen this?" is O(1) in a set. The last test has 100,001 numbers; the pair check would need about 5 billion comparisons.
+hi: Ek pass, aur set mein har "kya ye dekha?" O(1) hai. Aakhri test mein 1,00,001 numbers hain; pair check ko lagbhag 5 arab comparisons chahiye hote.
+
+## module: mt16 | Limits and special values
+summary: Very big and very small numbers, why decimals are not exact, float('inf') as a starting value, and choosing safe starting values for min and max.
+=== en
+### The big idea
+Numbers in a computer have a few surprises at the edges. Knowing them saves you from bugs that are hard to spot: decimals that are almost-but-not-quite right, and starting values that quietly give wrong answers.
+
+### Big whole numbers are safe in Python
+In many languages an `int` has a maximum (about 2 billion, or about 9 × 10¹⁸), and going past it wraps around to a negative number. That is called **overflow**. Python's `int` grows as big as it needs to, so `2 ** 100` just works.
+
+> **Tip:** You will still see "the answer may be large, return it modulo 10⁹ + 7" in problems. That instruction exists for other languages; in Python you can compute the number and apply `% (10**9 + 7)` at the end (or along the way to keep it fast).
+
+### Decimals are not exact
+Computers store decimals (`float`) in binary, and many simple decimals, like 0.1, cannot be stored exactly, just as 1/3 cannot be written exactly as 0.333….
+```python
+print(0.1 + 0.2)          # 0.30000000000000004
+print(0.1 + 0.2 == 0.3)   # False
+```
+> **Mistake:** Never compare floats with `==`. Either stay with whole numbers (store money in paise, not rupees), or check that the difference is tiny: `abs(a - b) < 1e-9`.
+
+### Infinity as a starting value
+When you look for the **smallest** value, what should `best` start at? It must be bigger than anything you might see. Python has a value for exactly that: `float('inf')`, which is bigger than every number. Its partner `float('-inf')` is smaller than every number.
+
+```python
+best = float('inf')
+for x in [7, 3, 9]:
+    if x < best:
+        best = x
+print(best)   # 3
+```
+
+> **Mistake:** Starting a maximum at 0 breaks when every number is negative: the answer comes out as 0, which is not even in the list. Start at `float('-inf')` or at the first element.
+
+### Safe starting values
+| You are finding | Start with |
+|---|---|
+| a sum | 0 |
+| a product | 1 |
+| a maximum | `float('-inf')` or the first item |
+| a minimum | `float('inf')` or the first item |
+| a count | 0 |
+
+### Where this shows up in DSA
+- Maximum Subarray, Best Time to Buy and Sell Stock (min price so far starts at infinity).
+- Shortest paths start every distance at infinity; "no answer found" is often reported when the result is still infinity.
+- Money and probabilities: avoid `==` on floats.
+
+> **Remember:** Python ints never overflow. Floats are approximate: never `==` them. Start a min at `inf`, a max at `-inf` (or the first item).
+
+=== hi
+### Bada idea
+Computer mein numbers ke kinaron pe kuch surprises hote hain. Inhe jaanne se aise bugs se bachte ho jo pakadna mushkil hai: decimals jo lagbhag-par-poore-sahi nahi hote, aur starting values jo chupke se galat jawab deti hain.
+
+### Bade whole numbers Python mein safe hain
+Kai languages mein `int` ki ek limit hoti hai (lagbhag 2 arab, ya lagbhag 9 × 10¹⁸), aur usse aage jaane pe wo ghoom ke negative ban jaata hai. Ise **overflow** kehte hain. Python ka `int` jitna chahiye utna bada ho jaata hai, toh `2 ** 100` bas chal jaata hai.
+
+> **Tip:** Problems mein phir bhi dikhega "answer bada ho sakta hai, modulo 10⁹ + 7 return karo". Ye doosri languages ke liye hai; Python mein number nikaal ke aakhir mein `% (10**9 + 7)` laga sakte ho (ya tez rakhne ke liye beech-beech mein).
+
+### Decimals exact nahi hote
+Computer decimals (`float`) binary mein rakhta hai, aur bahut saare simple decimals, jaise 0.1, exact store nahi ho sakte, bilkul jaise 1/3 ko 0.333… exact nahi likh sakte.
+```python
+print(0.1 + 0.2)          # 0.30000000000000004
+print(0.1 + 0.2 == 0.3)   # False
+```
+> **Galti:** Floats ko kabhi `==` se compare mat karo. Ya toh whole numbers mein raho (paise rupaye mein nahi, paise mein rakho), ya check karo ki farak bahut chhota hai: `abs(a - b) < 1e-9`.
+
+### Infinity starting value ke roop mein
+**Sabse chhoti** value dhoondhte waqt `best` kahan se shuru ho? Wo har us cheez se badi honi chahiye jo dikh sakti hai. Python mein bilkul iske liye value hai: `float('inf')`, jo har number se badi hai. Uska saathi `float('-inf')` har number se chhota hai.
+
+```python
+best = float('inf')
+for x in [7, 3, 9]:
+    if x < best:
+        best = x
+print(best)   # 3
+```
+
+> **Galti:** Maximum ko 0 se shuru karna tab tootta hai jab saare numbers negative hon: jawab 0 aata hai, jo list mein hai hi nahi. `float('-inf')` ya pehle element se shuru karo.
+
+### Safe starting values
+| Dhoondh rahe ho | Shuru karo |
+|---|---|
+| sum | 0 |
+| product | 1 |
+| maximum | `float('-inf')` ya pehla item |
+| minimum | `float('inf')` ya pehla item |
+| count | 0 |
+
+### DSA mein kahan aata hai
+- Maximum Subarray, Best Time to Buy and Sell Stock (ab tak ka min price infinity se shuru).
+- Shortest paths har distance ko infinity se shuru karte hain; result abhi bhi infinity hai toh aksar "jawab nahi mila".
+- Paise aur probabilities: floats pe `==` se bacho.
+
+> **Yaad rakho:** Python ints kabhi overflow nahi hote. Floats approx hain: kabhi `==` mat karo. Min ko `inf` se, max ko `-inf` se (ya pehle item se) shuru karo.
+
+=== drills
+--- d
+q: What does this print?
+code:
+print(0.1 + 0.2 == 0.3)
+print(abs((0.1 + 0.2) - 0.3) < 1e-9)
+print(2 ** 64)
+answer:
+False
+True
+18446744073709551616
+en: 0.1 + 0.2 is stored as 0.30000000000000004, so == fails; checking for a tiny difference works. Python ints do not overflow.
+hi: 0.1 + 0.2, 0.30000000000000004 store hota hai, toh == fail; chhota farak check karna kaam karta hai. Python ints overflow nahi hote.
+--- d
+q: Why does starting at 0 go wrong here?
+code:
+nums = [-5, -2, -9]
+best = 0
+for x in nums:
+    if x > best:
+        best = x
+print(best)
+best = float('-inf')
+for x in nums:
+    if x > best:
+        best = x
+print(best)
+answer:
+0
+-2
+en: No number is bigger than 0, so the first version never updates and returns 0, which is not in the list. Starting at -inf fixes it.
+hi: Koi number 0 se bada nahi, toh pehla version kabhi update nahi hota aur 0 lautata hai, jo list mein hai hi nahi. -inf se shuru karna theek karta hai.
+--- d
+kind: write
+q: Write `min_and_max(nums)` that returns `(smallest, largest)` for a non-empty list without using min() or max().
+answer:
+def min_and_max(nums):
+    lo, hi = float('inf'), float('-inf')
+    for x in nums:
+        if x < lo:
+            lo = x
+        if x > hi:
+            hi = x
+    return lo, hi
+test:
+check(min_and_max([7, 3, 9]), (3, 9))
+check(min_and_max([-5, -2, -9]), (-9, -2))
+check(min_and_max([4]), (4, 4))
+en: inf is beaten by the first number for the minimum, and -inf for the maximum, so both update correctly from the start.
+hi: Minimum ke liye inf ko pehla number hara deta hai, maximum ke liye -inf ko, toh dono shuru se sahi update hote hain.

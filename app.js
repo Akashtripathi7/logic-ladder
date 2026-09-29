@@ -7,6 +7,7 @@ const TOPICS = DATA.topics;
 const MODS = DATA.modules;
 const MOD = {};
 MODS.forEach((m, i) => { MOD[m.id] = m; m.index = i; });
+const MATH = MODS.filter(m => m.kind === 'math');
 const PY = MODS.filter(m => m.kind === 'python');
 const GYM = MODS.filter(m => m.kind === 'gym');
 const TOPIC = {};
@@ -52,7 +53,7 @@ function updateChip() {
 }
 function navActive(route) {
   const group = route === '' || route === 'path' ? 'path'
-    : route === 'video-math' ? 'math'
+    : route === 'math' || route === 'video-math' || /^m-mt/.test(route) ? 'math'
     : route === 'python' || /^m-py/.test(route) ? 'python'
     : route === 'gym' || /^m-g/.test(route) ? 'gym'
     : route === 'warmup' || route.startsWith('t-w-') || route.startsWith('p-w-') ? 'warmup'
@@ -153,11 +154,11 @@ function buildToc() {
 function stepsDef() {
   const drills = list => list.reduce((a, m) => a + m.drills.length, 0);
   return [
-    { n: 1, key: 'math', short: 'Math', t: tr('Math for Logic', 'Logic ke liye Math'), when: tr('Week 1', 'Week 1'), meta: [tr('1 video', '1 video'), tr('14 short levels', '14 chhote levels')], d: tr('Modulo, digits, primes, powers, binary, counting and Big O: the maths hiding inside every problem.', 'Modulo, digits, primes, powers, binary, counting aur Big O: har problem ke andar chupa maths.'), href: '#video-math', prog: () => lessonProgress('math'), label: () => { const f = lessonProgress('math'); return f >= 1 ? tr('Watched', 'Dekh liya') : f > 0 ? Math.round(f * 100) + '% ' + tr('watched', 'dekha') : tr('Not started', 'Shuru nahi kiya'); } },
-    { n: 2, key: 'python', short: 'Python', t: tr('Python from zero', 'Python bilkul shuru se'), when: tr('Weeks 1–2', 'Week 1–2'), meta: [`${PY.length} ${tr('modules', 'modules')}`, `${drills(PY)} ${tr('drills', 'drills')}`], d: tr('From print() to classes, recursion and heapq. Each module has a video, deep theory and drills.', 'print() se classes, recursion aur heapq tak. Har module mein video, gehri theory aur drills.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length} ${tr('complete', 'complete')}` },
-    { n: 3, key: 'gym', short: 'Logic Gym', t: 'Logic Gym', when: tr('Week 3', 'Week 3'), meta: [`${GYM.length} ${tr('modules', 'modules')}`, `${drills(GYM)} ${tr('drills', 'drills')}`], d: tr('How to think, then loops, patterns, lists, strings and dry runs until the logic feels natural.', 'Kaise sochein, phir loops, patterns, lists, strings aur dry runs jab tak logic natural na lage.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length} ${tr('complete', 'complete')}` },
-    { n: 4, key: 'warm', short: 'Warm-up 50', t: 'Warm-up 50', when: tr('Weeks 4–5', 'Week 4–5'), meta: [tr('50 problems', '50 problems'), `${WARM.length} ${tr('groups', 'groups')}`], d: tr('Reverse a string, largest number, anagram, palindrome. Classic programs, explained with analogies.', 'String reverse, sabse bada number, anagram, palindrome. Classic programs, analogies ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50 ${tr('solved', 'solve kiye')}` },
-    { n: 5, key: 'dsa', short: 'DSA 150', t: 'DSA 150', when: tr('Weeks 6–14', 'Week 6–14'), meta: [tr('18 topics', '18 topics'), tr('150 problems', '150 problems')], d: tr('Arrays to dynamic programming. A video per topic, then problems from brute force to the best approach.', 'Arrays se dynamic programming tak. Har topic ka video, phir problems brute force se best approach tak.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150 ${tr('solved', 'solve kiye')}` }
+    { n: 1, key: 'math', short: 'Math', t: tr('Math for Logic', 'Logic ke liye Math'), when: tr('Weeks 1–2', 'Week 1–2'), meta: [`${MATH.length} ${tr('topics', 'topics')}`, `${drills(MATH)} ${tr('drills', 'drills')}`], d: tr('Numbers, remainders, digits, primes, powers, binary, counting and Big O, taught from zero with slow videos and written theory.', 'Numbers, remainders, digits, primes, powers, binary, counting aur Big O, bilkul shuru se, dheeme videos aur likhi hui theory ke saath.'), href: '#math', prog: () => countMods(MATH) / MATH.length, label: () => `${countMods(MATH)} / ${MATH.length} ${tr('complete', 'complete')}` },
+    { n: 2, key: 'python', short: 'Python', t: tr('Python from zero', 'Python bilkul shuru se'), when: tr('Weeks 3–4', 'Week 3–4'), meta: [`${PY.length} ${tr('modules', 'modules')}`, `${drills(PY)} ${tr('drills', 'drills')}`], d: tr('From print() to classes, recursion and heapq. Each module has a video, deep theory and drills.', 'print() se classes, recursion aur heapq tak. Har module mein video, gehri theory aur drills.'), href: '#python', prog: () => countMods(PY) / PY.length, label: () => `${countMods(PY)} / ${PY.length} ${tr('complete', 'complete')}` },
+    { n: 3, key: 'gym', short: 'Logic Gym', t: 'Logic Gym', when: tr('Week 5', 'Week 5'), meta: [`${GYM.length} ${tr('modules', 'modules')}`, `${drills(GYM)} ${tr('drills', 'drills')}`], d: tr('How to think, then loops, patterns, lists, strings and dry runs until the logic feels natural.', 'Kaise sochein, phir loops, patterns, lists, strings aur dry runs jab tak logic natural na lage.'), href: '#gym', prog: () => countMods(GYM) / GYM.length, label: () => `${countMods(GYM)} / ${GYM.length} ${tr('complete', 'complete')}` },
+    { n: 4, key: 'warm', short: 'Warm-up 50', t: 'Warm-up 50', when: tr('Weeks 6–7', 'Week 6–7'), meta: [tr('50 problems', '50 problems'), `${WARM.length} ${tr('groups', 'groups')}`], d: tr('Reverse a string, largest number, anagram, palindrome. Classic programs, explained with analogies.', 'String reverse, sabse bada number, anagram, palindrome. Classic programs, analogies ke saath.'), href: '#warmup', prog: () => countSolved(ORDER.warm) / 50, label: () => `${countSolved(ORDER.warm)} / 50 ${tr('solved', 'solve kiye')}` },
+    { n: 5, key: 'dsa', short: 'DSA 150', t: 'DSA 150', when: tr('Weeks 8–15', 'Week 8–15'), meta: [tr('18 topics', '18 topics'), tr('150 problems', '150 problems')], d: tr('Arrays to dynamic programming. A video per topic, then problems from brute force to the best approach.', 'Arrays se dynamic programming tak. Har topic ka video, phir problems brute force se best approach tak.'), href: '#dsa150', prog: () => countSolved(ORDER.nc) / 150, label: () => `${countSolved(ORDER.nc)} / 150 ${tr('solved', 'solve kiye')}` }
   ];
 }
 /* small line icons for the five steps (stroke = currentColor) */
@@ -171,11 +172,7 @@ const STEP_ICON = {
 const stepIcon = k => `<svg class="step-ico ico-${k}" viewBox="0 0 42 42" aria-hidden="true">${STEP_ICON[k]}</svg>`;
 /* what's inside each step, as links, with a tick once finished */
 function stepItems(key) {
-  if (key === 'math') {
-    const watched = lessonProgress('math') >= 1;
-    return E.LESSONS.math.chapters.map(c => c.t.replace(/^\d+\s*·\s*/, '')).slice(1, -1).map(t => ({ t, href: '#video-math', done: watched }));
-  }
-  if (key === 'python' || key === 'gym') return (key === 'python' ? PY : GYM).map(m => ({ t: m.name, href: '#m-' + m.id, done: modsDone.has(m.id) }));
+  if (key === 'math' || key === 'python' || key === 'gym') return ({ math: MATH, python: PY, gym: GYM })[key].map(m => ({ t: m.name, href: '#m-' + m.id, done: modsDone.has(m.id) }));
   return (key === 'warm' ? WARM : NC).map(t => { const c = countSolved(t.problems); return { t: t.name, href: '#t-' + t.id, done: c === t.problems.length, count: `${c}/${t.problems.length}` }; });
 }
 function stepPanel(s, st) {
@@ -199,13 +196,14 @@ function stepPanel(s, st) {
 /* Where the learner is, from what they have actually done (not from pages they merely opened).
    new: nothing done yet · continue: partway through a step · next: a step finished, the next not started · done: all five finished */
 const hasProgress = () => lessonProgress('math') > 0 || modsDone.size > 0 || solved.size > 0;
-const stepOfRoute = r => !r ? -1 : r === 'video-math' ? 0 : r === 'python' || r.startsWith('m-py') ? 1 : r === 'gym' || /^m-g\d/.test(r) ? 2 : r === 'warmup' || r.startsWith('t-w-') || r.startsWith('p-w-') ? 3 : r === 'dsa150' || r.startsWith('t-') || r.startsWith('p-') ? 4 : -1;
+const stepOfRoute = r => !r ? -1 : r === 'math' || r === 'video-math' || r.startsWith('m-mt') ? 0 : r === 'python' || r.startsWith('m-py') ? 1 : r === 'gym' || /^m-g\d/.test(r) ? 2 : r === 'warmup' || r.startsWith('t-w-') || r.startsWith('p-w-') ? 3 : r === 'dsa150' || r.startsWith('t-') || r.startsWith('p-') ? 4 : -1;
 function homeStage(steps) {
   let cur = steps.findIndex(s => s.prog() < 1);
   if (cur === -1) return { kind: 'done', cur: steps.length - 1, href: steps[steps.length - 1].href };
-  if (!hasProgress()) return { kind: 'new', cur, href: steps[0].href };
+  if (!hasProgress()) return { kind: 'new', cur, href: MATH.length ? '#m-' + MATH[0].id : steps[0].href };
   const s = steps[cur];
-  if (s.prog() > 0) {
+  /* partway through a step, or started something while still on step 1 (there is no finished step before it) */
+  if (s.prog() > 0 || cur === 0) {
     const last = store.get('last', null);
     return { kind: 'continue', cur, href: last && stepOfRoute(last) === cur && routeLabel(last) ? '#' + last : s.href, lastLabel: last && stepOfRoute(last) === cur ? routeLabel(last) : null };
   }
@@ -222,12 +220,13 @@ function homeCta(steps, st) {
 }
 function homeNote(steps, st) {
   const s = steps[st.cur];
-  if (st.kind === 'new') return tr('Starts with step 1: Math for Logic. Free, no sign-up, and your progress is saved in this browser.', 'Step 1 se shuru: Logic ke liye Math. Free, sign-up nahi, aur progress is browser mein save hota hai.');
+  if (st.kind === 'new') return tr('Starts with topic 1 of Math for Logic: numbers and the number line. Free, no sign-up, and your progress is saved in this browser.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Free, sign-up nahi, aur progress is browser mein save hota hai.');
   if (st.kind === 'done') return tr('All five steps done. Re-solve old problems every week to keep them fresh.', 'Paanchon steps ho gaye. Har hafte purani problems dobara solve karo taaki yaad rahein.');
   const prev = steps[st.cur - 1];
   if (st.kind === 'next') return `${tr('Step', 'Step')} ${prev.n} (${esc(prev.t)}) ${tr('is done. Next up', 'ho gaya. Ab')}: ${esc(s.t)}.`;
   return `${tr('Step', 'Step')} ${s.n} ${tr('of 5', 'of 5')} · ${s.label()}${st.lastLabel ? ` · ${tr('last opened', 'aakhri baar khola')}: ${esc(st.lastLabel)}` : ''}`;
 }
+const WEEKS = 15;
 function pageHome() {
   const solvedN = countSolved(ORDER.warm) + countSolved(ORDER.nc);
   const steps = stepsDef();
@@ -295,14 +294,14 @@ function pageHome() {
   </section>
 
   <section class="pace" aria-labelledby="pace-h">
-    <div class="sec-head"><div class="kicker">${tr('A realistic pace', 'Ek realistic speed')}</div><h2 id="pace-h">${tr('About 14 weeks at 1–2 hours a day', 'Roz 1–2 ghante, lagbhag 14 hafte')}</h2></div>
-    <div class="gantt" role="img" aria-label="${tr('Week 1: math video and Python modules 1 to 8. Week 2: Python 9 to 21. Week 3: Logic Gym. Weeks 4 and 5: Warm-up 50. Weeks 6 to 14: DSA 150, about 2 a day. Every Sunday: re-solve 5 old problems.', 'Week 1: math video aur Python 1 se 8. Week 2: Python 9 se 21. Week 3: Logic Gym. Week 4 aur 5: Warm-up 50. Week 6 se 14: DSA 150, roz lagbhag 2. Har Sunday: 5 purani problems dobara.')}">
-      <div class="g-weeks">${Array.from({ length: 14 }, (_, w) => `<span>W${w + 1}</span>`).join('')}</div>
-      ${[[tr('Math video', 'Math video'), 1, 0.35, 'math'], [tr('Python', 'Python'), 1, 2, 'python'], ['Logic Gym', 3, 1, 'gym'], ['Warm-up 50', 4, 2, 'warm'], ['DSA 150', 6, 9, 'dsa']].map(([name, start, len, k], i) => `
+    <div class="sec-head"><div class="kicker">${tr('A realistic pace', 'Ek realistic speed')}</div><h2 id="pace-h">${tr('About 15 weeks at 1–2 hours a day', 'Roz 1–2 ghante, lagbhag 15 hafte')}</h2></div>
+    <div class="gantt" role="img" aria-label="${tr('Weeks 1 and 2: Math for Logic, about 8 topics a week. Weeks 3 and 4: Python. Week 5: Logic Gym. Weeks 6 and 7: Warm-up 50. Weeks 8 to 15: DSA 150, about 3 a day. Every Sunday: re-solve 5 old problems.', 'Week 1 aur 2: Math for Logic, hafte mein lagbhag 8 topics. Week 3 aur 4: Python. Week 5: Logic Gym. Week 6 aur 7: Warm-up 50. Week 8 se 15: DSA 150, roz lagbhag 3. Har Sunday: 5 purani problems dobara.')}" style="--weeks:${WEEKS}">
+      <div class="g-weeks">${Array.from({ length: WEEKS }, (_, w) => `<span>W${w + 1}</span>`).join('')}</div>
+      ${[[tr('Math', 'Math'), 1, 2, 'math'], [tr('Python', 'Python'), 3, 2, 'python'], ['Logic Gym', 5, 1, 'gym'], ['Warm-up 50', 6, 2, 'warm'], ['DSA 150', 8, 8, 'dsa']].map(([name, start, len, k], i) => `
       <div class="g-row"><span class="g-name">${name}</span><div class="g-track"><i class="g-bar b-${k}" style="--s:${start - 1};--l:${len};--i:${i}"></i></div></div>`).join('')}
-      <div class="g-row"><span class="g-name">${tr('Review', 'Revise')}</span><div class="g-track">${Array.from({ length: 14 }, (_, w) => `<b class="g-sun" style="--s:${w}"></b>`).join('')}</div></div>
+      <div class="g-row"><span class="g-name">${tr('Review', 'Revise')}</span><div class="g-track">${Array.from({ length: WEEKS }, (_, w) => `<b class="g-sun" style="--s:${w}"></b>`).join('')}</div></div>
     </div>
-    <p class="pace-note">${tr('Each dot is a Sunday: re-solve 5 old problems without looking. Watch each DSA topic video before its problems.', 'Har dot ek Sunday hai: 5 purani problems bina dekhe dobara solve karo. Har DSA topic ka video uski problems se pehle dekho.')}</p>
+    <p class="pace-note">${tr('Each dot is a Sunday: re-solve 5 old problems without looking. Watch each topic video before its theory and drills.', 'Har dot ek Sunday hai: 5 purani problems bina dekhe dobara solve karo. Har topic ka video uski theory aur drills se pehle dekho.')}</p>
   </section>
 
   <footer class="home-foot">
@@ -328,26 +327,41 @@ function pageHome() {
   const how = document.getElementById('how-link');
   how.onclick = e => { e.preventDefault(); const t = document.getElementById('the-path'); window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 76, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
 }
+/* the three module-based courses share one page layout */
+function course(kind) {
+  return {
+    math: { list: MATH, route: 'math', step: 1, name: tr('Math for Logic', 'Logic ke liye Math'), short: 'Math', unit: tr('topic', 'topic'),
+      sub: tr('The maths behind every coding problem, from zero, in 16 short topics. Each one has a slow video, theory written for complete beginners (English or Hinglish) and practice. Do them in order.', 'Har coding problem ke peeche ka maths, bilkul shuru se, 16 chhote topics mein. Har ek mein dheema video, bilkul beginners ke liye theory (English ya Hinglish) aur practice. Order mein karo.'),
+      next: ['#python', tr('Python from zero', 'Python bilkul shuru se')],
+      parts: [[0, tr('Part 1 · Numbers', 'Part 1 · Numbers')], [4, tr('Part 2 · Building blocks', 'Part 2 · Building blocks')], [8, tr('Part 3 · Patterns and counting', 'Part 3 · Patterns aur counting')], [12, tr('Part 4 · Thinking like a programmer', 'Part 4 · Programmer ki tarah sochna')]] },
+    python: { list: PY, route: 'python', step: 2, name: tr('Python from zero', 'Python bilkul shuru se'), short: 'Python', unit: tr('module', 'module'),
+      sub: tr('Every module has a short video, a detailed theory page and drills that check your understanding. Every code sample here was run to confirm its output.', 'Har module mein chhota video, detailed theory page aur drills hain. Yahan ka har code sample chala ke output confirm kiya gaya hai.'),
+      next: ['#gym', 'Logic Gym'] },
+    gym: { list: GYM, route: 'gym', step: 3, name: 'Logic Gym', short: 'Logic Gym', unit: tr('module', 'module'),
+      sub: tr('Mastery drills before the Warm-up 50: predict the output, write the function, fix the bug. Do each on paper first, then check the answer.', 'Warm-up 50 se pehle mastery drills: output predict karo, function likho, bug theek karo. Pehle paper pe, phir answer check karo.'),
+      next: ['#warmup', 'Warm-up 50'] }
+  }[kind];
+}
 function pageMathVideo() {
   const f = lessonProgress('math');
-  shell(head({ kicker: tr('Step 1 · Video', 'Step 1 · Video'), title: tr('Math for Logic', 'Logic ke liye Math'), sub: tr('Every math idea you need before coding problems, from zero. Switch to Hinglish at the top for Hinglish narration.', 'Coding problems se pehle chahiye har math idea, bilkul shuru se. Hinglish narration ke liye upar Hinglish chuno.') }),
+  shell(head({ crumbs: `<a href="#math">${tr('Math for Logic', 'Logic ke liye Math')}</a> › <span>${tr('Recap video', 'Recap video')}</span>`, kicker: tr('Optional recap', 'Optional recap'), title: tr('All of Math for Logic in one video', 'Poora Math for Logic ek video mein'), sub: tr('A fast, continuous run through all 16 topics. Best for revision after you finish the course, not as your first lesson.', 'Saare 16 topics ek lagatar, tez video mein. Course khatam karne ke baad revision ke liye best hai, pehle lesson ke liye nahi.') }),
     `<div id="player-mount"></div>`,
-    { stat: { label: tr('Video watched', 'Video dekha'), n: Math.round(f * 100), total: 100, note: tr('Your place in the video is saved on this device.', 'Video mein tumhari jagah is device pe save hai.') }, actions: upNext('#python', tr('Python from zero', 'Python bilkul shuru se')) });
+    { stat: { label: tr('Video watched', 'Video dekha'), n: Math.round(f * 100), total: 100, note: tr('Your place in the video is saved on this device.', 'Video mein tumhari jagah is device pe save hai.') }, actions: upNext('#math', tr('Back to the 16 topics', '16 topics pe wapas')) });
   mountPlayer(document.getElementById('player-mount'), 'math');
 }
 function pageModuleList(kind) {
-  const list = kind === 'python' ? PY : GYM;
-  const isPy = kind === 'python';
+  const c = course(kind), list = c.list;
   const nextMod = list.find(m => !modsDone.has(m.id));
-  shell(head({ kicker: isPy ? tr('Step 2', 'Step 2') : tr('Step 3', 'Step 3'), title: isPy ? tr('Python from zero', 'Python bilkul shuru se') : 'Logic Gym',
-    sub: isPy ? tr('Every module has a short video, a detailed theory page and drills that check your understanding. Every code sample here was run to confirm its output.', 'Har module mein chhota video, detailed theory page aur drills hain. Yahan ka har code sample chala ke output confirm kiya gaya hai.') : tr('Mastery drills before the Warm-up 50: predict the output, write the function, fix the bug. Do each on paper first, then check the answer.', 'Warm-up 50 se pehle mastery drills: output predict karo, function likho, bug theek karo. Pehle paper pe, phir answer check karo.') }),
-    `<section class="plist">${list.map((m, i) => moduleRow(m, i)).join('')}</section>`,
-    { stat: { label: tr('Modules complete', 'Modules complete'), n: countMods(list), total: list.length },
-      actions: nextMod ? upNext('#m-' + nextMod.id, nextMod.name) : upNext(isPy ? '#gym' : '#warmup', isPy ? 'Logic Gym' : 'Warm-up 50') });
+  const rows = list.map((m, i) => { const part = c.parts && c.parts.find(p => p[0] === i); return (part ? `<h3 class="grp mod-part">${part[1]}</h3>` : '') + moduleRow(m, i); }).join('');
+  shell(head({ kicker: `${tr('Step', 'Step')} ${c.step}`, title: c.name, sub: c.sub }),
+    `<section class="plist">${rows}</section>
+    ${kind === 'math' ? `<div class="note-card">${tr('Finished all 16? <a href="#video-math">Watch the one-video recap</a> to revise everything in one go.', 'Saare 16 ho gaye? Sab ek saath revise karne ke liye <a href="#video-math">ek-video recap dekho</a>.')}</div>` : ''}`,
+    { stat: { label: tr('Complete', 'Complete'), n: countMods(list), total: list.length },
+      actions: nextMod ? upNext('#m-' + nextMod.id, nextMod.name) : upNext(c.next[0], c.next[1]) });
 }
 function pageModule(id) {
   const m = MOD[id]; if (!m) return pageNotFound();
-  const list = m.kind === 'python' ? PY : GYM;
+  const c = course(m.kind), list = c.list;
   const i = list.indexOf(m);
   const prev = list[i - 1], next = list[i + 1];
   const kindLabel = { predict: tr('Predict the output', 'Output predict karo'), write: tr('Write it', 'Khud likho'), fix: tr('Find and fix the bug', 'Bug dhoondo aur theek karo') };
@@ -362,31 +376,31 @@ function pageModule(id) {
       </details>
     </div>`).join('');
   const hasVideo = !!E.LESSONS[m.id];
-  const home = m.kind === 'python' ? 'python' : 'gym', homeName = m.kind === 'python' ? 'Python' : 'Logic Gym';
-  const nextHref = next ? '#m-' + next.id : m.kind === 'python' ? '#gym' : '#warmup';
-  const nextName = next ? next.name : m.kind === 'python' ? 'Logic Gym' : 'Warm-up 50';
+  const home = c.route, homeName = c.short;
+  const nextHref = next ? '#m-' + next.id : c.next[0];
+  const nextName = next ? next.name : c.next[1];
   const doneBtn = cls => `<button type="button" class="btn ${cls} mod-done" aria-pressed="false"></button>`;
-  shell(head({ crumbs: `<a href="#${home}">${homeName}</a> › <span>${tr('Module', 'Module')} ${i + 1}</span>`, kicker: `${homeName} · ${tr('module', 'module')} ${i + 1} ${tr('of', 'of')} ${list.length}`, title: esc(m.name), sub: esc(m.summary) }),
+  shell(head({ crumbs: `<a href="#${home}">${homeName}</a> › <span>${c.unit[0].toUpperCase() + c.unit.slice(1)} ${i + 1}</span>`, kicker: `${homeName} · ${c.unit} ${i + 1} ${tr('of', 'of')} ${list.length}`, title: esc(m.name), sub: esc(m.summary) }),
     `${hasVideo ? `<section class="tvideo" data-toc="${tr('Video', 'Video')}"><h2>${tr('Watch: short video', 'Dekho: chhota video')}</h2><div id="player-mount"></div></section>` : ''}
     <section class="theory">
       <div class="theory-head"><h2>${tr('Theory', 'Theory')}</h2><span class="muted">${tr('Prefer Hinglish? Switch at the top of the page.', 'English chahiye? Upar se switch karo.')}</span></div>
       <article class="prose">${L() === 'hi' ? m.hi : m.en}</article>
     </section>
     <section class="drills" data-toc="${tr('Practice drills', 'Practice drills')}"><h2>${tr('Practice drills', 'Practice drills')} <span class="muted">${tr('Try each on paper before opening the answer.', 'Answer kholne se pehle paper pe try karo.')}</span></h2>${drills}
-      <div class="finish-card"><div><b>${tr('Done with the drills?', 'Drills ho gayi?')}</b><span class="muted">${tr('Mark the module complete to track your progress.', 'Progress track karne ke liye module complete mark karo.')}</span></div>${doneBtn('pri')}</div>
+      <div class="finish-card"><div><b>${tr('Done with the drills?', 'Drills ho gayi?')}</b><span class="muted">${tr(`Mark the ${c.unit} complete to track your progress.`, `Progress track karne ke liye ${c.unit} complete mark karo.`)}</span></div>${doneBtn('pri')}</div>
     </section>
     <div class="next-row">${prev ? `<a class="btn" href="#m-${prev.id}">← ${esc(prev.name)}</a>` : '<span></span>'}<a class="btn pri" href="${nextHref}">${esc(nextName)} →</a></div>`,
-    { stat: { label: `${homeName} ${tr('modules', 'modules')}`, n: countMods(list), total: list.length }, actions: doneBtn('') + upNext(nextHref, nextName), toc: true, id: m.id });
+    { stat: { label: `${homeName} · ${tr('complete', 'complete')}`, n: countMods(list), total: list.length }, actions: doneBtn('') + upNext(nextHref, nextName), toc: true, id: m.id });
   /* theory headings join the on-this-page list */
   view.querySelectorAll('.prose h3').forEach(h => { h.dataset.toc = h.textContent; h.dataset.tocSub = '1'; });
   buildToc();
   hydrate(view);
-  const paint = () => view.querySelectorAll('.mod-done').forEach(b => { const on = modsDone.has(m.id); b.classList.toggle('solved', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? tr('✓ Module complete', '✓ Module complete') : tr('Mark module complete', 'Module complete mark karo'); });
+  const paint = () => view.querySelectorAll('.mod-done').forEach(b => { const on = modsDone.has(m.id); b.classList.toggle('solved', on); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? `✓ ${c.unit[0].toUpperCase() + c.unit.slice(1)} ${tr('complete', 'complete')}` : tr(`Mark ${c.unit} complete`, `${c.unit[0].toUpperCase() + c.unit.slice(1)} complete mark karo`); });
   paint();
   view.querySelectorAll('.mod-done').forEach(b => b.onclick = () => {
     toggleMod(m.id); paint();
     const st = view.querySelector('.coach-stat'); if (st) { st.querySelector('b').innerHTML = `${countMods(list)}<small> / ${list.length}</small>`; st.querySelector('.pbar i').style.width = (countMods(list) / list.length * 100) + '%'; }
-    if (modsDone.has(m.id) && window.Mascot) Mascot.react('cheer', tr('Module complete! On to the next one.', 'Module complete! Chalo agle pe.'));
+    if (modsDone.has(m.id) && window.Mascot) Mascot.react('cheer', tr(`${c.unit[0].toUpperCase() + c.unit.slice(1)} complete! On to the next one.`, `${c.unit[0].toUpperCase() + c.unit.slice(1)} complete! Chalo agle pe.`));
   });
   if (hasVideo) mountPlayer(document.getElementById('player-mount'), m.id);
 }
@@ -523,7 +537,7 @@ function routeLabel(r) {
   if (r.startsWith('p-')) return P[r.slice(2)] ? P[r.slice(2)].title : null;
   if (r.startsWith('t-')) return TOPIC[r.slice(2)] ? TOPIC[r.slice(2)].name : null;
   if (r.startsWith('m-')) return MOD[r.slice(2)] ? MOD[r.slice(2)].name : null;
-  return { 'video-math': tr('Math video', 'Math video'), python: 'Python', gym: 'Logic Gym', warmup: 'Warm-up 50', dsa150: 'DSA 150' }[r] || null;
+  return { math: tr('Math for Logic', 'Logic ke liye Math'), 'video-math': tr('Math recap video', 'Math recap video'), python: 'Python', gym: 'Logic Gym', warmup: 'Warm-up 50', dsa150: 'DSA 150' }[r] || null;
 }
 function route() {
   let r = decodeURIComponent(location.hash.slice(1));
@@ -533,6 +547,7 @@ function route() {
   if (player) { player.destroy(); player = null; }
   navActive(r);
   if (r === '' || r === 'path') pageHome();
+  else if (r === 'math') pageModuleList('math');
   else if (r === 'video-math') pageMathVideo();
   else if (r === 'python') pageModuleList('python');
   else if (r === 'gym') pageModuleList('gym');
@@ -563,7 +578,7 @@ const LINES = {
 const say2 = l => tr(l[0], l[1]);
 function mascotFor(r) {
   if (r === '' || r === 'path') return ['climb', 'home'];
-  if (r === 'video-math') return ['math', 'math'];
+  if (r === 'math' || r === 'video-math' || r.startsWith('m-mt')) return ['math', 'math'];
   if (r === 'python' || r.startsWith('m-py')) return ['type', 'python'];
   if (r === 'gym' || r.startsWith('m-g')) return ['lift', 'gym'];
   if (r.startsWith('p-')) return ['think', 'problem'];
