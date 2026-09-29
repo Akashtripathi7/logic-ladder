@@ -469,6 +469,8 @@ const PLAYER_HTML = () => `<div class="layout">
           </div>
         </div>
         <div id="ov"></div>
+        <div id="fscap" aria-hidden="true"></div>
+        <button type="button" id="fsx" aria-label="Exit fullscreen" title="Exit fullscreen (F)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div id="bar" aria-hidden="true"></div>
       <div class="ctrl">
@@ -494,7 +496,16 @@ function start(L, root) {
   const PAUSE = L.pause || 380;
   root.innerHTML = PLAYER_HTML();
   const $ = id => document.getElementById(id);
-  const stage = $('stage'), body = $('body'), chip = $('chip'), chap = $('chap'), cap = $('cap'), sw = $('sw');
+  const stage = $('stage'), body = $('body'), chip = $('chip'), chap = $('chap'), cap = $('cap'), sw = $('sw'), fscap = $('fscap');
+  /* the caption under the player and the fullscreen caption band always show the same line */
+  /* shrink the fullscreen caption only when a long line would not fit its band */
+  const fitCap = () => {
+    fscap.style.fontSize = '';
+    if (!fscap.offsetHeight) return;
+    let size = parseFloat(getComputedStyle(fscap).fontSize);
+    while (fscap.scrollHeight > fscap.clientHeight + 1 && size > 11) { size -= 1; fscap.style.fontSize = size + 'px'; }
+  };
+  const setCap = t => { cap.textContent = t; fscap.textContent = t; fitCap(); };
   const ov = $('ov'), bar = $('bar'), toc = $('toc'), timeEl = $('time'), playBtn = $('play'), thinkEl = $('think');
   const KEY = 'lesson:' + L.id;
   const SC = [];
@@ -517,10 +528,15 @@ function start(L, root) {
   try { const pr = JSON.parse(localStorage.getItem('lesson:prefs') || '{}'); if (pr.rate) rate = pr.rate; if (pr.muted) muted = true; } catch (e) {}
 
   /* scale stage */
+  /* fullscreen: the real Fullscreen API, or a full-window fallback (.pfs) where it is missing (iPhone) */
+  const isFs = () => document.fullscreenElement === sw || document.webkitFullscreenElement === sw || sw.classList.contains('pfs');
   function fit() {
     const r = sw.getBoundingClientRect();
-    const s = Math.min(r.width / W, r.height / H);
-    stage.style.transform = `translate(${(r.width - W * s) / 2}px, ${(r.height - H * s) / 2}px) scale(${s})`;
+    if (isFs()) fitCap();
+    const capH = isFs() ? fscap.offsetHeight : 0;   /* in fullscreen, captions get their own band below the video */
+    const h = r.height - capH;
+    const s = Math.min(r.width / W, h / H);
+    stage.style.transform = `translate(${(r.width - W * s) / 2}px, ${(h - H * s) / 2}px) scale(${s})`;
   }
   const ro = new ResizeObserver(fit); ro.observe(sw);
   fit();
@@ -631,7 +647,7 @@ function start(L, root) {
   async function play(my) {
     while (my === RUN) {
       const s = SC[si], b = s.beats[bi], o = b[2] || {};
-      cap.textContent = say(b[0]);
+      setCap(say(b[0]));
       save(); ui();
       runBeat(s, b, false);
       const gap = (o.gap || 700) / rate;
@@ -658,7 +674,7 @@ function start(L, root) {
     si = Math.max(0, Math.min(SC.length - 1, i));
     bi = Math.max(0, Math.min(SC[si].beats.length - 1, b));
     replay(si, autoplay ? bi : bi + 1);
-    cap.textContent = say(SC[si].beats[bi][0]);
+    setCap(say(SC[si].beats[bi][0]));
     save();
     if (autoplay) { playing = true; ui(); const my = ++RUN; setTimeout(() => { if (my === RUN) play(my); }, synth && !muted ? 120 : 0); }
     else ui();
@@ -696,7 +712,15 @@ function start(L, root) {
   const mui = () => { mb.textContent = muted ? 'Voice: off' : 'Voice: on'; mb.setAttribute('aria-pressed', String(!muted)); };
   mui();
   mb.onclick = () => { muted = !muted; mui(); savePrefs(); if (playing) goto(si, bi, true); };
-  $('fs').onclick = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else sw.requestFullscreen().catch(() => {}); } catch (e) {} };
+  const pseudoFs = on => { sw.classList.toggle('pfs', on); document.documentElement.classList.toggle('pfs-lock', on); fit(); };
+  $('fsx').onclick = () => $('fs').click();
+  $('fs').onclick = () => {
+    if (sw.classList.contains('pfs')) return pseudoFs(false);
+    if (document.fullscreenElement || document.webkitFullscreenElement) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    const req = sw.requestFullscreen || sw.webkitRequestFullscreen;
+    if (!req) return pseudoFs(true);
+    try { const p = req.call(sw); if (p && p.catch) p.catch(() => pseudoFs(true)); } catch (e) { pseudoFs(true); }
+  };
   const onKey = e => {
     if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
     if (e.key === ' ' || e.key === 'k') { e.preventDefault(); toggle(); }
@@ -705,13 +729,14 @@ function start(L, root) {
     else if (e.key === 'l' || e.key === 'ArrowDown') { e.preventDefault(); stepScene(1); }
     else if (e.key === 'j' || e.key === 'ArrowUp') { e.preventDefault(); stepScene(-1); }
     else if (e.key === 'f') { $('fs').click(); }
+    else if (e.key === 'Escape' && sw.classList.contains('pfs')) { pseudoFs(false); }
   };
   document.addEventListener('keydown', onKey);
 
   /* start screen */
   const resumeAt = saved && (saved.si > 0 || saved.bi > 0) && saved.si < SC.length ? saved : null;
   replay(0, 1);
-  cap.textContent = UI[LANG].start;
+  setCap(UI[LANG].start);
   ov.innerHTML = `<button class="big-play" type="button" id="go" aria-label="Start lesson">${ICON.play.replace('<svg', '<svg width="40" height="40"')}</button>
     <div class="ov-t">${esc(say(L.startLabel || 'Start the lesson'))}</div>
     <div class="ov-s">${UI[LANG].sound}</div>
@@ -720,7 +745,7 @@ function start(L, root) {
   $('go').onclick = () => { hideOv(); goto(0, 0, true); };
   if (resumeAt) $('resume').onclick = () => { hideOv(); goto(resumeAt.si, resumeAt.bi, true); };
   ui();
-  return { destroy() { stop(); ro.disconnect(); document.removeEventListener('keydown', onKey); if (synth) synth.onvoiceschanged = null; root.innerHTML = ''; } };
+  return { destroy() { document.documentElement.classList.remove('pfs-lock'); stop(); ro.disconnect(); document.removeEventListener('keydown', onKey); if (synth) synth.onvoiceschanged = null; root.innerHTML = ''; } };
 }
 const LESSONS = {};
 function register(id, L) { L.id = L.id || id; LESSONS[id] = L; }
