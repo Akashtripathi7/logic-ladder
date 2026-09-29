@@ -273,7 +273,7 @@ details.sec[open] .sum-hint{display:none}
 .hx-grid{position:absolute;inset:0;background-image:linear-gradient(color-mix(in srgb,var(--accent) 11%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--accent) 11%,transparent) 1px,transparent 1px);background-size:28px 28px;-webkit-mask-image:radial-gradient(90% 90% at 60% 40%,#000 40%,transparent);mask-image:radial-gradient(90% 90% at 60% 40%,#000 40%,transparent)}
 .gl{position:absolute;left:var(--x);bottom:10px;z-index:0;font-family:var(--f-mono);font-size:14px;font-weight:600;color:var(--accent);opacity:0;animation:gl-rise var(--s) linear var(--d) infinite}
 @keyframes gl-rise{0%{opacity:0;transform:translateY(0)}15%{opacity:.5}75%{opacity:.3}100%{opacity:0;transform:translateY(-420px)}}
-.hx-ladder{position:absolute;left:50%;top:78px;bottom:18px;width:104px;margin-left:-28px}
+.hx-ladder{position:absolute;left:50%;top:78px;bottom:0;width:104px;margin-left:-28px}
 .hx-rails,.hx-rails .fill{position:absolute;left:0;right:0;bottom:0;--rc:color-mix(in srgb,var(--muted) 38%,var(--rail));
   background:linear-gradient(var(--rc),var(--rc)) 0 0/12px 100% no-repeat,linear-gradient(var(--rc),var(--rc)) 100% 0/12px 100% no-repeat,repeating-linear-gradient(to top,transparent 0 24px,var(--rc) 24px 32px,transparent 32px 38px) 12px 0/calc(100% - 24px) 100% no-repeat}
 .hx-rails{top:0;border-radius:6px}
@@ -297,7 +297,6 @@ details.sec[open] .sum-hint{display:none}
 .hx-say{position:absolute;right:calc(50% + 44px);width:min(220px,40%);z-index:3}
 .hx-say .bitu-bubble{display:block;box-shadow:0 12px 30px -18px rgba(20,20,60,.45)}
 .hx-say .bitu-bubble::before{left:auto;right:-7px;top:auto;bottom:18px;margin:0;transform:rotate(-135deg)}
-.hx-ground{position:absolute;left:0;right:0;bottom:0;height:18px;background:color-mix(in srgb,var(--rail) 55%,var(--surface));border-top:2px solid color-mix(in srgb,var(--muted) 30%,var(--rail))}
 
 /* numbers band */
 .nums{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:40px;border-block:1px solid var(--line)}

@@ -232,8 +232,7 @@ function pageHome() {
         ${steps.map((s, i) => `<div class="hx-mark ${stateOf(i)}" style="bottom:${markAt(i)}%"><span class="hx-dot">${stateOf(i) === 'done' ? '✓' : s.n}</span><span class="hx-lab">${esc(s.t)}</span></div>`).join('')}
         <div class="bitu-host on-hx" id="bitu-host" style="bottom:calc(${allDone ? 94 : markAt(cur)}% - 6px)"></div>
       </div>
-      <div class="hx-say" id="bitu-say" style="bottom:calc(76px + (100% - 96px) * ${(allDone ? 94 : markAt(cur)) / 100})"></div>
-      <div class="hx-ground"></div>
+      <div class="hx-say" id="bitu-say" style="bottom:calc(58px + (100% - 78px) * ${(allDone ? 94 : markAt(cur)) / 100})"></div>
     </div>
   </section>
 
