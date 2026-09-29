@@ -1,0 +1,664 @@
+## topic: w-numbers | Numbers & Loops
+
+### w-sum-to-n
+title: Sum of 1 to n
+diff: Easy
+pattern: Accumulator loop · Formula
+problem: Given a positive whole number `n`, return 1 + 2 + 3 + … + n.
+example: n = 5 → 15   (1 + 2 + 3 + 4 + 5)
+analogy: Filling a piggy bank: on day 1 you drop in ₹1, day 2 ₹2, … day n ₹n. The running total in the piggy bank is your accumulator.
+ask:
+- Can `n` be 0? Then the answer is 0.
+hints:
+- By hand you keep a running total in your head. That running total becomes a variable.
+- What does the total start as, before adding anything? 0.
+- Each lap adds the lap number i.
+- Bonus: Gauss's pairing trick (Video 1) gives n(n + 1)/2 with no loop at all.
+brute: Loop i from 1 to n and add each i to `total`.
+brutecx: O(n) time · O(1) space
+signal: "Add up a sequence" → accumulator starting at 0.
+optimal:
+- Use the formula `n * (n + 1) // 2`: pair 1 with n, 2 with n − 1…; each pair sums to n + 1.
+cx: O(1) time · O(1) space
+code:
+def sum_loop(n):
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    return total
+
+def sum_formula(n):
+    return n * (n + 1) // 2
+test:
+check(sum_loop(5), 15)
+check(sum_formula(5), 15)
+check(sum_formula(100), 5050)
+check(sum_loop(0), 0)
+trace:
+i | total before | total after
+1 | 0 | 1
+2 | 1 | 3
+3 | 3 | 6
+4 | 6 | 10
+5 | 10 | 15
+mistakes:
+- `range(1, n)` stops at n − 1. Use `range(1, n + 1)`.
+- Use `//` so the result stays an int.
+hinglish:
+## Sawaal
+1 se n tak saare numbers ka jod nikaalna hai. n = 5 ho toh 1 + 2 + 3 + 4 + 5 = 15.
+## Analogy
+Gullak socho: pehle din ₹1 daala, doosre din ₹2, … n-ve din ₹n. Gullak mein jo total hai wahi tumhara running total (accumulator) hai.
+## Kaise sochein
+- Haath se karte waqt dimaag mein ek running total chalta hai. Wahi ek variable ban jayega: `total`.
+- Kuch jodne se pehle total kitna hai? 0.
+- Har lap mein lap number `i` jodo.
+## Brute force
+`for i in range(1, n + 1): total += i`. Time O(n).
+## Best approach
+Gauss ki trick: 1 ko n ke saath, 2 ko n − 1 ke saath jodo, har pair ka sum n + 1. Formula: `n * (n + 1) // 2`, O(1).
+## Galtiyan
+`range(1, n)` n tak nahi jaata, `n + 1` likhna zaroori hai.
+
+### w-factorial
+title: Factorial
+diff: Easy
+pattern: Accumulator (product)
+problem: Return n! = 1 × 2 × 3 × … × n. By definition 0! = 1.
+example: n = 5 → 120
+analogy: Arranging books on a shelf: 5 choices for the first spot, 4 for the next, and so on. Multiplying the choices is exactly n!.
+ask:
+- What is 0!? It's 1.
+hints:
+- Same shape as summing, but multiply instead of add.
+- What should the product start at? If it starts at 0, everything stays 0. Start at 1, the "do nothing" value for multiplication.
+brute: The loop is already the natural solution.
+brutecx: O(n) time
+signal: "Multiply a sequence" → accumulator starting at 1.
+optimal:
+- result = 1.
+- For i from 2 to n: result *= i.
+- Return result (for 0 and 1 the loop never runs, so 1 is returned).
+cx: O(n) time · O(1) space
+code:
+def factorial(n):
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result
+test:
+check(factorial(5), 120)
+check(factorial(0), 1)
+check(factorial(10), 3628800)
+trace:
+i | result
+start | 1
+2 | 2
+3 | 6
+4 | 24
+5 | 120
+mistakes:
+- Starting `result` at 0.
+hinglish:
+## Sawaal
+n! = 1 × 2 × 3 × … × n nikaalo. 0! = 1 maana jaata hai.
+## Analogy
+Shelf pe 5 books lagani hain: pehli jagah ke liye 5 choices, agli ke liye 4, phir 3… In choices ka guna hi n! hai.
+## Kaise sochein
+- Jod wale loop jaisa hi hai, bas `+` ki jagah `*`.
+- Shuru kis value se? 0 se karoge toh sab 0 ho jayega. Multiplication ke liye "kuch na karne wali" value 1 hai.
+## Best approach
+`result = 1`, phir `for i in range(2, n + 1): result *= i`. O(n).
+## Galtiyan
+`result = 0` se shuru karna.
+
+### w-fizzbuzz
+title: FizzBuzz
+diff: Easy
+pattern: Loop + ordered conditions
+problem: For each number from 1 to n, output "Fizz" for multiples of 3, "Buzz" for multiples of 5, "FizzBuzz" for multiples of both, else the number itself. Return the list of strings.
+example: n = 15 → 1, 2, Fizz, 4, Buzz, Fizz, 7, 8, Fizz, Buzz, 11, Fizz, 13, 14, FizzBuzz
+analogy: A bouncer with three rules. If he checks "has a ticket" before "is a VIP with a ticket", VIPs get treated as normal guests. The most specific rule has to be checked first.
+hints:
+- "Multiple of 3" means `i % 3 == 0`.
+- 15 is a multiple of 3 AND 5. Which check must come first so it isn't caught as just "Fizz"?
+- Check the most specific case first: divisible by 15.
+brute: Direct: one loop and an if/elif ladder.
+brutecx: O(n)
+signal: Overlapping rules → order checks from most specific to least specific.
+optimal:
+- For i in 1..n: `i % 15 == 0` → FizzBuzz; elif `% 3` → Fizz; elif `% 5` → Buzz; else str(i).
+cx: O(n) time · O(n) output
+code:
+def fizz_buzz(n):
+    out = []
+    for i in range(1, n + 1):
+        if i % 15 == 0:
+            out.append("FizzBuzz")
+        elif i % 3 == 0:
+            out.append("Fizz")
+        elif i % 5 == 0:
+            out.append("Buzz")
+        else:
+            out.append(str(i))
+    return out
+test:
+check(fizz_buzz(5), ["1", "2", "Fizz", "4", "Buzz"])
+check(fizz_buzz(15)[-1], "FizzBuzz")
+trace:
+i | % 3 | % 5 | output
+3 | 0 | 3 | Fizz
+5 | 2 | 0 | Buzz
+14 | 2 | 4 | 14
+15 | 0 | 0 | FizzBuzz
+mistakes:
+- Checking `% 3` before `% 15`.
+hinglish:
+## Sawaal
+1 se n tak: 3 ke multiple pe "Fizz", 5 ke multiple pe "Buzz", dono ke multiple pe "FizzBuzz", warna number.
+## Analogy
+Ek bouncer ke teen rules hain. Agar wo "ticket hai?" pehle check kare aur "VIP + ticket?" baad mein, toh VIP bhi normal guest ban jaata hai. Sabse specific rule pehle check hona chahiye.
+## Kaise sochein
+- "3 ka multiple" = `i % 3 == 0`.
+- 15 dono ka multiple hai. Agar `% 3` pehle check kiya toh 15 "Fizz" ban jayega.
+- Isliye `% 15` sabse pehle.
+## Best approach
+Ek loop + if/elif ladder, order: 15 → 3 → 5 → number. O(n).
+## Galtiyan
+Order galat rakhna.
+
+### w-count-digits
+title: Count digits
+diff: Easy
+pattern: Digit peeling (while loop)
+problem: Return how many digits a non-negative integer has.
+example: 90817 → 5,   0 → 1
+analogy: Peeling an onion layer by layer and counting the layers until nothing is left.
+ask:
+- Is 0 one digit? Yes.
+hints:
+- `n // 10` removes the last digit.
+- Keep removing and counting until nothing is left.
+- You don't know the number of laps in advance → while loop.
+- 0 is special: the loop wouldn't run. Handle it first.
+brute: `len(str(n))`. Fine in real code; practise the maths way too.
+brutecx: O(d)
+signal: "Digits of a number" → peel with `% 10` and `// 10`.
+optimal:
+- If n == 0 return 1.
+- While n > 0: n //= 10; count += 1.
+cx: O(d) time (d = number of digits) · O(1) space
+code:
+def count_digits(n):
+    n = abs(n)
+    if n == 0:
+        return 1
+    count = 0
+    while n > 0:
+        n //= 10
+        count += 1
+    return count
+test:
+check(count_digits(90817), 5)
+check(count_digits(0), 1)
+check(count_digits(-42), 2)
+trace:
+n | count
+90817 | 0
+9081 | 1
+908 | 2
+90 | 3
+9 | 4
+0 | 5 → stop
+mistakes:
+- Returning 0 for n = 0.
+hinglish:
+## Sawaal
+Number mein kitne digits hain? 90817 → 5.
+## Analogy
+Pyaaz ki parat-dar-parat utaarte jao aur parton ko gino jab tak kuch na bache.
+## Kaise sochein
+- `n // 10` aakhri digit hata deta hai.
+- Hataate jao aur gino jab tak n 0 na ho jaaye. Laps pehle se pata nahi → while loop.
+- 0 special hai (loop chalega hi nahi), use pehle handle karo.
+## Best approach
+`while n > 0: n //= 10; count += 1`. O(digits).
+## Galtiyan
+0 ke liye 0 return karna (answer 1 hai).
+
+### w-sum-digits
+title: Sum of digits
+diff: Easy
+pattern: Digit peeling + accumulator
+problem: Return the sum of the digits of a non-negative integer.
+example: 4729 → 4 + 7 + 2 + 9 = 22
+analogy: Emptying a stack of coins from the top: look at the top coin, add its value, remove it, repeat.
+hints:
+- `n % 10` gives the last digit.
+- Add it to a running `total`, then remove it with `n //= 10`.
+- Repeat while n > 0.
+brute: Convert to a string and add `int(ch)` for each character.
+brutecx: O(d)
+signal: Digit peeling + accumulator.
+optimal:
+- total = 0; while n > 0: total += n % 10; n //= 10.
+cx: O(d) time · O(1) space
+code:
+def sum_digits(n):
+    total = 0
+    while n > 0:
+        total += n % 10
+        n //= 10
+    return total
+test:
+check(sum_digits(4729), 22)
+check(sum_digits(0), 0)
+trace:
+n | n % 10 | total
+4729 | 9 | 9
+472 | 2 | 11
+47 | 7 | 18
+4 | 4 | 22
+0 | — | stop
+mistakes:
+- Forgetting `n //= 10` → infinite loop.
+hinglish:
+## Sawaal
+Digits ka jod: 4729 → 4 + 7 + 2 + 9 = 22.
+## Analogy
+Sikkon ka dher upar se khaali karna: upar wala sikka dekho, uski value jodo, hatao, dohraao.
+## Kaise sochein
+- `n % 10` aakhri digit, `n //= 10` use hatao, `total` mein jodo.
+## Best approach
+`while n > 0: total += n % 10; n //= 10`. O(digits).
+## Galtiyan
+`n //= 10` bhoolna → loop kabhi khatam nahi hoga.
+
+### w-reverse-number
+title: Reverse a number
+diff: Easy
+pattern: Digit peeling + building a number
+problem: Reverse the digits of a non-negative integer.
+example: 472 → 274,   1200 → 21
+analogy: Moving a stack of plates to another table one at a time: the plate that was on top ends up at the bottom, so the order flips.
+ask:
+- Trailing zeros? 1200 reversed is 0021, which is just 21.
+hints:
+- Take digits from the right: `n % 10`.
+- Build the new number: shifting left is multiplying by 10.
+- New number = old × 10 + digit.
+brute: `int(str(n)[::-1])`.
+brutecx: O(d) time · O(d) space
+signal: "Build a number digit by digit" → `rev = rev * 10 + digit`.
+optimal:
+- rev = 0; while n > 0: rev = rev * 10 + n % 10; n //= 10.
+cx: O(d) time · O(1) space
+code:
+def reverse_number(n):
+    rev = 0
+    while n > 0:
+        rev = rev * 10 + n % 10
+        n //= 10
+    return rev
+test:
+check(reverse_number(472), 274)
+check(reverse_number(1200), 21)
+check(reverse_number(7), 7)
+trace:
+n | digit | rev
+472 | 2 | 0×10+2 = 2
+47 | 7 | 2×10+7 = 27
+4 | 4 | 27×10+4 = 274
+0 | — | stop
+mistakes:
+- Writing `rev = digit * 10 + rev` (backwards).
+hinglish:
+## Sawaal
+Number ke digits ulte karo: 472 → 274.
+## Analogy
+Plates ka dher ek-ek karke doosri table pe rakho: jo sabse upar thi wo sabse neeche chali jaati hai, order ulta ho jaata hai.
+## Kaise sochein
+- Right se digit nikaalo: `n % 10`.
+- Naya number banana: purane ko ek jagah left khiskao (× 10) aur naya digit jodo.
+- Rule: `rev = rev * 10 + digit`.
+## Best approach
+Digit peeling loop, O(digits), extra space O(1).
+## Galtiyan
+Formula ulta likhna.
+
+### w-palindrome-number
+title: Palindrome number
+diff: Easy
+pattern: Reuse a previous solution
+problem: Return True if a number reads the same forwards and backwards.
+example: 121 → True,   123 → False,   −121 → False
+analogy: A word like "madam" in a mirror reads the same. A number is a palindrome if its reversed version looks exactly like the original.
+hints:
+- You already know how to reverse a number.
+- A palindrome equals its own reverse.
+- Keep a copy of the original: the loop destroys n.
+- Negatives can't be palindromes (the minus sign is only on one side).
+brute: `str(n) == str(n)[::-1]`.
+brutecx: O(d) time · O(d) space
+signal: "Reads the same both ways" → compare with the reverse.
+optimal:
+- If n < 0 → False. Reverse a copy with the digit loop and compare.
+cx: O(d) time · O(1) space
+code:
+def is_palindrome_number(n):
+    if n < 0:
+        return False
+    original, rev = n, 0
+    while n > 0:
+        rev = rev * 10 + n % 10
+        n //= 10
+    return rev == original
+test:
+check(is_palindrome_number(121), True)
+check(is_palindrome_number(123), False)
+check(is_palindrome_number(-121), False)
+check(is_palindrome_number(0), True)
+trace:
+n | rev
+121 | 0
+12 | 1
+1 | 12
+0 | 121 → equals original → True
+mistakes:
+- Comparing `rev == n` after the loop, when n is already 0.
+hinglish:
+## Sawaal
+Number aage-peeche se same padhta hai? 121 → True, 123 → False.
+## Analogy
+"madam" jaisa word shishe mein bhi same padhta hai. Number palindrome hai agar uska ulta bilkul original jaisa ho.
+## Kaise sochein
+- Number reverse karna already aata hai.
+- Palindrome apne reverse ke barabar hota hai.
+- Original ki copy rakho kyunki loop n ko 0 bana deta hai. Negative kabhi palindrome nahi.
+## Best approach
+Reverse karo aur `rev == original` check. O(digits).
+## Galtiyan
+Loop ke baad `rev == n` compare karna (n tab tak 0 ho chuka hai).
+
+### w-armstrong
+title: Armstrong number
+diff: Easy
+pattern: Two passes over digits
+problem: An Armstrong number equals the sum of its digits each raised to the power of the digit count. Return whether n is one.
+example: 153 → True (1³ + 5³ + 3³ = 153);   9474 → True (4 digits, power 4)
+analogy: Before cooking you check how many guests are coming (the digit count); only then can you decide the portion for each (the power).
+hints:
+- You need the number of digits before computing any power: that's a first pass.
+- Second pass: peel each digit, raise it to that power, add it up.
+- Compare the total with the original.
+brute: Direct: two small loops.
+brutecx: O(d)
+signal: Need a fact about the whole input first → one pass to learn it, a second pass to use it.
+optimal:
+- k = len(str(n)).
+- total = sum of digit ** k over the digits.
+- Return total == n.
+cx: O(d) time · O(1) space
+code:
+def is_armstrong(n):
+    k = len(str(n))
+    total, m = 0, n
+    while m > 0:
+        total += (m % 10) ** k
+        m //= 10
+    return total == n
+test:
+check(is_armstrong(153), True)
+check(is_armstrong(9474), True)
+check(is_armstrong(154), False)
+trace:
+digit | digit³ | total
+3 | 27 | 27
+5 | 125 | 152
+1 | 1 | 153 → equals 153 → True
+mistakes:
+- Always using power 3 instead of the digit count.
+hinglish:
+## Sawaal
+Armstrong number: har digit ko (digits ki ginti) ki power pe le jaake jodo, total number ke barabar aana chahiye. 153 → 1³ + 5³ + 3³ = 153.
+## Analogy
+Khana banane se pehle pata karte ho kitne mehmaan aa rahe hain (digits ki ginti); tabhi har ek ka portion (power) decide hota hai.
+## Kaise sochein
+- Pehle digits gino: `k = len(str(n))`.
+- Phir har digit ka `digit ** k` jodo.
+- Total == n?
+## Best approach
+Do passes, O(digits).
+## Galtiyan
+Hamesha power 3 le lena.
+
+### w-is-prime
+title: Prime check
+diff: Easy
+pattern: Loop up to √n
+problem: Return True if n is prime (exactly two factors: 1 and itself).
+example: 37 → True,   91 → False (7 × 13),   1 → False
+analogy: Factors come in pairs like dance partners: 2 × 18 = 36, 3 × 12 = 36. One partner is always ≤ √36 = 6. So you only need to look for partners up to √n.
+ask:
+- Is 1 prime? No. Is 2? Yes, the only even prime.
+hints:
+- Brute force: try every divisor from 2 to n − 1.
+- Factors pair up (a × b = n); one of each pair is ≤ √n.
+- So check d only while `d * d <= n`.
+brute: Try d from 2 to n − 1.
+brutecx: O(n)
+signal: "Is there a factor?" → stop at √n.
+optimal:
+- n < 2 → False.
+- d = 2; while d * d <= n: if n % d == 0 → False; d += 1.
+- True.
+cx: O(√n) time · O(1) space
+code:
+def is_prime(n):
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+test:
+check(is_prime(37), True)
+check(is_prime(91), False)
+check(is_prime(1), False)
+check(is_prime(2), True)
+check(is_prime(49), False)
+trace:
+d | d×d ≤ 91? | 91 % d
+2 | yes | 1
+3 | yes | 1
+4 | yes | 3
+5 | yes | 1
+6 | yes | 1
+7 | yes | 0 → not prime
+mistakes:
+- Treating 1 as prime.
+- Using `d < math.sqrt(n)`, which misses perfect squares like 49.
+hinglish:
+## Sawaal
+Kya n prime hai (sirf 1 aur khud se divide)? 37 → True, 91 → False (7 × 13).
+## Analogy
+Factors dance partners jaise pairs mein aate hain: 2 × 18 = 36, 3 × 12 = 36. Har pair mein ek partner hamesha √36 = 6 se chhota ya barabar hota hai. Isliye partners sirf √n tak dhoondne hain.
+## Kaise sochein
+- Brute force: 2 se n − 1 tak har number try karo. Slow.
+- Pairs wali baat se: sirf jab tak `d * d <= n`.
+## Best approach
+n < 2 → False; phir d = 2 se `d * d <= n` tak check. O(√n).
+## Galtiyan
+1 ko prime maan lena; `sqrt` ke saath `<` likh ke 49 jaise perfect squares miss karna.
+
+### w-primes-up-to-n
+title: All primes up to n (Sieve)
+diff: Medium
+pattern: Sieve of Eratosthenes
+problem: Return every prime from 2 to n.
+example: n = 30 → [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+analogy: A class register with 30 names. Mark 2 as "prime" and strike out every 2nd name after it. The next unstruck name, 3, is prime: strike every 3rd name. Whoever is never struck out is prime.
+hints:
+- Brute force: call is_prime for every number. It repeats work.
+- Flip it: instead of testing each number, cross out the multiples of each prime.
+- The next number that isn't crossed out must be prime.
+- You can start crossing at p × p; smaller multiples were already crossed by smaller primes.
+brute: is_prime(i) for every i.
+brutecx: O(n√n)
+signal: "All primes up to n" → sieve. In general: many repeated queries → precompute once.
+optimal:
+- is_p = [True] * (n + 1); mark 0 and 1 False.
+- For p while p * p <= n: if is_p[p]: mark p*p, p*p + p, … False.
+- Collect the indexes still True.
+cx: O(n log log n) time · O(n) space
+code:
+def primes_up_to(n):
+    if n < 2:
+        return []
+    is_p = [True] * (n + 1)
+    is_p[0] = is_p[1] = False
+    p = 2
+    while p * p <= n:
+        if is_p[p]:
+            for m in range(p * p, n + 1, p):
+                is_p[m] = False
+        p += 1
+    return [i for i in range(2, n + 1) if is_p[i]]
+test:
+check(primes_up_to(30), [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])
+check(primes_up_to(1), [])
+check(primes_up_to(2), [2])
+trace:
+p | crosses out
+2 | 4, 6, 8, …, 30
+3 | 9, 15, 21, 27 (others already crossed)
+5 | 25
+6 | 6 × 6 = 36 > 30 → stop
+mistakes:
+- `[True] * n` and then indexing n (off by one).
+hinglish:
+## Sawaal
+2 se n tak saare primes chahiye.
+## Analogy
+Class register mein 30 naam. 2 ko "prime" mark karo aur uske baad har 2nd naam kaat do. Agla bina kata naam 3 prime hai: har 3rd naam kaato. Jo kabhi nahi kata, wo prime hai.
+## Kaise sochein
+- Har number pe is_prime chalana repeated kaam hai.
+- Ulta socho: har prime ke multiples kaat do.
+- Agla bina kata number zaroor prime hoga.
+- p × p se kaatna shuru karo, chhote multiples pehle hi kat chuke hain.
+## Best approach
+Sieve of Eratosthenes, O(n log log n) time, O(n) space.
+## Galtiyan
+List ka size n + 1 ki jagah n rakhna.
+
+### w-gcd-lcm
+title: GCD and LCM
+diff: Easy
+pattern: Euclid's algorithm
+problem: Return the greatest common divisor and least common multiple of two positive integers.
+example: 48 and 18 → gcd 6, lcm 144
+analogy: GCD: 48 laddoos and 18 barfis packed into identical gift boxes with nothing left over. The most boxes you can make is the GCD. LCM: two buses arrive every 4 and 6 minutes; the LCM (12) is when they first arrive together.
+hints:
+- Brute force: try every number from min(a, b) down to 1.
+- Euclid: gcd(a, b) = gcd(b, a % b). When b hits 0, a is the answer.
+- lcm = a × b ÷ gcd (divide first to keep numbers small).
+brute: Loop d from min(a, b) down; return the first d dividing both.
+brutecx: O(min(a, b))
+signal: "Common divisor / multiple" → Euclid.
+optimal:
+- while b: a, b = b, a % b → a is the gcd.
+- lcm = a // gcd * b.
+cx: O(log min(a, b)) time · O(1) space
+code:
+def gcd(a, b):
+    while b:
+        a, b = b, a % b
+    return a
+
+def lcm(a, b):
+    return a // gcd(a, b) * b
+test:
+check(gcd(48, 18), 6)
+check(lcm(48, 18), 144)
+check(gcd(84, 36), 12)
+check(lcm(4, 6), 12)
+trace:
+a | b | a % b
+48 | 18 | 12
+18 | 12 | 6
+12 | 6 | 0
+6 | 0 | answer 6
+mistakes:
+- In other languages you'd need a temp variable; Python's `a, b = b, a % b` does it safely.
+hinglish:
+## Sawaal
+Do numbers ka GCD (sabse bada common divisor) aur LCM (sabse chhota common multiple).
+## Analogy
+GCD: 48 laddoo aur 18 barfi ko ek jaise gift boxes mein bina kuch bache bharna. Jitne zyada se zyada box ban sakte hain wo GCD hai. LCM: do buses har 4 aur 6 minute pe aati hain; pehli baar saath 12 minute pe aayengi, wahi LCM.
+## Kaise sochein
+- Brute force: min(a, b) se neeche tak har number try karo.
+- Euclid ki trick: gcd(a, b) = gcd(b, a % b), jab tak b zero na ho.
+- lcm = a × b ÷ gcd.
+## Best approach
+`while b: a, b = b, a % b`. O(log n).
+## Galtiyan
+LCM mein pehle guna karke bade numbers banana; pehle divide karo.
+
+### w-fibonacci
+title: Fibonacci number
+diff: Easy
+pattern: Rolling variables (tiny DP)
+problem: The sequence starts 0, 1 and each next number is the sum of the previous two: 0, 1, 1, 2, 3, 5, 8, 13… Return fib(n).
+example: n = 7 → 13
+analogy: Climbing with two friends' footprints: you only ever need to remember the last two steps to take the next one.
+hints:
+- Each number depends only on the two before it.
+- Keep two variables: `a` (two back) and `b` (one back).
+- Each step: (a, b) = (b, a + b).
+brute: Recursion fib(n − 1) + fib(n − 2) recomputes the same values again and again.
+brutecx: O(2ⁿ)
+signal: "Each answer depends on the previous few" → dynamic programming; keep only what you need.
+optimal:
+- If n < 2 return n. a, b = 0, 1; repeat n − 1 times: a, b = b, a + b. Return b.
+cx: O(n) time · O(1) space
+code:
+def fib(n):
+    if n < 2:
+        return n
+    a, b = 0, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b
+test:
+check(fib(0), 0)
+check(fib(1), 1)
+check(fib(7), 13)
+check(fib(10), 55)
+trace:
+step | a | b
+start | 0 | 1
+1 | 1 | 1
+2 | 1 | 2
+3 | 2 | 3
+4 | 3 | 5
+5 | 5 | 8
+6 | 8 | 13 → fib(7)
+mistakes:
+- Writing `a = b` then `b = a + b` on separate lines loses the old a. Python's tuple assignment avoids this.
+hinglish:
+## Sawaal
+Fibonacci: 0, 1, 1, 2, 3, 5, 8, 13… har number pichhle do ka jod. fib(n) do.
+## Analogy
+Seedhi chadhte waqt sirf pichhle do kadam yaad rakhne padte hain agla kadam lene ke liye.
+## Kaise sochein
+- Har number sirf pichhle do pe depend karta hai.
+- Do variables: `a` (do peeche), `b` (ek peeche).
+- Har step: `a, b = b, a + b`.
+## Brute force
+Recursion `fib(n-1) + fib(n-2)` same values baar-baar calculate karta hai: O(2ⁿ).
+## Best approach
+Do variables ke saath loop: O(n) time, O(1) space. Ye chhota sa DP hai.
+## Galtiyan
+Alag lines mein `a = b` phir `b = a + b` likhna, purana a kho jaata hai.

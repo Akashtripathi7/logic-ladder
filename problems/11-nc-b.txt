@@ -1,0 +1,1473 @@
+## topic: binary-search | Binary Search
+
+### binary-search
+title: Binary Search
+lc: 704 binary-search
+diff: Easy
+pattern: Classic binary search
+problem: Given a sorted list and a target, return the target's index or -1, in O(log n).
+example: [-1, 0, 3, 5, 9, 12], target 9 → 4
+analogy: The "guess my number from 1 to 100" game: always guess the middle, and each "higher/lower" answer throws away half the numbers. 100 numbers need at most 7 guesses.
+hints:
+- Sorted means the middle tells you which half can hold the target.
+- Keep a window [lo, hi] where the answer could still be.
+- Middle too small → lo = mid + 1. Too big → hi = mid − 1.
+- Stop when lo > hi (window empty).
+brute: Linear scan.
+brutecx: O(n)
+signal: **Sorted** + find → binary search.
+optimal:
+- lo, hi = 0, n − 1; while lo <= hi: mid = (lo + hi) // 2; compare; move.
+- Return −1.
+cx: O(log n) time · O(1) space
+code:
+def search(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1
+test:
+check(search([-1, 0, 3, 5, 9, 12], 9), 4)
+check(search([-1, 0, 3, 5, 9, 12], 2), -1)
+trace:
+lo | hi | mid | nums[mid] | action
+0 | 5 | 2 | 3 | < 9 → lo = 3
+3 | 5 | 4 | 9 | found → 4
+mistakes:
+- `while lo < hi` with `hi = mid − 1` skips the last candidate.
+- `lo = mid` can loop forever.
+hinglish:
+## Sawaal
+Sorted list mein target ka index, O(log n) mein; na mile toh -1.
+## Analogy
+"1 se 100 mein mera number guess karo" game: hamesha beech ka number bolo, har "bada/chhota" jawab aadhe numbers hata deta hai. 100 numbers ke liye max 7 guesses.
+## Kaise sochein
+- Sorted hai, toh beech wala element batata hai target kis half mein hai.
+- Window [lo, hi] rakho jahan answer ho sakta hai.
+- Beech chhota → lo = mid + 1; bada → hi = mid − 1; lo > hi → khatam.
+## Pattern pehchano
+Sorted + dhoondhna → binary search.
+## Best approach
+O(log n).
+## Galtiyan
+`lo < hi` likhna ya `lo = mid` karna.
+
+### search-a-2d-matrix
+title: Search a 2D Matrix
+lc: 74 search-a-2d-matrix
+diff: Medium
+pattern: Binary search on a flattened index
+problem: Each row is sorted and each row starts after the previous row ends. Is target in the matrix?
+example: [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target 3 → True
+analogy: A book split into chapters of equal pages: page 53 overall is chapter 53 // pages_per_chapter, page 53 % pages_per_chapter. The matrix is one long sorted list folded into rows.
+hints:
+- Read row by row and it's ONE sorted list of rows × cols numbers.
+- Binary search over k from 0 to rows·cols − 1.
+- Cell for k: row = k // cols, col = k % cols.
+brute: Scan every cell.
+brutecx: O(m·n)
+signal: A grid that's sorted when flattened → **binary search with index maths**.
+optimal:
+- lo, hi = 0, m·n − 1; mid → matrix[mid // n][mid % n].
+cx: O(log(m·n)) time · O(1) space
+code:
+def search_matrix(matrix, target):
+    rows, cols = len(matrix), len(matrix[0])
+    lo, hi = 0, rows * cols - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        v = matrix[mid // cols][mid % cols]
+        if v == target:
+            return True
+        if v < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return False
+test:
+m = [[1, 3, 5, 7], [10, 11, 16, 20], [23, 30, 34, 60]]
+check(search_matrix(m, 3), True)
+check(search_matrix(m, 13), False)
+trace:
+lo | hi | mid | cell | value | action
+0 | 11 | 5 | (1,1) | 11 | too big → hi 4
+0 | 4 | 2 | (0,2) | 5 | too big → hi 1
+0 | 1 | 0 | (0,0) | 1 | too small → lo 1
+1 | 1 | 1 | (0,1) | 3 | found
+mistakes:
+- `mid // rows` instead of `mid // cols`.
+hinglish:
+## Sawaal
+Har row sorted hai aur har row pichhli row ke baad shuru hoti hai. Target matrix mein hai?
+## Analogy
+Barabar pages wale chapters ki kitaab: poori kitaab ka page 53 = chapter 53 // pages_per_chapter, page 53 % pages_per_chapter. Matrix ek lambi sorted list hai jo rows mein modi hui hai.
+## Kaise sochein
+- Row by row padho toh ek hi sorted list hai.
+- Index k pe binary search; cell = (k // cols, k % cols).
+## Pattern pehchano
+Flatten karne pe sorted grid → index maths ke saath binary search.
+## Best approach
+O(log(m·n)).
+
+### koko-eating-bananas
+title: Koko Eating Bananas
+lc: 875 koko-eating-bananas
+diff: Medium
+pattern: Binary search on the answer
+problem: Koko eats k bananas per hour from one pile per hour. Find the minimum k that lets her finish all piles within h hours.
+example: piles [3, 6, 7, 11], h = 8 → 4
+analogy: Choosing the slowest bike speed that still gets you to college on time: if 40 km/h works, 50 km/h works too. So you can binary search over speeds.
+hints:
+- If speed k works, every faster speed works. The answers look like: fail fail fail OK OK OK.
+- That monotonic yes/no means you can binary search on k itself.
+- Range of k: 1 to max(piles).
+- Hours at speed k = Σ ceil(pile / k) = Σ (pile + k − 1) // k.
+brute: Try k = 1, 2, 3 … until it fits.
+brutecx: O(max · n)
+signal: "Minimum X such that a condition holds" + monotonic condition → **binary search on the answer**.
+optimal:
+- lo, hi = 1, max(piles). While lo < hi: k = mid; if hours(k) ≤ h → hi = k else lo = k + 1.
+cx: O(n log max) time · O(1) space
+code:
+def min_eating_speed(piles, h):
+    lo, hi = 1, max(piles)
+    while lo < hi:
+        k = (lo + hi) // 2
+        hours = sum((p + k - 1) // k for p in piles)
+        if hours <= h:
+            hi = k
+        else:
+            lo = k + 1
+    return lo
+test:
+check(min_eating_speed([3, 6, 7, 11], 8), 4)
+check(min_eating_speed([30, 11, 23, 4, 20], 5), 30)
+check(min_eating_speed([30, 11, 23, 4, 20], 6), 23)
+trace:
+lo | hi | k | hours | fits 8?
+1 | 11 | 6 | 1+1+2+2 = 6 | yes → hi 6
+1 | 6 | 3 | 1+2+3+4 = 10 | no → lo 4
+4 | 6 | 5 | 1+2+2+3 = 8 | yes → hi 5
+4 | 5 | 4 | 1+2+2+3 = 8 | yes → hi 4 → answer 4
+mistakes:
+- `hi = k − 1` when k works: k itself might be the answer.
+hinglish:
+## Sawaal
+Koko har ghante ek pile se k bananas khaati hai. Sabse chhota k jisse wo h ghanton mein sab khatam kar de.
+## Analogy
+Sabse dheemi bike speed chunna jisse college time pe pahunch jao: agar 40 km/h chal gaya toh 50 bhi chalega. Isliye speeds pe binary search kar sakte ho.
+## Kaise sochein
+- k chal gaya toh usse tez sab chalenge: fail fail fail OK OK OK.
+- Is monotonic pattern pe seedha k pe binary search.
+- Range 1 se max(piles). Hours = Σ ceil(pile / k).
+## Pattern pehchano
+"Sabse chhota X jisse condition sach ho" → answer pe binary search.
+## Best approach
+O(n log max).
+## Galtiyan
+k chalne pe `hi = k − 1` karna.
+
+### find-minimum-in-rotated-sorted-array
+title: Find Minimum in Rotated Sorted Array
+lc: 153 find-minimum-in-rotated-sorted-array
+diff: Medium
+pattern: Binary search (compare with the right end)
+problem: A sorted list of distinct numbers was rotated. Find the minimum in O(log n).
+example: [3, 4, 5, 1, 2] → 1
+analogy: A clock face read starting from 3 o'clock: numbers rise, then suddenly drop back to 1. The minimum sits exactly at that drop.
+hints:
+- Rotation makes two sorted runs; the minimum starts the second run.
+- Compare nums[mid] with nums[hi]. If nums[mid] > nums[hi], the drop is to the RIGHT of mid.
+- Otherwise the minimum is at mid or to its left.
+brute: `min(nums)`: O(n).
+brutecx: O(n)
+signal: Rotated sorted → **binary search, decide the side by comparing with an end**.
+optimal:
+- lo, hi = 0, n − 1; while lo < hi: mid; nums[mid] > nums[hi] → lo = mid + 1 else hi = mid. Return nums[lo].
+cx: O(log n) time · O(1) space
+code:
+def find_min(nums):
+    lo, hi = 0, len(nums) - 1
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if nums[mid] > nums[hi]:
+            lo = mid + 1
+        else:
+            hi = mid
+    return nums[lo]
+test:
+check(find_min([3, 4, 5, 1, 2]), 1)
+check(find_min([4, 5, 6, 7, 0, 1, 2]), 0)
+check(find_min([11, 13, 15, 17]), 11)
+trace:
+lo | hi | mid | nums[mid] vs nums[hi] | action
+0 | 4 | 2 | 5 > 2 | lo = 3
+3 | 4 | 3 | 1 < 2 | hi = 3 → answer 1
+mistakes:
+- Comparing with nums[lo] instead (confusing for an unrotated list).
+hinglish:
+## Sawaal
+Ghumayi hui sorted list ka minimum, O(log n) mein.
+## Analogy
+Ghadi ko 3 baje se padhna shuru karo: numbers badhte hain, phir achanak 1 pe gir jaate hain. Minimum bilkul us girawat pe hai.
+## Kaise sochein
+- Do sorted runs; minimum doosre run ki shuruaat.
+- nums[mid] > nums[hi] → girawat mid ke RIGHT mein.
+- Warna minimum mid pe ya left mein.
+## Pattern pehchano
+Rotated sorted → end se compare karke side decide.
+## Best approach
+O(log n).
+
+### search-in-rotated-sorted-array
+title: Search in Rotated Sorted Array
+lc: 33 search-in-rotated-sorted-array
+diff: Medium
+pattern: Binary search (one half is always sorted)
+problem: Search for target in a rotated sorted list of distinct values; return its index or -1 in O(log n).
+example: [4, 5, 6, 7, 0, 1, 2], target 0 → 4
+analogy: A bookshelf where someone moved the first few books to the end. Split it in the middle: at least one half is still in perfect order, and you can instantly tell whether your book belongs in that neat half.
+hints:
+- Cut at mid. At least ONE half is normally sorted: if nums[lo] <= nums[mid], the left half is.
+- In the sorted half it's easy to check whether target is inside its range.
+- If yes, search there; otherwise search the other half.
+brute: Linear scan.
+brutecx: O(n)
+signal: Rotated sorted + search → **find the sorted half, ask "is target in its range?"**
+optimal:
+- mid; equal → return. Left sorted: target in [nums[lo], nums[mid]) → hi = mid − 1 else lo = mid + 1. Right sorted: mirror.
+cx: O(log n) time · O(1) space
+code:
+def search_rotated(nums, target):
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[lo] <= nums[mid]:
+            if nums[lo] <= target < nums[mid]:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        else:
+            if nums[mid] < target <= nums[hi]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1
+test:
+check(search_rotated([4, 5, 6, 7, 0, 1, 2], 0), 4)
+check(search_rotated([4, 5, 6, 7, 0, 1, 2], 3), -1)
+check(search_rotated([1], 0), -1)
+check(search_rotated([3, 1], 1), 1)
+trace:
+lo | hi | mid | sorted half | target inside? | action
+0 | 6 | 3 (7) | left [4..7] | no | lo = 4
+4 | 6 | 5 (1) | left [0..1] | 0 yes | hi = 4
+4 | 4 | 4 (0) | — | — | found 4
+mistakes:
+- `<` instead of `<=` in `nums[lo] <= nums[mid]` (breaks when lo == mid).
+hinglish:
+## Sawaal
+Ghumayi hui sorted list mein target dhoondo, O(log n).
+## Analogy
+Bookshelf jisme kisi ne shuru ki kuch books end mein rakh di. Beech se todo: kam se kam ek half abhi bhi perfect order mein hai, aur turant pata chal jaata hai tumhari book us saaf half mein aati hai ya nahi.
+## Kaise sochein
+- mid pe todo; kam se kam ek half sorted hai (`nums[lo] <= nums[mid]` → left sorted).
+- Sorted half ki range mein target hai? Haan → wahan jao, nahi → doosre half.
+## Pattern pehchano
+Rotated + search → sorted half dhoondo, range check.
+## Best approach
+O(log n).
+
+### time-based-key-value-store
+title: Time Based Key-Value Store
+lc: 981 time-based-key-value-store
+diff: Medium
+pattern: Dict of sorted lists + binary search
+problem: set(key, value, timestamp) and get(key, timestamp) returning the value with the largest timestamp ≤ the given one ("" if none). set timestamps strictly increase.
+example: set(foo, bar, 1); get(foo, 1) → bar; get(foo, 3) → bar; set(foo, bar2, 4); get(foo, 4) → bar2; get(foo, 5) → bar2
+analogy: A phone's photo gallery sorted by date: "show me the latest photo taken on or before 5 March" → jump into the sorted timeline and find the last one not after that date.
+hints:
+- A dict from key to a list of (timestamp, value).
+- Timestamps arrive in increasing order, so each list is already sorted.
+- get = the last timestamp ≤ t → binary search for a boundary (or `bisect_right`).
+brute: Scan the list backwards.
+brutecx: O(n) per get
+signal: "Latest value at or before time t" on sorted data → **binary search for the rightmost ≤ t**.
+optimal:
+- set: store[key].append((t, v)).
+- get: i = bisect_right(times, t) − 1; return value at i or "".
+cx: set O(1), get O(log n)
+code:
+from collections import defaultdict
+import bisect
+
+class TimeMap:
+    def __init__(self):
+        self.times = defaultdict(list)
+        self.values = defaultdict(list)
+
+    def set(self, key, value, timestamp):
+        self.times[key].append(timestamp)
+        self.values[key].append(value)
+
+    def get(self, key, timestamp):
+        ts = self.times.get(key, [])
+        i = bisect.bisect_right(ts, timestamp) - 1
+        return self.values[key][i] if i >= 0 else ""
+test:
+tm = TimeMap()
+tm.set("foo", "bar", 1)
+check(tm.get("foo", 1), "bar")
+check(tm.get("foo", 3), "bar")
+tm.set("foo", "bar2", 4)
+check(tm.get("foo", 4), "bar2")
+check(tm.get("foo", 5), "bar2")
+check(tm.get("foo", 0), "")
+check(tm.get("x", 1), "")
+mistakes:
+- Returning "" when there's no exact match (you need the latest ≤ t).
+hinglish:
+## Sawaal
+set(key, value, time) aur get(key, time) jo time ya usse pehle ki sabse latest value de.
+## Analogy
+Phone gallery date se sorted: "5 March ya usse pehle ki sabse latest photo dikhao" → sorted timeline mein jump karke us date ke baad wali nahi, aakhri wali photo.
+## Kaise sochein
+- Dict: key → (time, value) ki list.
+- Times badhte order mein aate hain → list already sorted.
+- "Last ≤ t" → binary search (`bisect_right − 1`).
+## Pattern pehchano
+Sorted data pe "t se pehle ki latest" → rightmost ≤ t binary search.
+## Best approach
+set O(1), get O(log n).
+
+### median-of-two-sorted-arrays
+title: Median of Two Sorted Arrays
+lc: 4 median-of-two-sorted-arrays
+diff: Hard
+pattern: Binary search on a partition
+problem: Return the median of two sorted lists combined, in O(log(min(m, n))).
+example: [1, 3] and [2] → 2.0;   [1, 2] and [3, 4] → 2.5
+analogy: Two sorted queues of students by height need to be split into a "shorter half" and a "taller half". Decide how many students come from queue A; queue B must supply the rest, and a correct split has every left-side student ≤ every right-side student.
+hints:
+- Merging then picking the middle is O(m + n). A fine first step, but too slow.
+- The median splits all numbers into equal left and right halves.
+- Taking i numbers from A for the left half forces j = half − i from B.
+- The split is correct when A[i−1] ≤ B[j] and B[j−1] ≤ A[i]. Binary search on i in the SHORTER list.
+brute: Merge both lists and take the middle.
+brutecx: O(m + n)
+signal: Median / k-th across two sorted lists in log time → **binary search on how many to take from one list**.
+optimal:
+- A = shorter. half = (m + n + 1) // 2. lo, hi = 0, m.
+- i = (lo + hi) // 2, j = half − i. Use ±inf for missing neighbours.
+- Correct → odd: max(Aleft, Bleft); even: average of max(lefts) and min(rights). Aleft > Bright → hi = i − 1; else lo = i + 1.
+cx: O(log min(m, n)) time · O(1) space
+code:
+def find_median_sorted_arrays(a, b):
+    if len(a) > len(b):
+        a, b = b, a
+    m, n = len(a), len(b)
+    half = (m + n + 1) // 2
+    lo, hi = 0, m
+    inf = float("inf")
+    while lo <= hi:
+        i = (lo + hi) // 2
+        j = half - i
+        a_left = a[i - 1] if i > 0 else -inf
+        a_right = a[i] if i < m else inf
+        b_left = b[j - 1] if j > 0 else -inf
+        b_right = b[j] if j < n else inf
+        if a_left <= b_right and b_left <= a_right:
+            if (m + n) % 2:
+                return float(max(a_left, b_left))
+            return (max(a_left, b_left) + min(a_right, b_right)) / 2
+        if a_left > b_right:
+            hi = i - 1
+        else:
+            lo = i + 1
+    return 0.0
+test:
+check(find_median_sorted_arrays([1, 3], [2]), 2.0)
+check(find_median_sorted_arrays([1, 2], [3, 4]), 2.5)
+check(find_median_sorted_arrays([], [1]), 1.0)
+trace:
+lo | hi | i (from A = [1,2]) | j (from B = [3,4]) | check | action
+0 | 2 | 1 | 1 | Bleft 3 > Aright 2 | lo = 2
+2 | 2 | 2 | 0 | 2 ≤ 3 and −inf ≤ +inf | even → (2 + 3) / 2 = 2.5
+mistakes:
+- Binary searching the longer list (j can go negative).
+hinglish:
+## Sawaal
+Do sorted lists ko milake median, O(log(min(m, n))) mein.
+## Analogy
+Height se sorted do line ke students ko "chhote half" aur "lambe half" mein baantna hai. Tay karo line A se kitne students aayenge; baaki line B se aayenge. Sahi split mein left side ka har student right side ke har student se chhota ya barabar hota hai.
+## Kaise sochein
+- Merge karke beech wala: O(m + n), slow.
+- Median saare numbers ko do barabar hisson mein baantta hai.
+- A se i liye toh B se j = half − i lene padenge.
+- Sahi split: A[i−1] ≤ B[j] aur B[j−1] ≤ A[i]. Chhoti list pe i ka binary search.
+## Pattern pehchano
+Do sorted lists mein median/k-th log time mein → partition pe binary search.
+## Best approach
+O(log min(m, n)).
+## Galtiyan
+Lambi list pe search karna (j negative ho jaata hai).
+
+## topic: sliding-window | Sliding Window
+
+### best-time-to-buy-and-sell-stock
+title: Best Time to Buy and Sell Stock
+lc: 121 best-time-to-buy-and-sell-stock
+diff: Easy
+pattern: Track the minimum so far
+problem: prices[i] is the price on day i. Buy once, sell later. Return the maximum profit (0 if none).
+example: [7, 1, 5, 3, 6, 4] → 5 (buy at 1, sell at 6)
+analogy: Looking back at a month of mango prices: for each day you imagine selling, the best buy day was simply the cheapest day before it. Keep a sticky note of the cheapest price so far.
+hints:
+- Brute force: every buy day × every later sell day.
+- If you sell today, the best buy was the CHEAPEST day before today.
+- Walk once, remembering the lowest price so far.
+brute: Nested loops over (buy, sell).
+brutecx: O(n²)
+signal: "Best pair where one comes before the other" → **carry the best of the past** while scanning.
+optimal:
+- min_price = inf, best = 0. For p: min_price = min(min_price, p); best = max(best, p − min_price).
+cx: O(n) time · O(1) space
+code:
+def max_profit(prices):
+    min_price, best = float("inf"), 0
+    for p in prices:
+        min_price = min(min_price, p)
+        best = max(best, p - min_price)
+    return best
+test:
+check(max_profit([7, 1, 5, 3, 6, 4]), 5)
+check(max_profit([7, 6, 4, 3, 1]), 0)
+trace:
+price | min so far | profit today | best
+7 | 7 | 0 | 0
+1 | 1 | 0 | 0
+5 | 1 | 4 | 4
+3 | 1 | 2 | 4
+6 | 1 | 5 | 5
+4 | 1 | 3 | 5
+mistakes:
+- max − min of the whole list (the max may come before the min).
+hinglish:
+## Sawaal
+Ek baar kharido, baad mein becho. Maximum profit?
+## Analogy
+Mahine bhar ke aam ke daam dekho: jis din bechne ka socho, us din ke liye best kharid din bas usse pehle ka sabse sasta din tha. "Ab tak sabse sasta" ek sticky note pe likh ke rakho.
+## Kaise sochein
+- Har buy × har sell: O(n²).
+- Aaj becho toh best buy = aaj se pehle ka sabse sasta din.
+- Ek pass, `min_price` yaad rakho.
+## Pattern pehchano
+Pehle-baad wali best pair → past ka best saath le ke chalo.
+## Best approach
+O(n).
+## Galtiyan
+Poori list ka max − min (max pehle aa sakta hai).
+
+### longest-substring-without-repeating-characters
+title: Longest Substring Without Repeating Characters
+lc: 3 longest-substring-without-repeating-characters
+diff: Medium
+pattern: Variable sliding window + set
+problem: Return the length of the longest substring with no repeated characters.
+example: "abcabcbb" → 3 ("abc");   "pwwkew" → 3 ("wke")
+analogy: A train of friends where no two friends may share the same name. New friends join at the back; if the newcomer's name is already on board, people leave from the FRONT until the old namesake is gone.
+hints:
+- Brute force: check every substring.
+- Keep a window [l, r] with no repeats. Grow it with r.
+- If s[r] is already inside, shrink from the left (l += 1) until it isn't.
+- A set holds the window's characters.
+brute: For each start, extend while characters stay unique.
+brutecx: O(n²)
+signal: "Longest/shortest contiguous substring with a property" → **sliding window**.
+optimal:
+- l = 0, window = set(), best = 0.
+- For r: while s[r] in window: remove s[l]; l += 1. Add s[r]; best = max(best, r − l + 1).
+cx: O(n) time · O(k) space
+code:
+def length_of_longest_substring(s):
+    window = set()
+    l = best = 0
+    for r, ch in enumerate(s):
+        while ch in window:
+            window.remove(s[l])
+            l += 1
+        window.add(ch)
+        best = max(best, r - l + 1)
+    return best
+test:
+check(length_of_longest_substring("abcabcbb"), 3)
+check(length_of_longest_substring("bbbbb"), 1)
+check(length_of_longest_substring("pwwkew"), 3)
+check(length_of_longest_substring(""), 0)
+trace:
+r | char | shrink? | window | best
+0 | a | no | a | 1
+1 | b | no | ab | 2
+2 | c | no | abc | 3
+3 | a | drop a | bca | 3
+4 | b | drop b | cab | 3
+5 | c | drop c | abc | 3
+6 | b | drop a, b | cb | 3
+7 | b | drop c, b | b | 3
+mistakes:
+- Clearing the whole window on a repeat (loses valid characters).
+hinglish:
+## Sawaal
+Bina repeat characters wali sabse lambi substring ki length.
+## Analogy
+Doston ki train jisme kisi do doston ka naam same nahi ho sakta. Naye dost peeche se chadhte hain; agar naye wale ka naam pehle se train mein hai, toh AAGE se log utarte hain jab tak purana same-naam wala utar na jaaye.
+## Kaise sochein
+- Window [l, r] bina repeats ke; r se badhao.
+- s[r] pehle se andar → left se chhota karo jab tak nikal na jaaye.
+- Set mein window ke characters.
+## Pattern pehchano
+"Sabse lambi/chhoti contiguous substring + property" → sliding window.
+## Best approach
+O(n): har character ek baar aata, ek baar jaata.
+## Galtiyan
+Repeat pe poori window khaali kar dena.
+
+### longest-repeating-character-replacement
+title: Longest Repeating Character Replacement
+lc: 424 longest-repeating-character-replacement
+diff: Medium
+pattern: Sliding window + counts (window − max_freq ≤ k)
+problem: You may change at most k characters of an uppercase string. Return the longest substring that can become all one letter.
+example: "AABABBA", k = 1 → 4
+analogy: Painting a fence section one colour with only k tins of paint: pick the colour that's already most common in the section, and repaint the rest. The section is fine while "the rest" ≤ k.
+hints:
+- In a window, keep the most common letter and replace the others.
+- Replacements needed = window length − count of the most frequent letter.
+- Valid while that ≤ k; otherwise shrink from the left.
+- Trick: max_freq never needs to decrease; the answer only grows when a bigger max_freq appears.
+brute: Check every substring and count letters.
+brutecx: O(26·n²)
+signal: "Longest window where (size − something) ≤ k" → **sliding window with counts**.
+optimal:
+- count[26], l, max_freq. For r: update; while (r − l + 1) − max_freq > k: shrink. best = max(best, r − l + 1).
+cx: O(n) time · O(26) space
+code:
+def character_replacement(s, k):
+    count = [0] * 26
+    l = max_freq = best = 0
+    for r, ch in enumerate(s):
+        count[ord(ch) - 65] += 1
+        max_freq = max(max_freq, count[ord(ch) - 65])
+        while (r - l + 1) - max_freq > k:
+            count[ord(s[l]) - 65] -= 1
+            l += 1
+        best = max(best, r - l + 1)
+    return best
+test:
+check(character_replacement("ABAB", 2), 4)
+check(character_replacement("AABABBA", 1), 4)
+trace:
+r | char | window | max_freq | replacements | best
+0 | A | A | 1 | 0 | 1
+1 | A | AA | 2 | 0 | 2
+2 | B | AAB | 2 | 1 | 3
+3 | A | AABA | 3 | 1 | 4
+4 | B | ABAB (after shrink) | 3 | 1 | 4
+mistakes:
+- Not decreasing the count of the character leaving on the left.
+hinglish:
+## Sawaal
+Max k characters badal sakte ho. Sabse lambi substring jo ek hi letter ki ban sake.
+## Analogy
+Sirf k dibbe paint se fence ka ek hissa ek rang ka karna: jo rang us hisse mein already sabse zyada hai wahi chuno, baaki repaint karo. Hissa theek hai jab tak "baaki" ≤ k.
+## Kaise sochein
+- Window mein sabse common letter rakho, baaki badlo.
+- Zaroori badlaav = window length − max_freq.
+- Ye > k → left se chhota karo.
+## Pattern pehchano
+"Sabse lambi window jahan (size − kuch) ≤ k" → counts wali sliding window.
+## Best approach
+O(n).
+
+### permutation-in-string
+title: Permutation in String
+lc: 567 permutation-in-string
+diff: Medium
+pattern: Fixed-size window + count match
+problem: Return True if some rearrangement of s1 appears as a contiguous substring of s2.
+example: s1 = "ab", s2 = "eidbaooo" → True ("ba")
+analogy: A magnifying glass exactly as wide as s1 sliding over s2: at each position, check whether the letters under the glass are the same bag of letters as s1.
+hints:
+- A permutation of s1 = a substring with the same letter counts.
+- It has exactly len(s1) characters → a fixed window.
+- Slide: add the new right char, remove the old left char, compare counts.
+brute: Generate all permutations of s1 and search each.
+brutecx: O(n!·m)
+signal: "Anagram / permutation inside a string" → **fixed-size window of counts**.
+optimal:
+- need = counts of s1; have = counts of the first window. Compare; then slide and compare.
+cx: O(26·n) time · O(1) space
+code:
+def check_inclusion(s1, s2):
+    if len(s1) > len(s2):
+        return False
+    need, have = [0] * 26, [0] * 26
+    for i in range(len(s1)):
+        need[ord(s1[i]) - 97] += 1
+        have[ord(s2[i]) - 97] += 1
+    if need == have:
+        return True
+    for r in range(len(s1), len(s2)):
+        have[ord(s2[r]) - 97] += 1
+        have[ord(s2[r - len(s1)]) - 97] -= 1
+        if need == have:
+            return True
+    return False
+test:
+check(check_inclusion("ab", "eidbaooo"), True)
+check(check_inclusion("ab", "eidboaoo"), False)
+check(check_inclusion("abc", "ab"), False)
+trace:
+window | counts match "ab"?
+ei | no
+id | no
+db | no
+ba | YES → True
+mistakes:
+- Removing the wrong left character: the one leaving is at r − len(s1).
+hinglish:
+## Sawaal
+s1 ka koi rearrangement s2 mein lagatar substring ke roop mein hai?
+## Analogy
+Bilkul s1 jitna chauda magnifying glass s2 pe sarkao: har position pe dekho glass ke neeche wale letters s1 wala hi "thaila" hain kya.
+## Kaise sochein
+- Permutation = same letter counts wali substring.
+- Length fixed = len(s1) → fixed window.
+- Naya right add, purana left hatao, counts compare.
+## Pattern pehchano
+"String ke andar anagram/permutation" → fixed window of counts.
+## Best approach
+O(26·n).
+
+### minimum-window-substring
+title: Minimum Window Substring
+lc: 76 minimum-window-substring
+diff: Hard
+pattern: Variable window + "formed" counter
+problem: Return the shortest substring of s containing every character of t (with duplicates), or "".
+example: s = "ADOBECODEBANC", t = "ABC" → "BANC"
+analogy: A shopping list (t). Walk down a market street (s) adding shops to your stretch until you've got everything on the list, then drop shops from the start while you still have everything. The shortest stretch that covers the list wins.
+hints:
+- Grow right until the window contains everything ("valid").
+- Then shrink from the left while it stays valid, recording the smallest.
+- Track `formed` = how many distinct needed characters currently meet their count.
+- Valid when formed == number of distinct characters in t.
+brute: Check every substring.
+brutecx: O(n²·k)
+signal: "Smallest window containing all of X" → **expand until valid, shrink while valid**.
+optimal:
+- need = Counter(t); have = {}; formed = 0.
+- For r: add; if have[c] == need[c] → formed += 1.
+- While formed == len(need): update best; remove s[l]; if have < need → formed −= 1; l += 1.
+cx: O(n + m) time · O(k) space
+code:
+from collections import Counter
+
+def min_window(s, t):
+    if not t:
+        return ""
+    need = Counter(t)
+    have = {}
+    formed, l = 0, 0
+    best_len, best_l = float("inf"), 0
+    for r, c in enumerate(s):
+        have[c] = have.get(c, 0) + 1
+        if c in need and have[c] == need[c]:
+            formed += 1
+        while formed == len(need):
+            if r - l + 1 < best_len:
+                best_len, best_l = r - l + 1, l
+            d = s[l]
+            have[d] -= 1
+            if d in need and have[d] < need[d]:
+                formed -= 1
+            l += 1
+    return "" if best_len == float("inf") else s[best_l:best_l + best_len]
+test:
+check(min_window("ADOBECODEBANC", "ABC"), "BANC")
+check(min_window("a", "a"), "a")
+check(min_window("a", "aa"), "")
+trace:
+step | window | valid? | best
+grow to r = 5 | ADOBEC | yes | ADOBEC (6)
+shrink | DOBEC | no (lost A) | 6
+grow to r = 10 | DOBECODEBA | yes | —
+shrink … | CODEBA | yes | CODEBA (6)
+grow to r = 12 | …BANC | yes | BANC (4)
+mistakes:
+- Incrementing `formed` on every needed character, even after its count is already met.
+hinglish:
+## Sawaal
+s ki sabse chhoti substring jisme t ke saare characters (duplicates ke saath) hon.
+## Analogy
+Shopping list (t) lekar market street (s) pe chalo: dukaanein jodte jao jab tak list ka sab na mil jaaye, phir shuru ki dukaanein hatao jab tak sab mil raha ho. Jo sabse chhota hissa poori list cover kare wahi jeeta.
+## Kaise sochein
+- Right se badhao jab tak window "valid" (sab mil gaya) na ho.
+- Phir left se chhota karo jab tak valid rahe, sabse chhota record karo.
+- `formed` = kitne zaroori characters ki poori ginti mil gayi.
+## Pattern pehchano
+"Sab kuch contain karne wali sabse chhoti window" → valid hone tak badhao, valid rahte tak ghatao.
+## Best approach
+O(n + m).
+## Galtiyan
+`formed` har baar badha dena, chahe count pehle hi poora ho.
+
+### sliding-window-maximum
+title: Sliding Window Maximum
+lc: 239 sliding-window-maximum
+diff: Hard
+pattern: Monotonic deque
+problem: For every window of size k, return the maximum.
+example: [1, 3, -1, -3, 5, 3, 6, 7], k = 3 → [3, 3, 5, 5, 6, 7]
+analogy: A queue for a talent show where the judges only care about the best performer. When a stronger performer joins, the weaker ones in front of them will never win, so they leave the queue. The strongest is always at the front.
+hints:
+- Brute force: max of each window: O(n·k).
+- A new number bigger than older ones means those older ones can NEVER be the max again. Drop them.
+- Keep a deque of indexes with decreasing values; the front is the current max.
+- Drop the front when it leaves the window (index ≤ i − k).
+brute: For each window, loop its k elements.
+brutecx: O(n·k)
+signal: "Max/min of every window" → **monotonic deque**.
+optimal:
+- For i: pop from the back while nums[back] ≤ nums[i]; push i; pop the front if out of window; if i ≥ k − 1: output nums[front].
+cx: O(n) time · O(k) space
+code:
+from collections import deque
+
+def max_sliding_window(nums, k):
+    dq, out = deque(), []
+    for i, x in enumerate(nums):
+        while dq and nums[dq[-1]] <= x:
+            dq.pop()
+        dq.append(i)
+        if dq[0] <= i - k:
+            dq.popleft()
+        if i >= k - 1:
+            out.append(nums[dq[0]])
+    return out
+test:
+check(max_sliding_window([1, 3, -1, -3, 5, 3, 6, 7], 3), [3, 3, 5, 5, 6, 7])
+check(max_sliding_window([1], 1), [1])
+trace:
+i (value) | deque (values) | output
+0 (1) | [1] | —
+1 (3) | [3] | —
+2 (−1) | [3, −1] | 3
+3 (−3) | [3, −1, −3] | 3
+4 (5) | [5] | 5
+5 (3) | [5, 3] | 5
+6 (6) | [6] | 6
+7 (7) | [7] | 7
+mistakes:
+- Storing values instead of indexes (can't tell when the front left the window).
+hinglish:
+## Sawaal
+Size k ki har window ka maximum.
+## Analogy
+Talent show ki line jahan judges ko sirf best performer chahiye. Koi zyada strong performer aaye toh uske aage khade kamzor log kabhi jeet nahi paayenge, line chhod dete hain. Sabse strong hamesha aage.
+## Kaise sochein
+- Har window ka max: O(n·k).
+- Naya bada number aaya → purane chhote kabhi max nahi banenge → hata do.
+- Indexes ka deque, values ghatte order mein; aage wala = current max.
+- Aage wala window se bahar ho gaya → hata do.
+## Pattern pehchano
+"Har window ka max/min" → monotonic deque.
+## Best approach
+O(n).
+## Galtiyan
+Deque mein values rakhna (index chahiye).
+
+## topic: linked-list | Linked List
+
+### reverse-linked-list
+title: Reverse Linked List
+lc: 206 reverse-linked-list
+diff: Easy
+pattern: Pointer reversal (prev, cur, nxt)
+problem: Reverse a singly linked list and return the new head.
+example: 1 → 2 → 3 → 4 → 5 → None   becomes   5 → 4 → 3 → 2 → 1 → None
+analogy: A conga line where everyone holds the shoulder of the person in front. To reverse it, each person lets go and turns around to hold the person who was behind, one person at a time. You must remember who was in front before letting go!
+hints:
+- Each node has one arrow (next). Reversing = making every arrow point backwards.
+- Walk with `cur`, remember the previous node in `prev`.
+- Before turning cur's arrow, save cur.next, or you lose the rest of the list.
+brute: Copy the values into a list, reverse, rebuild or rewrite them.
+brutecx: O(n) time · O(n) space
+signal: Linked list + reverse → **prev / cur / nxt** dance.
+optimal:
+- prev, cur = None, head.
+- While cur: nxt = cur.next; cur.next = prev; prev = cur; cur = nxt.
+- Return prev.
+cx: O(n) time · O(1) space
+code:
+# ListNode is defined on the Linked List topic page (val, next).
+def reverse_list(head):
+    prev, cur = None, head
+    while cur:
+        nxt = cur.next
+        cur.next = prev
+        prev = cur
+        cur = nxt
+    return prev
+test:
+check(list_to_array(reverse_list(build_list([1, 2, 3, 4, 5]))), [5, 4, 3, 2, 1])
+check(list_to_array(reverse_list(None)), [])
+trace:
+cur | nxt saved | reversed part | prev
+1 | 2 | 1 → None | 1
+2 | 3 | 2 → 1 → None | 2
+3 | 4 | 3 → 2 → 1 | 3
+4 | 5 | 4 → 3 → 2 → 1 | 4
+5 | None | 5 → 4 → 3 → 2 → 1 | 5 → return
+mistakes:
+- Setting `cur.next = prev` before saving `nxt` (cuts off the list).
+hinglish:
+## Sawaal
+Linked list ulti karo aur naya head return karo.
+## Analogy
+Conga line jisme har koi aage wale ke kandhe pakadta hai. Ulta karne ke liye har insaan chhod ke peeche mudta hai aur peeche wale ko pakadta hai, ek-ek karke. Chhodne se pehle yaad rakhna padega ki aage kaun tha!
+## Kaise sochein
+- Har node ka ek arrow (next). Ulta = har arrow ko peeche ki taraf.
+- `cur` se chalo, pichhla node `prev` mein.
+- Arrow ghumane se pehle `cur.next` save karo, warna baaki list kho jayegi.
+## Pattern pehchano
+Linked list reverse → prev / cur / nxt.
+## Best approach
+O(n) time, O(1) space.
+## Galtiyan
+`nxt` save karne se pehle arrow ghuma dena.
+
+### merge-two-sorted-lists
+title: Merge Two Sorted Lists
+lc: 21 merge-two-sorted-lists
+diff: Easy
+pattern: Dummy head + two pointers
+problem: Merge two sorted linked lists into one sorted list by relinking nodes.
+example: 1→2→4 and 1→3→4 → 1→1→2→3→4→4
+analogy: Zipping a jacket: teeth from two sides join one at a time, always taking the lower tooth next. A dummy starting tab lets you begin without worrying which side goes first.
+hints:
+- Always take the smaller head.
+- A **dummy** node avoids special-casing the first node.
+- `tail` = last node of the merged list. Attach, move tail.
+- When one list runs out, attach the rest of the other.
+brute: Collect values, sort, build a new list.
+brutecx: O((n+m) log(n+m))
+signal: Building a new linked list → **dummy head + tail**.
+optimal:
+- dummy = tail = ListNode(); while a and b: attach the smaller; tail = tail.next. tail.next = a or b. Return dummy.next.
+cx: O(n + m) time · O(1) space
+code:
+def merge_two_lists(a, b):
+    dummy = tail = ListNode()
+    while a and b:
+        if a.val <= b.val:
+            tail.next, a = a, a.next
+        else:
+            tail.next, b = b, b.next
+        tail = tail.next
+    tail.next = a or b
+    return dummy.next
+test:
+check(list_to_array(merge_two_lists(build_list([1, 2, 4]), build_list([1, 3, 4]))), [1, 1, 2, 3, 4, 4])
+check(list_to_array(merge_two_lists(None, build_list([0]))), [0])
+mistakes:
+- Returning `dummy` instead of `dummy.next`.
+hinglish:
+## Sawaal
+Do sorted linked lists ko jod ke ek sorted list banao (nodes relink karke).
+## Analogy
+Jacket ki zip: dono taraf ke daant ek-ek karke judte hain, hamesha neeche wala daant pehle. Ek dummy starting tab se shuru karne mein tension nahi ki pehle kaunsi side.
+## Kaise sochein
+- Hamesha chhota head lo.
+- Dummy node se pehle node ka special case khatam.
+- `tail` merged list ka aakhri node.
+- Ek list khatam → doosri ka baaki jod do.
+## Pattern pehchano
+Nayi linked list banana → dummy head + tail.
+## Best approach
+O(n + m), O(1) space.
+
+### linked-list-cycle
+title: Linked List Cycle
+lc: 141 linked-list-cycle
+diff: Easy
+pattern: Fast & slow pointers (Floyd)
+problem: Return True if the linked list has a cycle.
+example: 3 → 2 → 0 → −4 → (back to 2) → True
+analogy: Two runners on a track: one runs twice as fast. On a straight road the fast one just finishes first, but on a circular track the fast one eventually laps the slow one.
+hints:
+- Easy: store visited nodes in a set; seeing one again → cycle (O(n) space).
+- O(1) space: slow moves 1 step, fast moves 2.
+- If there's no cycle, fast reaches None.
+brute: A set of visited nodes.
+brutecx: O(n) time · O(n) space
+signal: Cycle in a linked structure, O(1) space → **fast & slow pointers**.
+optimal:
+- slow = fast = head; while fast and fast.next: move; if slow is fast → True. Return False.
+cx: O(n) time · O(1) space
+code:
+def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False
+test:
+h = build_list([3, 2, 0, -4])
+h.next.next.next.next = h.next
+check(has_cycle(h), True)
+check(has_cycle(build_list([1, 2])), False)
+mistakes:
+- Checking `slow is fast` before moving (they start equal!).
+hinglish:
+## Sawaal
+Linked list mein cycle hai?
+## Analogy
+Track pe do runners, ek double speed se. Seedhi sadak pe tez wala bas pehle pahunch jaata hai, lekin gol track pe tez wala dheeme wale ko lap kar hi deta hai.
+## Kaise sochein
+- Visited set: O(n) space.
+- O(1) space: slow 1 step, fast 2 steps. Cycle hai toh milenge; nahi toh fast None tak.
+## Pattern pehchano
+O(1) space mein cycle → fast & slow.
+## Best approach
+O(n) time, O(1) space.
+## Galtiyan
+Move karne se pehle `slow is fast` check (shuru mein dono barabar hain).
+
+### reorder-list
+title: Reorder List
+lc: 143 reorder-list
+diff: Medium
+pattern: Find middle + reverse + merge
+problem: Reorder L0 → L1 → … → Ln into L0 → Ln → L1 → Ln−1 → L2 → … in place.
+example: 1 → 2 → 3 → 4 → 5 becomes 1 → 5 → 2 → 4 → 3
+analogy: Shuffling a deck by splitting it in half, flipping the second half over, then interleaving one card from each half.
+hints:
+- The answer alternates between the front and the back.
+- Three tools you already have: find the middle (slow/fast), reverse the second half, merge alternately.
+brute: Put nodes in a list, then relink with two indexes from both ends.
+brutecx: O(n) time · O(n) space
+signal: Complex list operation → **combine small tools**: middle, reverse, merge.
+optimal:
+- slow/fast to the middle; second = slow.next; slow.next = None.
+- Reverse second. Weave first and second.
+cx: O(n) time · O(1) space
+code:
+def reorder_list(head):
+    if not head:
+        return
+    slow, fast = head, head.next
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    second, slow.next = slow.next, None
+    prev = None
+    while second:
+        nxt = second.next
+        second.next = prev
+        prev, second = second, nxt
+    first, second = head, prev
+    while second:
+        t1, t2 = first.next, second.next
+        first.next = second
+        second.next = t1
+        first, second = t1, t2
+test:
+h = build_list([1, 2, 3, 4, 5])
+reorder_list(h)
+check(list_to_array(h), [1, 5, 2, 4, 3])
+g = build_list([1, 2, 3, 4])
+reorder_list(g)
+check(list_to_array(g), [1, 4, 2, 3])
+trace:
+step | first half | second half
+split | 1 → 2 → 3 | 4 → 5
+reverse | 1 → 2 → 3 | 5 → 4
+weave | 1 → 5 → 2 → 4 → 3 | —
+mistakes:
+- Forgetting `slow.next = None` (leaves a cycle).
+hinglish:
+## Sawaal
+L0 → L1 → … → Ln ko L0 → Ln → L1 → Ln−1 → … banao, wahi list mein.
+## Analogy
+Taash ki gaddi ko beech se do mein todo, doosra hissa palto, phir dono se ek-ek patta baari-baari lagao.
+## Kaise sochein
+- Answer aage aur peeche ke beech alternate karta hai.
+- Teen tools: beech dhoondo (slow/fast), doosra half reverse, baari-baari merge.
+## Pattern pehchano
+Complex list operation → chhote tools jodo.
+## Best approach
+O(n) time, O(1) space.
+## Galtiyan
+`slow.next = None` bhoolna.
+
+### remove-nth-node-from-end-of-list
+title: Remove Nth Node From End of List
+lc: 19 remove-nth-node-from-end-of-list
+diff: Medium
+pattern: Two pointers with a gap
+problem: Remove the nth node from the end in one pass and return the head.
+example: 1 → 2 → 3 → 4 → 5, n = 2 → 1 → 2 → 3 → 5
+analogy: Two people walking a road holding a rope of fixed length. When the front person reaches the end of the road, the back person is exactly rope-length from the end.
+hints:
+- Two passes: count the length, then remove node L − n. Can you do one pass?
+- Put two pointers n + 1 apart (starting at a dummy). When the front hits None, the back is right BEFORE the node to delete.
+- The dummy handles deleting the head.
+brute: Count first, then walk to L − n − 1.
+brutecx: O(n), two passes
+signal: "k-th from the end" → **two pointers with a fixed gap**.
+optimal:
+- dummy → head; fast = slow = dummy; move fast n + 1 times; move both until fast is None; slow.next = slow.next.next.
+cx: O(n) time · O(1) space
+code:
+def remove_nth_from_end(head, n):
+    dummy = ListNode(0, head)
+    fast = slow = dummy
+    for _ in range(n + 1):
+        fast = fast.next
+    while fast:
+        fast = fast.next
+        slow = slow.next
+    slow.next = slow.next.next
+    return dummy.next
+test:
+check(list_to_array(remove_nth_from_end(build_list([1, 2, 3, 4, 5]), 2)), [1, 2, 3, 5])
+check(list_to_array(remove_nth_from_end(build_list([1]), 1)), [])
+check(list_to_array(remove_nth_from_end(build_list([1, 2]), 2)), [2])
+mistakes:
+- Moving fast only n steps (slow ends ON the target, not before it).
+hinglish:
+## Sawaal
+End se n-ve node ko hatao, ek pass mein.
+## Analogy
+Do log fixed lambai ki rassi pakad ke sadak pe chal rahe hain. Aage wala sadak ke end pe pahunche, toh peeche wala end se bilkul rassi jitni doori pe hota hai.
+## Kaise sochein
+- Do pointers n + 1 ki doori pe (dummy se shuru).
+- Aage wala None pe → peeche wala hatane wale node se theek PEHLE.
+- Dummy se head hatana bhi aasaan.
+## Pattern pehchano
+"End se k-th" → fixed gap wale do pointers.
+## Best approach
+O(n), ek pass.
+
+### copy-list-with-random-pointer
+title: Copy List with Random Pointer
+lc: 138 copy-list-with-random-pointer
+diff: Medium
+pattern: Dict old node → new node
+problem: Each node has next and a random pointer (to any node or None). Return a deep copy.
+example: nodes 7, 13, 11 with random pointers → an identical but separate structure
+analogy: Cloning a class seating chart where each student also names a "buddy". First make a clone of every student (with a name tag linking original → clone); then, using the tags, connect each clone to its clone-neighbour and clone-buddy.
+hints:
+- Problem: when copying a node, its random target may not be copied yet.
+- Pass 1: create a copy of every node and remember old → new in a dict.
+- Pass 2: wire next and random using the dict.
+brute: For each random pointer, find its position by walking from the head: O(n²).
+brutecx: O(n²)
+signal: Deep copy of a pointer structure → **map from original to clone**.
+optimal:
+- copies = {None: None}; pass 1 create; pass 2 copies[n].next = copies[n.next], copies[n].random = copies[n.random].
+cx: O(n) time · O(n) space
+code:
+class RNode:
+    def __init__(self, val, next=None, random=None):
+        self.val, self.next, self.random = val, next, random
+
+def copy_random_list(head):
+    copies = {None: None}
+    cur = head
+    while cur:
+        copies[cur] = RNode(cur.val)
+        cur = cur.next
+    cur = head
+    while cur:
+        copies[cur].next = copies[cur.next]
+        copies[cur].random = copies[cur.random]
+        cur = cur.next
+    return copies[head]
+test:
+a, b, c = RNode(7), RNode(13), RNode(11)
+a.next, b.next = b, c
+b.random, c.random = a, c
+k = copy_random_list(a)
+check([k.val, k.next.val, k.next.random.val, k.next.next.random.val], [7, 13, 7, 11])
+check(k is a, False)
+check(k.next.random is k, True)
+mistakes:
+- Pointing the copy's random at the ORIGINAL node instead of its clone.
+hinglish:
+## Sawaal
+Har node mein next aur random pointer hai. Poori deep copy banao.
+## Analogy
+Class ka seating chart clone karna jahan har student ek "buddy" ka naam bhi batata hai. Pehle har student ka clone banao (name tag: original → clone); phir tags se har clone ko uske clone-padosi aur clone-buddy se jodo.
+## Kaise sochein
+- Copy banate waqt random wala node shayad abhi bana hi na ho.
+- Pass 1: har node ka clone, dict mein old → new.
+- Pass 2: dict se next aur random jodo.
+## Pattern pehchano
+Pointer structure ki deep copy → original → clone map.
+## Best approach
+O(n).
+## Galtiyan
+Clone ka random ORIGINAL node pe point karna.
+
+### add-two-numbers
+title: Add Two Numbers
+lc: 2 add-two-numbers
+diff: Medium
+pattern: Digit-by-digit addition with carry
+problem: Two numbers are stored as linked lists with digits in reverse order (ones first). Return their sum in the same format.
+example: 2→4→3 (342) + 5→6→4 (465) = 7→0→8 (807)
+analogy: Column addition from school: add the ones column, write the last digit, carry the rest to the tens column. The lists already give you the ones column first.
+hints:
+- digit = total % 10, carry = total // 10.
+- Keep going while either list has nodes OR a carry remains.
+brute: Convert to integers and add (works in Python thanks to big ints, but misses the point and fails in other languages).
+brutecx: O(n)
+signal: Numbers as digit sequences → **simulate schoolbook addition**.
+optimal:
+- dummy, tail, carry = 0. While a or b or carry: total = carry + a.val + b.val (if present); tail.next = ListNode(total % 10); carry = total // 10.
+cx: O(max(m, n)) time · O(1) extra space
+code:
+def add_two_numbers(a, b):
+    dummy = tail = ListNode()
+    carry = 0
+    while a or b or carry:
+        total = carry
+        if a:
+            total += a.val
+            a = a.next
+        if b:
+            total += b.val
+            b = b.next
+        tail.next = ListNode(total % 10)
+        tail = tail.next
+        carry = total // 10
+    return dummy.next
+test:
+check(list_to_array(add_two_numbers(build_list([2, 4, 3]), build_list([5, 6, 4]))), [7, 0, 8])
+check(list_to_array(add_two_numbers(build_list([9, 9]), build_list([1]))), [0, 0, 1])
+trace:
+a | b | carry in | total | digit | carry out
+2 | 5 | 0 | 7 | 7 | 0
+4 | 6 | 0 | 10 | 0 | 1
+3 | 4 | 1 | 8 | 8 | 0
+mistakes:
+- Stopping when both lists end and dropping a final carry (99 + 1 = 100).
+hinglish:
+## Sawaal
+Do numbers linked lists mein ulte digits mein (ones pehle). Unka sum usi format mein.
+## Analogy
+School wala column addition: ones column jodo, aakhri digit likho, baaki carry tens mein. Lists pehle se ones column pehle de rahi hain.
+## Kaise sochein
+- digit = total % 10, carry = total // 10.
+- Jab tak koi list bachi ho YA carry ho, chalte raho.
+## Pattern pehchano
+Digit sequences mein numbers → school addition simulate.
+## Best approach
+O(max(m, n)).
+## Galtiyan
+Aakhri carry chhod dena.
+
+### find-the-duplicate-number
+title: Find the Duplicate Number
+lc: 287 find-the-duplicate-number
+diff: Medium
+pattern: Floyd's cycle detection on indexes
+problem: n + 1 numbers with values 1..n, so one value repeats. Find it without modifying the list, in O(1) extra space.
+example: [1, 3, 4, 2, 2] → 2
+analogy: Each number is a signpost saying "go to house number X". Two signposts point to the same house, so if you follow the signs you end up walking in a loop, and the loop's entrance is the duplicate.
+hints:
+- A set works but uses O(n) space; sorting modifies the list.
+- Treat each value as a pointer: from index i jump to nums[i]. That's a linked list!
+- Two indexes point to the duplicate value → a cycle starts there.
+- Floyd: slow/fast meet inside the cycle; restart one from 0 and move both 1 step; they meet at the entrance.
+brute: Set of seen values.
+brutecx: O(n) time · O(n) space
+signal: Values in 1..n used as indexes + O(1) space → **Floyd's cycle detection**.
+optimal:
+- slow = fast = 0; do: slow = nums[slow]; fast = nums[nums[fast]] until equal.
+- slow = 0; while slow != fast: both one step. Return slow.
+cx: O(n) time · O(1) space
+code:
+def find_duplicate(nums):
+    slow = fast = 0
+    while True:
+        slow = nums[slow]
+        fast = nums[nums[fast]]
+        if slow == fast:
+            break
+    slow = 0
+    while slow != fast:
+        slow = nums[slow]
+        fast = nums[fast]
+    return slow
+test:
+check(find_duplicate([1, 3, 4, 2, 2]), 2)
+check(find_duplicate([3, 1, 3, 4, 2]), 3)
+check(find_duplicate([1, 1]), 1)
+mistakes:
+- Restarting both pointers in phase 2 (only one restarts from 0).
+hinglish:
+## Sawaal
+1..n values wale n + 1 numbers; ek repeat hai. List badle bina, O(1) extra space mein dhoondo.
+## Analogy
+Har number ek signboard hai: "ghar number X pe jao". Do signboards ek hi ghar ki taraf hain, isliye signs follow karoge toh ek loop mein ghoomoge, aur loop ka darwaza hi duplicate hai.
+## Kaise sochein
+- Set O(n) space; sort list badal deta hai.
+- Value ko pointer maano: i se nums[i] pe jao → linked list!
+- Duplicate pe do arrows aate hain → cycle wahi se shuru.
+- Floyd: slow/fast milte hain; ek ko 0 se restart, dono 1 step; darwaze pe milenge.
+## Pattern pehchano
+1..n values as indexes + O(1) space → Floyd.
+## Best approach
+O(n), O(1).
+
+### lru-cache
+title: LRU Cache
+lc: 146 lru-cache
+diff: Medium
+pattern: Hash map + doubly linked list (or OrderedDict)
+problem: A cache with a capacity: get(key) returns the value or -1; put(key, value) inserts/updates. When full, evict the Least Recently Used key. Both O(1).
+example: cap 2: put(1,1), put(2,2), get(1) → 1, put(3,3) evicts 2, get(2) → -1
+analogy: A small desk that fits only 2 books. Every time you use a book you put it on top of the pile. When a third book arrives, the one at the bottom (least recently used) goes back to the shelf.
+hints:
+- A dict gives O(1) lookup, but can't tell you the oldest key.
+- A doubly linked list keeps usage order; moving/removing a node is O(1) if you have the node.
+- Combine: dict key → node. On access, move the node to the "recent" end; on overflow, remove from the "old" end.
+- Python shortcut: `OrderedDict` with move_to_end and popitem(last=False) does exactly this.
+brute: A list of keys in usage order, searched on each access: O(n).
+brutecx: O(n) per operation
+signal: "O(1) lookup + O(1) order updates" → **hash map + doubly linked list**.
+optimal:
+- Sentinels left (old) and right (new). remove(node), insert_at_right(node).
+- get: move to right. put: remove old node if present; insert new; if over capacity, evict left.next and delete its key.
+cx: O(1) per operation · O(capacity) space
+code:
+class DNode:
+    def __init__(self, key=0, val=0):
+        self.key, self.val = key, val
+        self.prev = self.next = None
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.cap = capacity
+        self.map = {}
+        self.left, self.right = DNode(), DNode()
+        self.left.next, self.right.prev = self.right, self.left
+
+    def _remove(self, node):
+        node.prev.next, node.next.prev = node.next, node.prev
+
+    def _insert(self, node):
+        node.prev, node.next = self.right.prev, self.right
+        self.right.prev.next = node
+        self.right.prev = node
+
+    def get(self, key):
+        if key not in self.map:
+            return -1
+        node = self.map[key]
+        self._remove(node)
+        self._insert(node)
+        return node.val
+
+    def put(self, key, value):
+        if key in self.map:
+            self._remove(self.map[key])
+        node = DNode(key, value)
+        self.map[key] = node
+        self._insert(node)
+        if len(self.map) > self.cap:
+            lru = self.left.next
+            self._remove(lru)
+            del self.map[lru.key]
+test:
+c = LRUCache(2)
+c.put(1, 1); c.put(2, 2)
+check(c.get(1), 1)
+c.put(3, 3)
+check(c.get(2), -1)
+c.put(4, 4)
+check(c.get(1), -1)
+check(c.get(3), 3)
+check(c.get(4), 4)
+trace:
+operation | order (old → new) | note
+put 1 | 1 |
+put 2 | 1, 2 |
+get 1 | 2, 1 | 1 is most recent
+put 3 | 1, 3 | evict 2
+get 2 | 1, 3 | −1
+mistakes:
+- Forgetting to delete the evicted key from the dict.
+hinglish:
+## Sawaal
+Capacity wala cache: get aur put dono O(1). Bhar jaaye toh sabse kam-haal-mein-use hua (LRU) key nikaalo.
+## Analogy
+Chhoti desk jisme sirf 2 books aati hain. Jo book use karo use dher ke upar rakh do. Teesri book aaye toh sabse neeche wali (sabse purani use hui) shelf pe wapas.
+## Kaise sochein
+- Dict O(1) lookup deta hai, par sabse purana key nahi bata sakta.
+- Doubly linked list usage order rakhti hai; node pata ho toh hatana/khiskaana O(1).
+- Dono jodo: dict key → node. Use hua → "recent" end pe; overflow → "old" end se hatao.
+- Python shortcut: `OrderedDict` (`move_to_end`, `popitem(last=False)`).
+## Pattern pehchano
+O(1) lookup + O(1) order update → hash map + doubly linked list.
+## Best approach
+Har operation O(1).
+## Galtiyan
+Evict kiya key dict se delete na karna.
+
+### merge-k-sorted-lists
+title: Merge K Sorted Lists
+lc: 23 merge-k-sorted-lists
+diff: Hard
+pattern: Min-heap of list heads (or pairwise merging)
+problem: Merge k sorted linked lists into one sorted list.
+example: [1→4→5, 1→3→4, 2→6] → 1→1→2→3→4→4→5→6
+analogy: k queues at a bank merging into one: the manager always calls the person with the smallest token number among the k people at the front of the queues. A heap is that manager.
+hints:
+- You know how to merge TWO lists.
+- Merging one by one into a growing result is O(k·N).
+- A min-heap of the k current heads always gives the smallest next node in O(log k).
+- (Or merge in pairs, tournament style: log k rounds.)
+brute: Collect all values, sort, build a list.
+brutecx: O(N log N)
+signal: "Merge many sorted things" → **min-heap of fronts** (or pairwise merging).
+optimal:
+- Push (val, i, node) for each non-empty head (i breaks ties).
+- Pop the smallest, attach it, push its next.
+cx: O(N log k) time · O(k) space
+code:
+import heapq
+
+def merge_k_lists(lists):
+    heap = []
+    for i, node in enumerate(lists):
+        if node:
+            heapq.heappush(heap, (node.val, i, node))
+    dummy = tail = ListNode()
+    while heap:
+        _, i, node = heapq.heappop(heap)
+        tail.next = node
+        tail = node
+        if node.next:
+            heapq.heappush(heap, (node.next.val, i, node.next))
+    return dummy.next
+test:
+check(list_to_array(merge_k_lists([build_list([1, 4, 5]), build_list([1, 3, 4]), build_list([2, 6])])), [1, 1, 2, 3, 4, 4, 5, 6])
+check(list_to_array(merge_k_lists([])), [])
+trace:
+pop (val, list) | attach | push next
+(1, 0) | 1 | 4 from list 0
+(1, 1) | 1 | 3 from list 1
+(2, 2) | 2 | 6 from list 2
+(3, 1) | 3 | 4 from list 1
+(4, 0) | 4 | 5 from list 0
+(4, 1) | 4 | —
+(5, 0) | 5 | —
+(6, 2) | 6 | —
+mistakes:
+- Pushing (val, node) without a tie-breaker: comparing two ListNodes raises TypeError when values are equal.
+hinglish:
+## Sawaal
+k sorted linked lists ko ek sorted list mein milao.
+## Analogy
+Bank ki k lines ek mein merge ho rahi hain: manager hamesha k lines ke aage khade logon mein se sabse chhota token number bulata hai. Heap wahi manager hai.
+## Kaise sochein
+- Do lists merge karna aata hai.
+- Ek-ek karke merge O(k·N).
+- k heads ka min-heap hamesha agla sabse chhota node O(log k) mein deta hai.
+## Pattern pehchano
+"Bahut saari sorted cheezein merge" → fronts ka min-heap.
+## Best approach
+O(N log k).
+## Galtiyan
+Tie-breaker na dena (do ListNodes compare hone pe TypeError).
+
+### reverse-nodes-in-k-group
+title: Reverse Nodes in k-Group
+lc: 25 reverse-nodes-in-k-group
+diff: Hard
+pattern: Reverse sublists with careful reconnection
+problem: Reverse the list k nodes at a time; leave a final group of fewer than k nodes as is.
+example: 1→2→3→4→5, k = 2 → 2→1→4→3→5;   k = 3 → 3→2→1→4→5
+analogy: Reversing each carriage group of a train separately: uncouple a block of k carriages, turn the block around, and re-couple it to the part before and the part after.
+hints:
+- One group at a time. First check that k nodes exist ahead; if not, stop.
+- Reverse exactly those k nodes.
+- Reconnect: the node before the group → new group head; the old group head (now tail) → next group.
+- A dummy before the head gives the first group a "node before".
+brute: Copy values into a list, reverse chunks, write back: O(n) space.
+brutecx: O(n) space
+signal: Reverse in segments → **group-by-group reversal with saved boundaries**.
+optimal:
+- group_prev = dummy. Find kth; if None → done. group_next = kth.next.
+- Reverse from group_prev.next up to group_next (prev starts as group_next).
+- tmp = group_prev.next; group_prev.next = kth; group_prev = tmp.
+cx: O(n) time · O(1) space
+code:
+def reverse_k_group(head, k):
+    dummy = ListNode(0, head)
+    group_prev = dummy
+    while True:
+        kth = group_prev
+        for _ in range(k):
+            kth = kth.next
+            if not kth:
+                return dummy.next
+        group_next = kth.next
+        prev, cur = group_next, group_prev.next
+        while cur is not group_next:
+            nxt = cur.next
+            cur.next = prev
+            prev, cur = cur, nxt
+        old_first = group_prev.next
+        group_prev.next = kth
+        group_prev = old_first
+test:
+check(list_to_array(reverse_k_group(build_list([1, 2, 3, 4, 5]), 2)), [2, 1, 4, 3, 5])
+check(list_to_array(reverse_k_group(build_list([1, 2, 3, 4, 5]), 3)), [3, 2, 1, 4, 5])
+check(list_to_array(reverse_k_group(build_list([1, 2]), 1)), [1, 2])
+trace:
+group | before | after
+1 | 1 → 2 → 3 | 3 → 2 → 1
+2 | 4 → 5 (only 2) | unchanged
+mistakes:
+- Starting prev as None inside a group (it should be group_next).
+hinglish:
+## Sawaal
+List ko k-k nodes ke groups mein ulta karo; aakhri chhota group waisa hi.
+## Analogy
+Train ke k-k dibbon ke block ko alag-alag ulta karna: block alag karo, ghumao, phir aage aur peeche wale hisse se jodo.
+## Kaise sochein
+- Ek group ek baar. Pehle check karo k nodes hain; nahi toh ruk jao.
+- Exactly k nodes reverse.
+- Jodna: group se pehle wala node → naya group head; purana group head (ab tail) → agla group.
+- Dummy se pehle group ko bhi "pehle wala node" mil jaata hai.
+## Pattern pehchano
+Segments mein reverse → boundaries save karke group-by-group reversal.
+## Best approach
+O(n), O(1).
+## Galtiyan
+Group ke andar prev ko None se shuru karna (group_next hona chahiye).

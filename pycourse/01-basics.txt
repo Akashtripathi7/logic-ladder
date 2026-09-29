@@ -1,0 +1,831 @@
+## module: py01 | Getting started with Python
+summary: What programming is, how Python runs your code, your first program, comments and indentation.
+=== en
+### What is programming?
+A program is a list of instructions for a computer. The computer is extremely fast and extremely obedient, but it has **zero common sense**. It does exactly what you write, in exactly the order you write it.
+
+> **Analogy:** Think of a robot chef that follows a recipe word for word. If the recipe says "add salt" but not how much, the robot is stuck. If the recipe says "fry the egg" before "crack the egg", the robot tries to fry a whole egg. Programming is the skill of writing recipes that are precise, complete and in the right order.
+
+That is also exactly what "logic building" means: breaking a task into small, exact steps.
+
+### Why Python?
+- It reads almost like English: `if age >= 18: print("adult")`.
+- It has powerful built-in tools (lists, dictionaries, sets, sorting) that make DSA code short.
+- It is the most popular language for coding interviews after Java and C++, and every DSA 150 solution has a Python version.
+
+### How to run Python
+You have three easy options:
+1. **Online, nothing to install:** open an online Python editor such as programiz.com/python-programming/online-compiler, online-python.com or Google Colab. Type code, press Run.
+2. **On your computer:** install Python 3 from python.org. Then open a terminal and type `python3` (Mac/Linux) or `python` (Windows). To run a file: save it as `hello.py` and run `python3 hello.py`.
+3. **An editor like VS Code** with the Python extension. This is what you will use long term.
+
+### Your first program
+```python
+print("Hello, world!")
+```
+`print` is a **function**: a ready-made machine that shows whatever you give it inside the round brackets. The text inside quotes is called a **string**.
+
+Python runs your file **from top to bottom, one line at a time**:
+```python
+print("I wake up")
+print("I brush my teeth")
+print("I start coding")
+```
+Swap the lines and the output order changes. The computer never rearranges your steps.
+
+### print() in more detail
+```python
+print("a", "b", "c")          # a b c   (separated by spaces)
+print("a", "b", sep="-")      # a-b
+print("no new line", end="")  # the next print continues on the same line
+print(5 + 3)                  # 8  (it prints the RESULT of the expression)
+print()                       # an empty line
+```
+
+### Comments
+Anything after `#` on a line is a **comment**. Python ignores it. Comments are notes for humans, including future you.
+```python
+# This line is ignored
+print("hi")  # this part is ignored too
+```
+
+### Indentation is part of the language
+In most languages, spaces at the start of a line are just decoration. In Python they are **rules**. Lines that belong to the same block must start with the same number of spaces (use 4).
+```python
+if 5 > 3:
+    print("inside the if")    # 4 spaces: belongs to the if
+print("outside")              # no spaces: runs anyway
+```
+Wrong indentation gives an `IndentationError`.
+
+### Errors are friends
+When Python cannot understand or run your code, it prints an **error message**. Read it from the **bottom line up**: the last line says what went wrong, and the lines above say where.
+```
+  File "hello.py", line 1
+    print("hello"
+IndentationError / SyntaxError: '(' was never closed
+```
+Every programmer sees errors all day. The skill is reading them calmly.
+
+> **Remember:** Type every example yourself. Change one thing, predict the output, then run it. Predicting before running is the fastest way to build logic.
+=== hi
+### Programming kya hai?
+Program ek instructions ki list hai jo computer follow karta hai. Computer bahut fast hai aur bahut obedient hai, lekin usme **zero common sense** hai. Jo tum likhoge, bilkul wahi karega, aur usi order mein karega.
+
+> **Analogy:** Ek robot chef socho jo recipe ko word-by-word follow karta hai. Agar recipe mein likha hai "namak daalo" lekin kitna, ye nahi likha, toh robot atak jayega. Agar "anda fry karo" pehle likha hai aur "anda todo" baad mein, toh robot poora anda hi fry kar dega. Programming matlab aisi recipe likhna jo exact ho, complete ho, aur sahi order mein ho.
+
+"Logic building" ka matlab bhi yahi hai: kisi kaam ko chhote-chhote exact steps mein todna.
+
+### Python hi kyun?
+- Ye lagbhag English jaisa padhta hai: `if age >= 18: print("adult")`.
+- Isme powerful built-in tools hain (list, dictionary, set, sorting) jisse DSA ka code chhota ban jata hai.
+- Interviews mein bahut popular hai, aur DSA 150 ke har solution ka Python version hota hai.
+
+### Python kaise chalayein
+Teen aasaan options:
+1. **Online, kuch install nahi karna:** koi online Python editor kholo, jaise programiz.com ka online compiler, online-python.com ya Google Colab. Code likho, Run dabao.
+2. **Apne computer pe:** python.org se Python 3 install karo. Terminal kholo aur `python3` (Mac/Linux) ya `python` (Windows) likho. File chalani ho toh `hello.py` naam se save karo aur `python3 hello.py` chalao.
+3. **VS Code jaisa editor** Python extension ke saath. Aage chalke yahi use karoge.
+
+### Pehla program
+```python
+print("Hello, world!")
+```
+`print` ek **function** hai: ek ready-made machine jo brackets ke andar jo bhi do, use screen pe dikha deti hai. Quotes ke andar wala text **string** kehlata hai.
+
+Python tumhari file **upar se neeche, ek-ek line** chalata hai:
+```python
+print("I wake up")
+print("I brush my teeth")
+print("I start coding")
+```
+Lines ka order badlo, output ka order badal jayega. Computer kabhi tumhare steps ko khud se aage-peeche nahi karta.
+
+### print() thoda detail mein
+```python
+print("a", "b", "c")          # a b c   (beech mein space)
+print("a", "b", sep="-")      # a-b
+print("no new line", end="")  # agla print isi line pe continue karega
+print(5 + 3)                  # 8  (expression ka RESULT print hota hai)
+print()                       # ek khaali line
+```
+
+### Comments
+Line mein `#` ke baad jo bhi likha ho, wo **comment** hai. Python use ignore karta hai. Comments insaano ke liye notes hain, future wale tumhare liye bhi.
+
+### Indentation Python ka rule hai
+Baaki languages mein line ki shuruaat ke spaces sirf sajawat hote hain. Python mein ye **rule** hain. Ek block ki saari lines same spaces se shuru honi chahiye (4 spaces use karo).
+```python
+if 5 > 3:
+    print("if ke andar")      # 4 spaces: if ka hissa
+print("bahar")                # koi space nahi: hamesha chalega
+```
+Galat indentation pe `IndentationError` aata hai.
+
+### Errors dost hain
+Jab Python tumhara code samajh ya chala nahi pata, toh **error message** deta hai. Use **neeche se upar** padho: aakhri line batati hai kya galat hua, upar wali lines batati hain kahan.
+
+> **Yaad rakho:** Har example khud type karo. Ek cheez badlo, output pehle predict karo, phir run karo. Run se pehle predict karna logic banane ka sabse fast tareeka hai.
+=== drills
+--- d
+q: What does this print?
+code:
+print("A")
+print("B", "C")
+print("D", "E", sep="+")
+answer:
+A
+B C
+D+E
+en: print separates items with a space by default. sep changes the separator.
+hi: print by default items ke beech space daalta hai. sep se separator badal sakte ho.
+--- d
+q: What does this print? (Watch `end`.)
+code:
+print("Hello", end=" ")
+print("World")
+print(2 + 3 * 4)
+answer:
+Hello World
+14
+en: end=" " replaces the newline with a space, so World continues on the same line. Multiplication happens before addition.
+hi: end=" " newline ki jagah space daal deta hai, isliye World usi line pe aata hai. Guna (×) jod (+) se pehle hota hai.
+--- d
+q: What does this print?
+code:
+# print("hidden")
+print("shown")  # print("also hidden")
+answer:
+shown
+en: Everything after # is a comment and is ignored.
+hi: # ke baad sab comment hai, Python use ignore karta hai.
+--- d
+kind: write
+q: Write a function `greet(name)` that returns the string "Hello, <name>!". (Functions are covered in module 13; for now copy the shape.)
+answer:
+def greet(name):
+    return "Hello, " + name + "!"
+test:
+check(greet("Riya"), "Hello, Riya!")
+en: Strings can be joined with +.
+hi: Strings ko + se jod sakte hain.
+
+## module: py02 | Variables and data types
+summary: Variables as name-tags, the core types (int, float, str, bool, None), dynamic typing and type().
+=== en
+### A variable is a name-tag
+In Python, a variable is a **name that points to a value**.
+```python
+age = 20
+name = "Riya"
+```
+Read `=` as **"becomes"** or "store into", not "equals". `age = 20` means: create the value 20 and stick the name-tag `age` on it.
+
+> **Analogy:** Values are like parcels in a warehouse. A variable is a name-tag you stick on a parcel so you can find it later. `age = 21` moves the tag to a new parcel; the old parcel is thrown away if no tag points to it.
+
+### Reassignment
+```python
+score = 10
+score = score + 5    # right side first: 10 + 5 = 15, then the tag moves
+print(score)         # 15
+```
+Python always evaluates the **right side first**, then attaches the name on the left.
+
+### Naming rules
+- Letters, digits and underscores only; cannot start with a digit: `total_marks`, `x1`, `_temp` are fine; `2nd`, `my-name` are not.
+- Case-sensitive: `Age` and `age` are different.
+- Convention: **snake_case** (`max_sum`, `left_index`).
+- Don't use names of built-ins like `list`, `str`, `sum`, `max`: you would hide the real function.
+
+### The core data types
+| Type | What it holds | Examples |
+|---|---|---|
+| `int` | whole numbers (any size!) | `42`, `-7`, `10**30` |
+| `float` | decimal numbers | `3.14`, `-0.5`, `2.0` |
+| `str` | text | `"hi"`, `'Riya'`, `""` |
+| `bool` | truth values | `True`, `False` |
+| `NoneType` | "nothing here" | `None` |
+
+Check a type with `type()`:
+```python
+print(type(42))      # <class 'int'>
+print(type(3.0))     # <class 'float'>
+print(type("42"))    # <class 'str'>
+```
+
+### Dynamic typing
+You never declare types in Python. The **value** has a type; the name can point to anything:
+```python
+x = 5        # x points to an int
+x = "five"   # now x points to a str. Allowed (but confusing, so avoid it).
+```
+
+### Python ints never overflow
+In C++ or Java, an `int` stops at about 2 billion. Python ints grow as big as needed: `2 ** 100` just works. This makes many problems easier, but remember that other languages don't have this.
+
+### Floats are approximate
+```python
+print(0.1 + 0.2)   # 0.30000000000000004
+```
+Decimals are stored in binary and cannot all be exact, like 1/3 = 0.333… in decimal. Never compare floats with `==` for money-like logic; round or use integers (e.g. store paise instead of rupees).
+
+### Multiple assignment and swapping
+```python
+a, b = 5, 9
+a, b = b, a        # swap in one line!
+print(a, b)        # 9 5
+```
+In most languages you need a temporary variable to swap. Python evaluates the right side (9, 5) completely first, then assigns.
+
+### None
+`None` means "no value yet" or "nothing". A function that doesn't return anything returns `None`. In DSA, `None` marks the end of a linked list or a missing child in a tree. Check it with `is None`.
+
+> **Mistake:** `x == None` works but `x is None` is the correct style.
+=== hi
+### Variable ek name-tag hai
+Python mein variable ek **naam hai jo kisi value ki taraf point karta hai**.
+```python
+age = 20
+name = "Riya"
+```
+`=` ko **"ban jaata hai"** ya "isme store karo" padho, "barabar hai" nahi. `age = 20` ka matlab: value 20 banao aur us pe `age` naam ka tag chipka do.
+
+> **Analogy:** Values godown mein rakhe parcels jaise hain. Variable ek name-tag hai jo tum parcel pe chipkaate ho taaki baad mein dhoondh sako. `age = 21` tag ko naye parcel pe shift kar deta hai; purane parcel pe koi tag nahi bacha toh wo phenk diya jata hai.
+
+### Reassignment
+```python
+score = 10
+score = score + 5    # pehle right side: 10 + 5 = 15, phir tag shift
+print(score)         # 15
+```
+Python hamesha **pehle right side** calculate karta hai, phir left wale naam ko attach karta hai.
+
+### Naming ke rules
+- Sirf letters, digits aur underscore; digit se shuru nahi ho sakta. `total_marks`, `x1` sahi; `2nd`, `my-name` galat.
+- Case-sensitive: `Age` aur `age` alag hain.
+- Convention: **snake_case** (`max_sum`, `left_index`).
+- `list`, `str`, `sum`, `max` jaise built-in naam variable ke liye mat use karo, asli function chhup jayega.
+
+### Main data types
+| Type | Kya rakhta hai | Examples |
+|---|---|---|
+| `int` | poore numbers (kitne bhi bade!) | `42`, `-7`, `10**30` |
+| `float` | decimal numbers | `3.14`, `2.0` |
+| `str` | text | `"hi"`, `'Riya'` |
+| `bool` | sach/jhooth | `True`, `False` |
+| `NoneType` | "kuch nahi" | `None` |
+
+Type check karne ke liye `type()` use karo: `type(42)` → `<class 'int'>`.
+
+### Dynamic typing
+Python mein type declare nahi karte. **Value** ka type hota hai; naam kisi bhi cheez ko point kar sakta hai. `x = 5` phir `x = "five"` allowed hai (lekin confusing hai, avoid karo).
+
+### Python ke int kabhi overflow nahi hote
+C++ ya Java mein `int` lagbhag 2 billion pe ruk jata hai. Python ka int jitna chahiye utna bada ho jata hai: `2 ** 100` bhi chalega. Ye aasaani deta hai, bas yaad rakho ki doosri languages mein aisa nahi hota.
+
+### Float thode approximate hote hain
+`print(0.1 + 0.2)` deta hai `0.30000000000000004`. Decimal binary mein exact store nahi ho paate, jaise 1/3 = 0.333… Paise jaisi cheezon ke liye floats ko `==` se compare mat karo; integers use karo (rupaye ki jagah paise store karo).
+
+### Multiple assignment aur swap
+```python
+a, b = 5, 9
+a, b = b, a        # ek line mein swap!
+print(a, b)        # 9 5
+```
+Python pehle poori right side (9, 5) bana leta hai, phir assign karta hai. Isliye temporary variable ki zaroorat nahi.
+
+### None
+`None` ka matlab "abhi koi value nahi". Jo function kuch return nahi karta, wo `None` return karta hai. DSA mein `None` linked list ka end ya tree mein missing child batata hai. Check karo `is None` se.
+=== drills
+--- d
+q: What does this print?
+code:
+x = 4
+y = x
+x = x * 3
+print(x, y)
+answer:
+12 4
+en: y got a tag to the value 4. Later x moves to a new value 12; y still points to 4.
+hi: y ko value 4 ka tag mila. Baad mein x naye value 12 pe shift hua; y ab bhi 4 pe hai.
+--- d
+q: What does this print?
+code:
+a, b, c = 1, 2, 3
+a, b, c = c, a, b
+print(a, b, c)
+answer:
+3 1 2
+en: The right side (3, 1, 2) is built first, then assigned in order.
+hi: Right side (3, 1, 2) pehle banti hai, phir order mein assign hoti hai.
+--- d
+q: What does this print?
+code:
+print(type(7).__name__, type(7.0).__name__, type("7").__name__, type(7 > 3).__name__)
+answer:
+int float str bool
+en: 7 is an int, 7.0 a float, "7" a string, and a comparison gives a bool.
+hi: 7 int hai, 7.0 float, "7" string, aur comparison ka result bool hota hai.
+--- d
+q: What does this print?
+code:
+big = 2 ** 64
+print(big)
+print(big + 1 > big)
+answer:
+18446744073709551616
+True
+en: Python ints never overflow; they grow as needed.
+hi: Python ke int overflow nahi hote; zaroorat ke hisaab se bade ho jaate hain.
+
+## module: py03 | Input, output and type conversion
+summary: Reading input, converting between types, and formatting output with f-strings.
+=== en
+### input() always gives a string
+```python
+name = input("Your name: ")
+print("Hi", name)
+```
+`input()` pauses the program, waits for the user to type and press Enter, and returns what they typed **as a string**, even if they typed digits.
+```python
+age = input("Age: ")     # user types 20
+print(age + 1)           # TypeError! "20" + 1 makes no sense
+```
+
+### Converting types
+| Function | Converts to | Example |
+|---|---|---|
+| `int(x)` | whole number | `int("42")` → 42, `int(7.9)` → 7 (cuts decimals) |
+| `float(x)` | decimal | `float("3.5")` → 3.5 |
+| `str(x)` | text | `str(42)` → "42" |
+| `bool(x)` | True/False | `bool(0)` → False, `bool("hi")` → True |
+
+```python
+age = int(input("Age: "))
+print(age + 1)           # works now
+```
+`int("abc")` raises a `ValueError`: the text is not a number.
+
+> **Analogy:** `input()` hands you a sealed envelope with writing on it. `int()` opens the envelope and turns the writing "20" into the actual number 20 that you can do maths with.
+
+### Reading several numbers on one line
+Competitive programming and many practice sites give input like `3 5 7` on one line:
+```python
+a, b, c = map(int, input().split())
+nums = list(map(int, input().split()))
+```
+`split()` breaks the text at spaces into a list of strings; `map(int, …)` converts each one.
+
+### Formatting output with f-strings
+Put `f` before the quotes and variables inside `{}`:
+```python
+name, marks = "Riya", 92.456
+print(f"{name} scored {marks}")          # Riya scored 92.456
+print(f"{name} scored {marks:.1f}")      # Riya scored 92.5
+print(f"Next year: {2024 + 1}")          # expressions work too
+print(f"{7:3d}|{42:<5}|")                # width/alignment: '  7|42   |'
+```
+f-strings are the modern, readable way. You may also see `"Hi " + name` (concatenation) or `"{} {}".format(a, b)`.
+
+### Concatenation needs strings
+```python
+print("Score: " + str(90))   # must convert the number
+print("Score:", 90)          # or let print add a space
+```
+
+> **Tip:** On LeetCode/DSA 150 you never call `input()`. The platform calls your function with arguments. `input()` matters for your own practice programs and competitive programming.
+=== hi
+### input() hamesha string deta hai
+`input()` program ko rok deta hai, user ke type karne aur Enter dabane ka wait karta hai, aur jo type hua wo **string ke roop mein** return karta hai, chahe digits hi kyun na type kiye hon.
+```python
+age = input("Age: ")     # user ne 20 type kiya
+print(age + 1)           # TypeError! "20" + 1 ka koi matlab nahi
+```
+
+### Type conversion
+| Function | Kya banata hai | Example |
+|---|---|---|
+| `int(x)` | poora number | `int("42")` → 42, `int(7.9)` → 7 (decimal kaat deta hai) |
+| `float(x)` | decimal | `float("3.5")` → 3.5 |
+| `str(x)` | text | `str(42)` → "42" |
+| `bool(x)` | True/False | `bool(0)` → False |
+
+`int("abc")` pe `ValueError` aata hai kyunki wo number nahi hai.
+
+> **Analogy:** `input()` tumhe ek band lifafa deta hai jis pe kuch likha hai. `int()` lifafa kholke "20" likhe hue ko asli number 20 bana deta hai jisse maths kar sakte ho.
+
+### Ek line mein kai numbers padhna
+```python
+a, b, c = map(int, input().split())
+nums = list(map(int, input().split()))
+```
+`split()` text ko spaces pe tod ke strings ki list banata hai; `map(int, …)` har ek ko int mein badal deta hai.
+
+### f-strings se output format karna
+Quotes se pehle `f` lagao aur variables `{}` ke andar:
+```python
+name, marks = "Riya", 92.456
+print(f"{name} scored {marks:.1f}")      # Riya scored 92.5
+print(f"Next year: {2024 + 1}")
+```
+`:.1f` matlab ek decimal tak round. f-strings sabse readable tareeka hai.
+
+### Jodne ke liye dono string hone chahiye
+`"Score: " + str(90)` sahi hai; `"Score: " + 90` error dega.
+
+> **Tip:** LeetCode/DSA 150 pe tum `input()` kabhi call nahi karte; platform tumhara function arguments ke saath call karta hai. `input()` apne practice programs ke liye kaam aata hai.
+=== drills
+--- d
+q: What does this print?
+code:
+a = "5"
+b = 5
+print(a * 3, b * 3)
+answer:
+555 15
+en: A string times 3 repeats the text; an int times 3 multiplies.
+hi: String ko 3 se multiply karo toh text repeat hota hai; int multiply hota hai.
+--- d
+q: What does this print?
+code:
+line = "3 10 7"
+a, b, c = map(int, line.split())
+print(a + b + c)
+answer:
+20
+en: split gives ["3", "10", "7"], map(int, …) converts them, and the sum is 20.
+hi: split se ["3", "10", "7"] mila, map(int, …) ne number banaye, sum 20.
+--- d
+q: What does this print?
+code:
+price = 49.456
+qty = 3
+print(f"{qty} x {price:.2f} = {qty * price:.1f}")
+answer:
+3 x 49.46 = 148.4
+en: :.2f rounds to 2 decimals, :.1f to 1 decimal.
+hi: :.2f do decimal tak round karta hai, :.1f ek decimal tak.
+--- d
+q: What does this print?
+code:
+print(int(7.99), int("-12"), float("2"), str(3) + str(4))
+answer:
+7 -12 2.0 34
+en: int() cuts decimals (doesn't round). str(3) + str(4) joins text: "34".
+hi: int() decimal kaat deta hai (round nahi karta). str(3) + str(4) text jodta hai: "34".
+
+## module: py04 | Operators
+summary: Arithmetic (/, //, %, **), comparisons, logical operators, precedence and short-circuiting.
+=== en
+### Arithmetic operators
+| Operator | Meaning | Example | Result |
+|---|---|---|---|
+| `+` `-` `*` | add, subtract, multiply | `7 * 3` | 21 |
+| `/` | true division (always float) | `7 / 2` | 3.5 |
+| `//` | floor division (quotient) | `7 // 2` | 3 |
+| `%` | remainder (modulo) | `7 % 2` | 1 |
+| `**` | power | `2 ** 10` | 1024 |
+
+`//` and `%` are the stars of DSA (Video 1): `n % 10` gives the last digit, `n // 10` removes it, `n % 2` tells even or odd.
+
+> **Mistake:** `/` always returns a float, even for `8 / 2` (4.0). Use `//` when you need an integer index, for example `mid = (lo + hi) // 2`.
+
+### Negative numbers with // and %
+Python's `//` rounds **down** (towards minus infinity), and `%` takes the sign of the divisor:
+```python
+print(-7 // 2)   # -4, not -3
+print(-7 % 2)    # 1
+```
+Most problems use non-negative numbers, but remember this when they don't.
+
+### Assignment shortcuts
+```python
+x = 10
+x += 5    # x = x + 5  → 15
+x -= 3    # 12
+x *= 2    # 24
+x //= 5   # 4
+```
+Python has **no** `x++`. Write `x += 1`.
+
+### Comparisons give booleans
+`==` (equal), `!=` (not equal), `<`, `>`, `<=`, `>=`.
+```python
+print(5 == 5.0)      # True
+print("a" < "b")     # True (strings compare alphabetically)
+print(1 < 3 < 5)     # True: chained comparison, reads like maths
+```
+> **Mistake:** `=` stores, `==` asks. Writing `if x = 5:` is a SyntaxError.
+
+### Logical operators: and, or, not
+- `a and b` is True only if both are True.
+- `a or b` is True if at least one is True.
+- `not a` flips it.
+
+**Short-circuit:** `and` stops at the first False; `or` stops at the first True. We use this to stay safe:
+```python
+if i < len(nums) and nums[i] == 0:   # nums[i] is only read when i is valid
+    ...
+```
+
+### Membership and identity
+- `x in collection` → is x inside? (`3 in [1, 2, 3]` → True, `"ab" in "cab"` → True)
+- `a is b` → are they the same object? Use it for `None`: `if node is None`.
+
+### Precedence (who goes first)
+1. `**`
+2. unary minus `-x`
+3. `*` `/` `//` `%`
+4. `+` `-`
+5. comparisons `<` `==` `in` …
+6. `not`, then `and`, then `or`
+
+When in doubt, **add brackets**. `(lo + hi) // 2` is not the same as `lo + hi // 2`.
+
+### Bitwise operators (preview)
+`&` AND, `|` OR, `^` XOR, `~` NOT, `<<` shift left, `>>` shift right. They work on the binary form (Video 1, Level 7) and power the Bit Manipulation topic.
+=== hi
+### Arithmetic operators
+| Operator | Matlab | Example | Result |
+|---|---|---|---|
+| `+` `-` `*` | jod, ghata, guna | `7 * 3` | 21 |
+| `/` | poora division (hamesha float) | `7 / 2` | 3.5 |
+| `//` | floor division (quotient) | `7 // 2` | 3 |
+| `%` | remainder (modulo) | `7 % 2` | 1 |
+| `**` | power | `2 ** 10` | 1024 |
+
+`//` aur `%` DSA ke hero hain (Video 1): `n % 10` aakhri digit deta hai, `n // 10` use hata deta hai, `n % 2` batata hai even hai ya odd.
+
+> **Galti:** `/` hamesha float deta hai, `8 / 2` bhi 4.0 hai. Index chahiye toh `//` use karo, jaise `mid = (lo + hi) // 2`.
+
+### Negative numbers ke saath // aur %
+Python ka `//` hamesha **neeche ki taraf** round karta hai: `-7 // 2` = -4 (na ki -3), aur `-7 % 2` = 1. Zyada problems mein positive numbers hote hain, bas ye yaad rakhna.
+
+### Shortcuts
+`x += 5` matlab `x = x + 5`. Waise hi `-=`, `*=`, `//=`. Python mein `x++` **nahi hota**, `x += 1` likho.
+
+### Comparisons ka result bool hota hai
+`==` (barabar), `!=` (barabar nahi), `<`, `>`, `<=`, `>=`. `1 < 3 < 5` jaisa chained comparison bhi chalta hai, bilkul maths jaisa.
+
+> **Galti:** `=` store karta hai, `==` poochta hai. `if x = 5:` SyntaxError dega.
+
+### Logical operators: and, or, not
+- `a and b` tabhi True jab dono True.
+- `a or b` True agar koi ek bhi True.
+- `not a` ulta kar deta hai.
+
+**Short-circuit:** `and` pehle False pe ruk jata hai; `or` pehle True pe. Safety ke liye use karte hain: `if i < len(nums) and nums[i] == 0:` — index valid ho tabhi `nums[i]` padha jayega.
+
+### in aur is
+- `x in collection` → kya x andar hai? (`3 in [1, 2, 3]` → True)
+- `a is b` → kya dono same object hain? `None` check ke liye: `if node is None`.
+
+### Kaun pehle chalega (precedence)
+`**` → `*` `/` `//` `%` → `+` `-` → comparisons → `not` → `and` → `or`. Shak ho toh **brackets lagao**. `(lo + hi) // 2` aur `lo + hi // 2` alag cheezein hain.
+
+### Bitwise operators (jhalak)
+`&` `|` `^` `~` `<<` `>>` binary form pe kaam karte hain (Video 1, Level 7). Bit Manipulation topic mein kaam aayenge.
+=== drills
+--- d
+q: What does this print?
+code:
+print(17 / 5, 17 // 5, 17 % 5, 2 ** 5)
+answer:
+3.4 3 2 32
+en: / gives the exact float, // the quotient, % the remainder, ** the power.
+hi: / exact float deta hai, // quotient, % remainder, ** power.
+--- d
+q: What does this print?
+code:
+n = 4729
+print(n % 10, n // 10, n // 100 % 10)
+answer:
+9 472 7
+en: n // 100 is 47, and 47 % 10 is 7 (the hundreds digit).
+hi: n // 100 = 47, aur 47 % 10 = 7 (sau wala digit).
+--- d
+q: What does this print?
+code:
+x = 5
+print(x > 3 and x < 10, x > 3 or 1 / 0 > 1, not x == 5)
+answer:
+True True False
+en: The `or` stops at the first True, so 1 / 0 is never evaluated (no error). not (5 == 5) is False.
+hi: `or` pehle True pe ruk jata hai, isliye 1 / 0 kabhi chalta hi nahi (error nahi aata). not (5 == 5) = False.
+--- d
+q: What does this print?
+code:
+lo, hi = 2, 9
+print((lo + hi) // 2, lo + hi // 2)
+answer:
+5 6
+en: With brackets: 11 // 2 = 5. Without: hi // 2 = 4 first, then 2 + 4 = 6.
+hi: Brackets ke saath: 11 // 2 = 5. Bina brackets: pehle hi // 2 = 4, phir 2 + 4 = 6.
+--- d
+q: What does this print?
+code:
+print(-7 // 2, -7 % 2, 7 // -2)
+answer:
+-4 1 -4
+en: // always rounds down (towards minus infinity).
+hi: // hamesha neeche ki taraf round karta hai.
+
+## module: py05 | Conditions: if, elif, else
+summary: Making decisions, elif ladders, nested conditions, truthiness and the one-line conditional.
+=== en
+### if is a fork in the road
+```python
+temp = 35
+if temp > 30:
+    print("Turn on the fan")
+else:
+    print("Enjoy the weather")
+```
+The condition after `if` must be something that is true or false. A colon `:` ends the line, and the block underneath is **indented**. Exactly one of the two blocks runs.
+
+> **Analogy:** A traffic signal. Green → go. Otherwise → stop. The car never does both.
+
+### elif: more than two paths
+```python
+marks = 72
+if marks >= 90:
+    grade = "A"
+elif marks >= 75:
+    grade = "B"
+elif marks >= 50:
+    grade = "C"
+else:
+    grade = "Fail"
+```
+Python checks from **top to bottom** and stops at the **first** true condition. That's why the `elif marks >= 75` check doesn't need `and marks < 90`: if we reached it, the first check already failed.
+
+> **Think:** The order of checks is logic. In FizzBuzz, checking "divisible by 3" before "divisible by 15" gives the wrong answer for 15. Put the most specific rule first.
+
+### Nested conditions
+```python
+if age >= 18:
+    if has_ticket:
+        print("Enter")
+    else:
+        print("Buy a ticket")
+else:
+    print("Too young")
+```
+Often you can flatten nesting with `and`: `if age >= 18 and has_ticket:`.
+
+### Truthiness: what counts as False
+These are treated as **False** in a condition: `False`, `0`, `0.0`, `""` (empty string), `[]`, `{}`, `set()`, `None`. Everything else is True.
+```python
+nums = []
+if not nums:
+    print("empty list")     # this runs
+```
+This is very common in Python DSA code: `while stack:` means "while the stack is not empty".
+
+### One-line conditional (ternary)
+```python
+kind = "even" if n % 2 == 0 else "odd"
+```
+Read it as: value-if-true **if** condition **else** value-if-false.
+
+### match-case (Python 3.10+)
+```python
+match command:
+    case "start":
+        print("Starting")
+    case "stop" | "quit":
+        print("Stopping")
+    case _:
+        print("Unknown")
+```
+`_` is the default. Nice for menus, but `if/elif` is enough for DSA.
+
+### How to think about a decision problem (leap year)
+Rule: divisible by 4 → leap, except divisible by 100 → not leap, unless divisible by 400 → leap.
+1. **Examples by hand:** 2024 leap, 2023 not, 1900 not, 2000 leap.
+2. **Order the checks:** most specific first: 400, then 100, then 4.
+3. **Code:**
+```python
+def is_leap(y):
+    if y % 400 == 0:
+        return True
+    if y % 100 == 0:
+        return False
+    return y % 4 == 0
+```
+4. **Test** with your hand examples. 1900: not ÷400, is ÷100 → False ✓.
+=== hi
+### if ek raste ka mod hai
+```python
+temp = 35
+if temp > 30:
+    print("Fan chalao")
+else:
+    print("Mausam enjoy karo")
+```
+`if` ke baad wali condition True ya False honi chahiye. Line colon `:` pe khatam hoti hai aur neeche wala block **indent** hota hai. Dono mein se exactly ek block chalega.
+
+> **Analogy:** Traffic signal. Green → chalo. Warna → ruko. Gaadi kabhi dono nahi karti.
+
+### elif: do se zyada raste
+```python
+if marks >= 90:
+    grade = "A"
+elif marks >= 75:
+    grade = "B"
+elif marks >= 50:
+    grade = "C"
+else:
+    grade = "Fail"
+```
+Python **upar se neeche** check karta hai aur **pehli** True condition pe ruk jata hai. Isliye `elif marks >= 75` mein `and marks < 90` likhne ki zaroorat nahi: agar yahan tak aaye ho, toh pehla check already fail ho chuka hai.
+
+> **Socho:** Checks ka order hi logic hai. FizzBuzz mein agar "3 se divisible" pehle check kiya toh 15 ka answer galat aayega. Sabse specific rule pehle rakho.
+
+### Nested conditions
+If ke andar if likh sakte ho, lekin aksar `and` se seedha kar sakte ho: `if age >= 18 and has_ticket:`.
+
+### Truthiness: kya False maana jata hai
+Condition mein ye sab **False** maane jaate hain: `False`, `0`, `0.0`, `""`, `[]`, `{}`, `set()`, `None`. Baaki sab True.
+```python
+nums = []
+if not nums:
+    print("list khaali hai")
+```
+DSA code mein bahut common hai: `while stack:` matlab "jab tak stack khaali nahi hai".
+
+### Ek line wali condition
+`kind = "even" if n % 2 == 0 else "odd"` — padho: True wali value **if** condition **else** False wali value.
+
+### match-case (Python 3.10+)
+Menu jaisi cheezon ke liye accha hai (`case _:` default hai), lekin DSA ke liye `if/elif` kaafi hai.
+
+### Decision problem kaise sochein (leap year)
+Rule: 4 se divisible → leap, lekin 100 se divisible → leap nahi, jab tak 400 se bhi divisible na ho.
+1. **Haath se examples:** 2024 leap, 2023 nahi, 1900 nahi, 2000 leap.
+2. **Order:** sabse specific pehle: 400, phir 100, phir 4.
+3. **Code** likho (upar English wale section mein hai).
+4. **Test** karo apne examples se. 1900: 400 se nahi, 100 se haan → False ✓.
+=== drills
+--- d
+q: What does this print?
+code:
+for marks in [95, 80, 50, 49]:
+    if marks >= 90:
+        print("A")
+    elif marks >= 75:
+        print("B")
+    elif marks >= 50:
+        print("C")
+    else:
+        print("Fail")
+answer:
+A
+B
+C
+Fail
+en: Each value stops at the first condition that is true. 50 >= 50 is true, so C.
+hi: Har value pehli True condition pe rukti hai. 50 >= 50 True hai, isliye C.
+--- d
+q: What does this print?
+code:
+items = [0, "", [], "0", [0], None, -1]
+print([bool(x) for x in items])
+answer:
+[False, False, False, True, True, False, True]
+en: "0" is a non-empty string and [0] a non-empty list, so both are truthy. -1 is a non-zero number, also truthy.
+hi: "0" khaali string nahi hai aur [0] khaali list nahi, isliye dono truthy. -1 bhi zero nahi hai, toh truthy.
+--- d
+kind: write
+q: Write `is_leap(y)` using the rules above.
+answer:
+def is_leap(y):
+    if y % 400 == 0:
+        return True
+    if y % 100 == 0:
+        return False
+    return y % 4 == 0
+test:
+check(is_leap(2024), True)
+check(is_leap(2023), False)
+check(is_leap(1900), False)
+check(is_leap(2000), True)
+en: Most specific rule first: 400, then 100, then 4.
+hi: Sabse specific rule pehle: 400, phir 100, phir 4.
+--- d
+kind: write
+q: Write `largest_of_three(a, b, c)` without using max().
+answer:
+def largest_of_three(a, b, c):
+    best = a
+    if b > best:
+        best = b
+    if c > best:
+        best = c
+    return best
+test:
+check(largest_of_three(3, 9, 5), 9)
+check(largest_of_three(-1, -5, -2), -1)
+check(largest_of_three(7, 7, 7), 7)
+en: Keep a "best so far" and update it. This idea becomes the max-finding loop later.
+hi: "Ab tak ka best" rakho aur update karte raho. Yahi idea baad mein max dhoondne wala loop banega.

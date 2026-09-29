@@ -1,0 +1,726 @@
+## module: py17 | Classes and objects
+summary: Blueprints and objects, __init__ and self, methods, __repr__, comparisons for heaps, and why ListNode/TreeNode are classes.
+=== en
+### Blueprint and objects
+A **class** is a blueprint. An **object** (instance) is a thing built from it.
+
+> **Analogy:** An architect's plan for a house is the class. Every actual house built from that plan is an object. All houses share the design, but each has its own paint colour and owner.
+
+```python
+class Student:
+    def __init__(self, name, marks):
+        self.name = name        # attributes: data stored on THIS object
+        self.marks = marks
+
+    def passed(self):           # a method: a function that belongs to the object
+        return self.marks >= 40
+
+s = Student("Riya", 82)
+print(s.name, s.passed())       # Riya True
+t = Student("Sam", 30)
+print(t.passed())               # False
+```
+
+### __init__ and self
+- `__init__` runs automatically when you create an object: `Student("Riya", 82)`.
+- `self` is **the object itself**. `self.name = name` means "store name on this particular student".
+- Every method's first parameter is `self`. Python passes it for you: `s.passed()` is really `Student.passed(s)`.
+
+### Changing state
+```python
+class Counter:
+    def __init__(self):
+        self.count = 0
+    def click(self):
+        self.count += 1
+
+c = Counter()
+c.click(); c.click()
+print(c.count)    # 2
+```
+Each object keeps its own state. This is how "design" problems work: `MinStack`, `LRUCache`, `Trie`, `MedianFinder` are all classes that keep data between method calls.
+
+### Printing objects: __repr__
+```python
+class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+print(Point(2, 3))    # Point(2, 3) instead of <__main__.Point object at 0x…>
+```
+
+### Comparing objects (needed for heaps)
+`heapq` needs to compare items. Tuples compare element by element, so the usual trick is to push `(priority, tie_breaker, item)`. Or define `__lt__`:
+```python
+class Task:
+    def __init__(self, prio, name):
+        self.prio, self.name = prio, name
+    def __lt__(self, other):
+        return self.prio < other.prio
+```
+
+### Linked lists and trees are tiny classes
+```python
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next         # another ListNode, or None at the end
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+LeetCode gives you these definitions at the top of the problem. A linked list is objects pointing to each other: `ListNode(1, ListNode(2, ListNode(3)))`.
+
+### Inheritance (a quick look)
+```python
+class Animal:
+    def speak(self): return "..."
+class Dog(Animal):
+    def speak(self): return "Woof"
+```
+`Dog` gets everything `Animal` has and can override it. Useful to know; rarely needed in DSA.
+
+> **Remember:** Attributes are nouns (what an object HAS); methods are verbs (what it DOES).
+=== hi
+### Blueprint aur objects
+**Class** ek blueprint hai. **Object** (instance) us blueprint se bani cheez hai.
+
+> **Analogy:** Architect ka ghar ka naksha class hai. Us naksha se bana har asli ghar ek object hai. Design sabka same, lekin har ghar ka rang aur maalik alag.
+
+`class Student:` ke andar `__init__` mein `self.name = name` aur `self.marks = marks` (attributes), aur `def passed(self): return self.marks >= 40` (method). `s = Student("Riya", 82)` se object banta hai.
+
+### __init__ aur self
+- `__init__` object bante hi apne aap chalta hai.
+- `self` **khud wo object** hai. `self.name = name` matlab "is student pe naam store karo".
+- Har method ka pehla parameter `self` hota hai; Python khud pass karta hai.
+
+### State badalna
+Har object apni state alag rakhta hai (`Counter` example: `c.click()` do baar → `c.count` = 2). "Design" problems isi tarah kaam karti hain: `MinStack`, `LRUCache`, `Trie`, `MedianFinder` sab classes hain jo method calls ke beech data yaad rakhti hain.
+
+### Object print karna: __repr__
+`__repr__` define karo toh `print(Point(2, 3))` saaf dikhega: `Point(2, 3)`.
+
+### Objects compare karna (heap ke liye)
+`heapq` ko items compare karne padte hain. Common trick: `(priority, tie_breaker, item)` tuple push karo, ya class mein `__lt__` define karo.
+
+### Linked list aur tree chhoti classes hain
+`ListNode` mein `val` aur `next`; `TreeNode` mein `val`, `left`, `right`. LeetCode ye definitions problem ke upar de deta hai. Linked list = objects jo ek doosre ko point karte hain: `ListNode(1, ListNode(2, ListNode(3)))`.
+
+### Inheritance (jhalak)
+`class Dog(Animal)` — Dog ko Animal ka sab kuch milta hai aur wo override kar sakta hai. Jaanna accha hai; DSA mein kam lagta hai.
+
+> **Yaad rakho:** Attributes nouns hain (object ke paas KYA hai); methods verbs hain (object KYA karta hai).
+=== drills
+--- d
+q: What does this print?
+code:
+class Counter:
+    def __init__(self):
+        self.count = 0
+    def click(self):
+        self.count += 1
+a = Counter()
+b = Counter()
+a.click(); a.click(); b.click()
+print(a.count, b.count)
+answer:
+2 1
+en: Each object keeps its own count.
+hi: Har object apna count alag rakhta hai.
+--- d
+q: What does this print?
+code:
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+head = ListNode(1, ListNode(2, ListNode(3)))
+cur = head
+while cur:
+    print(cur.val, end=" ")
+    cur = cur.next
+print()
+answer:
+1 2 3
+en: Follow next pointers until you reach None.
+hi: next pointers follow karo jab tak None na aa jaaye.
+--- d
+kind: write
+q: Write a class `Stack` with push(x), pop() (returns the value), peek() and is_empty(), using a list inside.
+answer:
+class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, x):
+        self.items.append(x)
+    def pop(self):
+        return self.items.pop()
+    def peek(self):
+        return self.items[-1]
+    def is_empty(self):
+        return not self.items
+test:
+s = Stack()
+s.push(1); s.push(2); s.push(3)
+check(s.pop(), 3)
+check(s.peek(), 2)
+check(s.is_empty(), False)
+s.pop(); s.pop()
+check(s.is_empty(), True)
+en: A list's end is the top of the stack: append and pop are O(1).
+hi: List ka end stack ka top hai: append aur pop dono O(1).
+
+## module: py18 | Errors, exceptions and debugging
+summary: Reading tracebacks, the common exceptions, try/except/finally, raise, assert, and a calm debugging process.
+=== en
+### Two kinds of errors
+- **SyntaxError / IndentationError**: Python can't even understand the code (missing colon, bracket, wrong indentation). Nothing runs.
+- **Exceptions**: the code is valid but something goes wrong while running, like dividing by zero.
+
+### Reading a traceback
+```
+Traceback (most recent call last):
+  File "main.py", line 4, in <module>
+    print(total(nums))
+  File "main.py", line 2, in total
+    return nums[0] + nums[5]
+IndexError: list index out of range
+```
+Read from the **bottom**: the last line is *what* happened (IndexError), and the lines above show *where* (line 2, inside `total`, called from line 4).
+
+### The exceptions you'll meet most
+| Exception | Usually means | Example |
+|---|---|---|
+| `IndexError` | index outside the list/string | `nums[len(nums)]` |
+| `KeyError` | dict key doesn't exist | `d["missing"]` |
+| `TypeError` | wrong type for the operation | `"5" + 5` |
+| `ValueError` | right type, bad value | `int("abc")` |
+| `ZeroDivisionError` | dividing by 0 | `10 / 0` |
+| `NameError` | variable not defined (typo?) | `pritn(x)` |
+| `AttributeError` | object has no such attribute | `None.val` |
+| `RecursionError` | recursion too deep / no base case | |
+
+`AttributeError: 'NoneType' object has no attribute 'val'` is the classic linked-list/tree bug: you used `node.val` when `node` was `None`. Always check `if node:` first.
+
+### Handling exceptions
+```python
+try:
+    n = int(text)
+except ValueError:
+    print("Not a number")
+else:
+    print("Parsed", n)       # runs only if no exception
+finally:
+    print("Done")            # always runs
+```
+Raise your own:
+```python
+def withdraw(balance, amount):
+    if amount > balance:
+        raise ValueError("Insufficient balance")
+    return balance - amount
+```
+`assert condition, "message"` crashes if the condition is false: a quick self-check while developing.
+
+> **Tip:** In DSA code you rarely need try/except. Prefer preventing errors: check bounds (`0 <= r < rows`), use `dict.get`, and check `if node`.
+
+### A calm debugging process
+1. **Read the error**, bottom line first. Which line? Which variable?
+2. **Reproduce with the smallest input** that fails (empty list, one item, two items).
+3. **Print the state** inside the loop: `print(i, l, r, nums)`. Seeing beats guessing.
+4. **Trace by hand** with a table, and compare with what the prints show. The first row where they differ is your bug.
+5. **Check the usual suspects**: off-by-one in range, `=` vs `==`, forgot to update the loop variable, returning inside the loop too early, modifying a list while looping, shared 2-D rows, integer vs float division.
+6. **Rubber duck**: explain your code line by line out loud. You'll often hear the bug yourself.
+=== hi
+### Do tarah ke errors
+- **SyntaxError / IndentationError**: Python code samajh hi nahi paaya (colon, bracket missing, galat indentation). Kuch bhi nahi chalta.
+- **Exceptions**: code valid hai, lekin chalte waqt kuch galat hua, jaise zero se divide.
+
+### Traceback padhna
+**Neeche se** padho: aakhri line batati hai *kya* hua (jaise IndexError), upar ki lines batati hain *kahan* (kaunsi line, kaunsa function).
+
+### Sabse common exceptions
+`IndexError` (index list ke bahar), `KeyError` (dict mein key nahi), `TypeError` (galat type, jaise `"5" + 5`), `ValueError` (sahi type, galat value, jaise `int("abc")`), `ZeroDivisionError`, `NameError` (variable defined nahi, typo?), `AttributeError` (jaise `None.val`), `RecursionError` (base case missing).
+
+`AttributeError: 'NoneType' object has no attribute 'val'` linked list/tree ka classic bug hai: `node` None tha aur tumne `node.val` likh diya. Hamesha pehle `if node:` check karo.
+
+### Exceptions handle karna
+`try:` mein risky code, `except ValueError:` mein handling, `else:` sirf tab jab error na aaye, `finally:` hamesha. Apna error: `raise ValueError("message")`. `assert condition, "message"` development ke waqt quick self-check hai.
+
+> **Tip:** DSA code mein try/except kam lagta hai. Error rokna behtar hai: bounds check (`0 <= r < rows`), `dict.get`, aur `if node`.
+
+### Shaant debugging process
+1. **Error padho**, neeche wali line pehle.
+2. **Sabse chhota failing input** banao (khaali list, ek item, do items).
+3. Loop ke andar **state print** karo: `print(i, l, r, nums)`. Dekhna guess karne se behtar hai.
+4. **Haath se table** bana ke trace karo aur prints se compare karo. Jis row pe farak aaye, wahi bug hai.
+5. **Usual suspects**: range mein off-by-one, `=` vs `==`, loop variable update bhoolna, loop ke andar jaldi return, loop chalate hue list badalna, 2-D rows share hona, `/` vs `//`.
+6. **Rubber duck**: code ko line-by-line zor se samjhao. Aksar bug khud sunai de jata hai.
+=== drills
+--- d
+q: What does this print?
+code:
+def safe_int(text):
+    try:
+        return int(text)
+    except ValueError:
+        return -1
+    finally:
+        print("checked", text)
+print(safe_int("42"), safe_int("4x2"))
+answer:
+checked 42
+checked 4x2
+42 -1
+en: finally runs every time, even when the try block returns. Both calls finish before the outer print.
+hi: finally har baar chalta hai, try ke return karne par bhi. Bahar wala print dono calls ke baad chalta hai.
+--- d
+q: What does this print?
+code:
+nums = [3, 8, 1]
+errors = []
+for i in range(len(nums) + 1):
+    try:
+        nums[i]
+    except IndexError:
+        errors.append(i)
+print(errors)
+answer:
+[3]
+en: Valid indexes are 0..2. range(len(nums) + 1) is an off-by-one that reaches index 3.
+hi: Valid index 0..2 hain. range(len(nums) + 1) off-by-one hai jo index 3 tak pahunchta hai.
+--- d
+kind: fix
+q: This function should return the sum of the list, but it crashes. Fix it.
+code:
+def total(nums):
+    s = 0
+    for i in range(len(nums) + 1):
+        s += nums[i]
+    return s
+answer:
+def total(nums):
+    s = 0
+    for i in range(len(nums)):
+        s += nums[i]
+    return s
+test:
+check(total([1, 2, 3]), 6)
+check(total([]), 0)
+en: range(len(nums)) already covers every index; the + 1 goes one past the end.
+hi: range(len(nums)) har index cover karta hai; + 1 ek aage chala jata hai.
+
+## module: py19 | Modules and the DSA standard library
+summary: import, and the tools DSA 150 solutions rely on: math, collections (deque, Counter, defaultdict), heapq, bisect, itertools and functools.
+=== en
+### Importing
+```python
+import math
+from collections import deque, Counter, defaultdict
+import heapq
+```
+A **module** is a file of ready-made code. Python's standard library is huge; these are the parts DSA uses constantly.
+
+### math
+```python
+math.sqrt(16)      # 4.0
+math.isqrt(17)     # 4  (integer square root)
+math.gcd(48, 18)   # 6
+math.ceil(4.1), math.floor(4.9)   # 5, 4
+math.inf           # same as float("inf")
+math.log2(1024)    # 10.0
+```
+
+### collections.deque: a fast queue
+A list's `pop(0)` is O(n). A **deque** (double-ended queue) adds and removes at **both** ends in O(1).
+```python
+q = deque([1, 2])
+q.append(3)        # right end
+q.appendleft(0)    # left end
+q.popleft()        # 0  ← use for BFS queues
+q.pop()            # 3
+```
+> **Analogy:** A queue at a ticket counter with doors at both ends.
+
+### collections.Counter and defaultdict
+Covered in module 12: `Counter(iterable)` counts things; `defaultdict(list/int/set)` gives missing keys a starting value.
+
+### heapq: priority queues
+Python's heap is a **min-heap** stored in a normal list: the smallest item is always at index 0.
+```python
+h = []
+heapq.heappush(h, 5)
+heapq.heappush(h, 1)
+heapq.heappush(h, 3)
+heapq.heappop(h)      # 1 (smallest)
+h[0]                  # 3 (peek)
+heapq.heapify(nums)   # turn a list into a heap in O(n)
+heapq.nlargest(2, nums), heapq.nsmallest(2, nums)
+```
+**Max-heap trick:** push negatives: `heappush(h, -x)`, and negate when popping.
+Tuples compare element by element, so `heappush(h, (distance, node))` orders by distance.
+
+### bisect: binary search on sorted lists
+```python
+import bisect
+a = [1, 3, 3, 7]
+bisect.bisect_left(a, 3)    # 1: first position where 3 could go
+bisect.bisect_right(a, 3)   # 3: position after the last 3
+bisect.insort(a, 5)         # insert keeping it sorted
+```
+
+### itertools
+```python
+from itertools import permutations, combinations, product, accumulate
+list(permutations([1, 2, 3]))      # all 6 orderings
+list(combinations([1, 2, 3], 2))   # (1,2) (1,3) (2,3)
+list(accumulate([1, 2, 3, 4]))     # [1, 3, 6, 10] prefix sums
+```
+Great for checking your answers. In interviews you're usually asked to write backtracking yourself.
+
+### functools: caching
+```python
+from functools import lru_cache, cache
+@cache                    # Python 3.9+; same as lru_cache(maxsize=None)
+def ways(n):
+    if n <= 1:
+        return 1
+    return ways(n - 1) + ways(n - 2)
+```
+Memoization in one line. Top-down DP becomes trivial.
+
+### Costs cheat sheet
+| Tool | Operation | Cost |
+|---|---|---|
+| deque | append/appendleft/pop/popleft | O(1) |
+| heapq | push / pop | O(log n) |
+| heapq | peek `h[0]`, heapify | O(1), O(n) |
+| bisect | bisect_left/right | O(log n) |
+| bisect | insort | O(n) (shifting) |
+| Counter | build from n items | O(n) |
+=== hi
+### Import
+`import math`, `from collections import deque, Counter, defaultdict`, `import heapq`. **Module** ready-made code ki file hai. Python ki standard library bahut badi hai; ye hisse DSA mein baar-baar lagte hain.
+
+### math
+`sqrt`, `isqrt` (integer square root), `gcd`, `ceil`, `floor`, `inf`, `log2`.
+
+### collections.deque: fast queue
+List ka `pop(0)` O(n) hai. **deque** dono ends pe O(1) mein add/remove karta hai: `append`, `appendleft`, `pop`, `popleft`. BFS ki queue ke liye `popleft` use karo.
+
+> **Analogy:** Ticket counter ki line jisme dono taraf darwaze hain.
+
+### heapq: priority queue
+Python ka heap **min-heap** hai jo normal list mein rehta hai: sabse chhota item hamesha index 0 pe. `heappush`, `heappop` (sabse chhota nikalta hai), `h[0]` (peek), `heapify` (list ko O(n) mein heap banao), `nlargest`, `nsmallest`.
+**Max-heap trick:** negative push karo (`-x`), pop pe wapas negate karo. Tuple `(distance, node)` push karoge toh distance se order hoga.
+
+### bisect: sorted list pe binary search
+`bisect_left(a, x)` pehli jagah jahan x aa sakta hai, `bisect_right` aakhri x ke baad, `insort` sorted rakhte hue insert.
+
+### itertools
+`permutations`, `combinations`, `product`, `accumulate` (prefix sums). Apne answers check karne ke liye badhiya; interview mein backtracking khud likhna padta hai.
+
+### functools: caching
+`@cache` ya `@lru_cache(maxsize=None)` ek line mein memoization. Top-down DP aasaan ho jata hai.
+
+### Cost cheat sheet
+deque ke dono ends O(1); heap push/pop O(log n), peek O(1), heapify O(n); bisect O(log n), insort O(n); Counter banana O(n).
+=== drills
+--- d
+q: What does this print?
+code:
+from collections import deque
+q = deque([1, 2, 3])
+q.append(4)
+q.appendleft(0)
+print(q.popleft(), q.pop(), list(q))
+answer:
+0 4 [1, 2, 3]
+en: popleft takes from the left end, pop from the right.
+hi: popleft left end se nikalta hai, pop right se.
+--- d
+q: What does this print?
+code:
+import heapq
+h = []
+for x in [5, 1, 8, 3]:
+    heapq.heappush(h, x)
+print(heapq.heappop(h), heapq.heappop(h), h[0])
+mx = []
+for x in [5, 1, 8, 3]:
+    heapq.heappush(mx, -x)
+print(-heapq.heappop(mx))
+answer:
+1 3 5
+8
+en: heapq is a min-heap. Pushing negatives turns it into a max-heap.
+hi: heapq min-heap hai. Negative push karne se max-heap ban jata hai.
+--- d
+q: What does this print?
+code:
+import bisect
+from itertools import combinations, accumulate
+a = [1, 3, 3, 7]
+print(bisect.bisect_left(a, 3), bisect.bisect_right(a, 3), bisect.bisect_left(a, 4))
+print(list(combinations("abc", 2)), list(accumulate([1, 2, 3, 4])))
+answer:
+1 3 3
+[('a', 'b'), ('a', 'c'), ('b', 'c')] [1, 3, 6, 10]
+en: 4 would be inserted at index 3 (before 7). accumulate builds prefix sums.
+hi: 4 index 3 pe aayega (7 se pehle). accumulate prefix sums banata hai.
+--- d
+kind: write
+q: Write `k_smallest(nums, k)` returning the k smallest values in ascending order using heapq.
+answer:
+import heapq
+def k_smallest(nums, k):
+    h = list(nums)
+    heapq.heapify(h)
+    return [heapq.heappop(h) for _ in range(k)]
+test:
+check(k_smallest([7, 2, 9, 1, 5], 3), [1, 2, 5])
+en: heapify is O(n), then k pops of O(log n) each.
+hi: heapify O(n), phir k pops, har ek O(log n).
+
+## module: py20 | Iterators, generators, files and packages
+summary: How for loops really work, generators with yield, reading/writing files with `with`, and installing packages with pip.
+=== en
+### How a for loop really works
+Any object you can loop over is **iterable** (lists, strings, dicts, ranges, files). A for loop asks it for an **iterator** and calls `next()` until it runs out:
+```python
+it = iter([10, 20])
+next(it)    # 10
+next(it)    # 20
+next(it)    # StopIteration: the for loop catches this and stops
+```
+
+### Generators: values on demand
+A function with `yield` becomes a **generator**. It pauses at each `yield` and resumes on the next request:
+```python
+def count_up(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+
+for x in count_up(3):
+    print(x)     # 1 2 3
+```
+> **Analogy:** A list is a fully cooked buffet: everything is made in advance and takes space. A generator is a chef who cooks one dish at a time, only when you ask. Great for huge or endless sequences.
+
+`range` works like this too, which is why `range(10**9)` doesn't use gigabytes of memory.
+
+### Reading and writing files
+```python
+with open("notes.txt", "w") as f:       # "w" = write (overwrites)
+    f.write("line one\n")
+    f.write("line two\n")
+
+with open("notes.txt") as f:            # default "r" = read
+    for line in f:
+        print(line.strip())
+```
+`with` closes the file automatically, even if an error happens. Modes: `"r"` read, `"w"` write, `"a"` append.
+
+### Packages with pip
+The standard library is big, but the world has more: `pip install requests` installs a package from PyPI. Use a **virtual environment** per project so packages don't clash:
+```
+python3 -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install requests
+```
+For DSA practice you won't need any third-party packages.
+
+### if __name__ == "__main__":
+```python
+def solve():
+    ...
+if __name__ == "__main__":
+    solve()
+```
+Code under this line runs when you execute the file directly, but not when another file imports it. A tidy habit for practice scripts.
+
+### Decorators (a peek)
+`@cache` above a function is a **decorator**: a function that wraps another function to add behaviour (here: remembering results). You only need to *use* them for DSA.
+=== hi
+### for loop asal mein kaise chalta hai
+Jis cheez pe loop chal sake wo **iterable** hai (list, string, dict, range, file). For loop usse **iterator** leta hai aur `next()` call karta rehta hai jab tak `StopIteration` na aa jaaye.
+
+### Generators: zaroorat pe values
+`yield` wala function **generator** ban jata hai. Har `yield` pe ruk jata hai aur agli request pe wahi se continue karta hai.
+
+> **Analogy:** List poora pehle se bana buffet hai: sab kuch pehle bana, jagah bhi leta hai. Generator ek chef hai jo ek-ek dish tabhi banata hai jab tum maango. Bahut badi ya kabhi na khatam hone wali sequences ke liye badhiya.
+
+`range` bhi aise hi kaam karta hai, isliye `range(10**9)` GBs memory nahi khaata.
+
+### Files padhna aur likhna
+`with open("notes.txt", "w") as f: f.write(...)` likhne ke liye, `with open("notes.txt") as f: for line in f:` padhne ke liye. `with` file ko apne aap band kar deta hai, error aaye tab bhi. Modes: `"r"` padho, `"w"` likho (overwrite), `"a"` append.
+
+### pip se packages
+`pip install requests` PyPI se package install karta hai. Har project ke liye **virtual environment** (`python3 -m venv .venv`) banao taaki packages takraayein nahi. DSA practice ke liye koi bahar ka package nahi chahiye.
+
+### if __name__ == "__main__":
+Iske neeche ka code tab chalta hai jab file seedha run ho, jab koi aur file import kare tab nahi. Practice scripts ke liye acchi aadat.
+
+### Decorators (jhalak)
+Function ke upar `@cache` ek **decorator** hai: ek function jo doosre function ko wrap karke naya behaviour jodta hai (yahan: results yaad rakhna). DSA ke liye sirf use karna aana chahiye.
+=== drills
+--- d
+q: What does this print?
+code:
+def evens(limit):
+    x = 0
+    while x <= limit:
+        yield x
+        x += 2
+g = evens(6)
+print(next(g), next(g), list(g))
+answer:
+0 2 [4, 6]
+en: Each next() resumes the generator; list(g) takes whatever is left.
+hi: Har next() generator ko wahi se chalata hai; list(g) jo bacha hai wo le leta hai.
+--- d
+q: What does this print?
+code:
+it = iter("ab")
+print(next(it), next(it), next(it, "done"))
+answer:
+a b done
+en: next(it, default) returns the default instead of raising StopIteration.
+hi: next(it, default) StopIteration ki jagah default de deta hai.
+--- d
+kind: write
+q: Write a generator `squares(n)` that yields 1², 2², …, n².
+answer:
+def squares(n):
+    for i in range(1, n + 1):
+        yield i * i
+test:
+check(list(squares(4)), [1, 4, 9, 16])
+check(sum(squares(3)), 14)
+en: yield inside a loop produces one value per lap.
+hi: Loop ke andar yield har lap mein ek value deta hai.
+
+## module: py21 | Python for DSA: costs and gotchas
+summary: How fast Python is, what each operation costs, and the traps that catch people in interviews.
+=== en
+### How fast is Python?
+Python does roughly **10 to 50 million simple operations per second**: slower than C++ or Java, but LeetCode's time limits are set with this in mind. Rule of thumb:
+| n up to | aim for |
+|---|---|
+| 10–20 | O(2ⁿ), O(n!) (backtracking) |
+| 1,000 | O(n²) |
+| 100,000 | O(n log n) or O(n) |
+| 10⁹ | O(log n) or O(1) |
+
+### The costs table (keep it next to you)
+| Operation | Cost |
+|---|---|
+| `list[i]`, `append`, `pop()` | O(1) |
+| `list.insert(0, x)`, `pop(0)` | O(n) → use `deque` |
+| `x in list`, `list.index`, `remove` | O(n) → use a `set`/`dict` |
+| `x in set`, `x in dict`, `d[k]` | O(1) average |
+| `sorted`, `list.sort` | O(n log n) |
+| slicing `a[i:j]`, `a[::-1]` | O(j − i): it copies! |
+| `s + t` for strings | O(len(s) + len(t)) → collect in a list and `"".join` |
+| `heappush`, `heappop` | O(log n) |
+| `len(x)` | O(1) |
+| `min`, `max`, `sum`, `count` | O(n) |
+
+### Gotchas that cost people interviews
+1. **Shared rows:** `[[0] * c] * r` shares one row. Use `[[0] * c for _ in range(r)]`.
+2. **Mutable defaults:** `def f(path=[])` shares the list between calls.
+3. **Aliasing:** `res.append(path)` in backtracking appends the SAME list that you keep changing. Append a copy: `res.append(path[:])` or `path.copy()`.
+4. **Slicing in recursion:** `f(nums[1:])` copies the list on every call → O(n²). Pass an index instead.
+5. **String building in a loop:** `s += ch` repeatedly can be O(n²). Use a list and `join`.
+6. **Integer division with negatives:** `-7 // 2 == -4`. For "truncate toward zero" use `int(a / b)`.
+7. **Recursion depth:** default limit ~1000. Deep DFS may need `sys.setrecursionlimit` or an iterative version.
+8. **Modifying while iterating:** don't add/remove items of a list, set or dict you are looping over.
+9. **`is` vs `==`:** use `==` for values, `is` only for `None`.
+10. **Sorting with a key:** `sort()` returns None; `sorted()` returns a list.
+
+### LeetCode-style Python
+LeetCode wraps your function in a class:
+```python
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        seen = {}
+        for i, x in enumerate(nums):
+            if target - x in seen:
+                return [seen[target - x], i]
+            seen[x] = i
+```
+Our solutions are written as plain functions so they're easy to read and run anywhere. To submit on LeetCode, paste the body inside the method and add `self` where needed.
+
+> **Remember:** You're now ready for the Logic Gym. The gym makes loops, lists and strings automatic, so the Warm-up 50 and DSA 150 feel like puzzles, not fights with syntax.
+=== hi
+### Python kitna fast hai?
+Python lagbhag **1 se 5 crore simple operations per second** karta hai: C++/Java se slow, lekin LeetCode ki time limits ye dhyaan mein rakh ke set hoti hain. Rule of thumb: n ~20 → O(2ⁿ); n ~1000 → O(n²); n ~1 lakh → O(n log n) ya O(n); n ~10⁹ → O(log n).
+
+### Cost table (hamesha paas rakho)
+`list[i]`, `append`, `pop()` → O(1). `insert(0, x)`, `pop(0)` → O(n), `deque` use karo. `x in list` → O(n), `set`/`dict` use karo. `x in set`/`dict` → O(1). Sorting → O(n log n). Slicing → copy banata hai, O(length). Loop mein string `+` → `"".join` use karo. Heap push/pop → O(log n). `min`, `max`, `sum`, `count` → O(n).
+
+### Interview mein phasane wale gotchas
+1. **Shared rows:** `[[0] * c] * r` galat; `[[0] * c for _ in range(r)]` sahi.
+2. **Mutable default:** `def f(path=[])` list share karta hai.
+3. **Aliasing:** backtracking mein `res.append(path)` wahi list jodta hai jo tum badalte rehte ho. Copy jodo: `path[:]`.
+4. **Recursion mein slicing:** `f(nums[1:])` har call pe copy → O(n²). Index pass karo.
+5. **Loop mein string jodna:** `s += ch` O(n²) ho sakta hai. List + `join`.
+6. **Negative ke saath //:** `-7 // 2 == -4`. Zero ki taraf truncate chahiye toh `int(a / b)`.
+7. **Recursion depth:** default ~1000. Gehri DFS ke liye `sys.setrecursionlimit` ya iterative.
+8. **Loop chalate hue collection badalna** mat karo.
+9. **`is` vs `==`:** values ke liye `==`, `is` sirf `None` ke liye.
+10. `sort()` None deta hai; `sorted()` list.
+
+### LeetCode style Python
+LeetCode function ko `class Solution:` ke andar method bana ke deta hai (`def twoSum(self, nums, target)`). Humare solutions plain functions hain taaki padhne aur kahin bhi chalane mein aasaan hon. LeetCode pe submit karte waqt body ko method ke andar paste karo.
+
+> **Yaad rakho:** Ab tum Logic Gym ke liye ready ho. Gym loops, lists aur strings ko automatic bana deta hai, taaki Warm-up 50 aur DSA 150 puzzles lagein, syntax se ladaai nahi.
+=== drills
+--- d
+q: What does this print? (The backtracking aliasing trap.)
+code:
+res, path = [], []
+for x in [1, 2]:
+    path.append(x)
+    res.append(path)
+print(res)
+res2, path2 = [], []
+for x in [1, 2]:
+    path2.append(x)
+    res2.append(path2[:])
+print(res2)
+answer:
+[[1, 2], [1, 2]]
+[[1], [1, 2]]
+en: The first res holds two references to the same list. Copy with path[:] to freeze the current state.
+hi: Pehle res mein ek hi list ke do references hain. path[:] se copy karke current state freeze karo.
+--- d
+q: What does this print?
+code:
+print(-7 // 2, int(-7 / 2), 7 // 2, int(7 / 2))
+answer:
+-4 -3 3 3
+en: // floors towards minus infinity; int(a / b) truncates towards zero.
+hi: // minus infinity ki taraf floor karta hai; int(a / b) zero ki taraf truncate karta hai.
+--- d
+kind: fix
+q: This should build a 3×3 grid with only the centre set to 1, but every row changes. Fix it.
+code:
+def make_grid():
+    g = [[0] * 3] * 3
+    g[1][1] = 1
+    return g
+answer:
+def make_grid():
+    g = [[0] * 3 for _ in range(3)]
+    g[1][1] = 1
+    return g
+test:
+check(make_grid(), [[0, 0, 0], [0, 1, 0], [0, 0, 0]])
+en: Create each row separately with a comprehension.
+hi: Har row comprehension se alag banao.

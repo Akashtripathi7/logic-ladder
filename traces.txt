@@ -1,0 +1,781 @@
+### w-sum-average
+x | sum
+4 | 4
+8 | 12
+15 | 27
+16 | 43
+23 | 66
+42 | 108 → average 108 / 6 = 18.0
+
+### w-linear-search
+i | a[i] | equals 14?
+0 | 3 | no
+1 | 8 | no
+2 | 14 | yes → return 2
+
+### w-is-sorted
+i | a[i−1] | a[i] | in order?
+1 | 1 | 3 | yes
+2 | 3 | 2 | NO → return False
+
+### w-missing-number
+step | value
+n | 4 items + 1 = 5
+expected | 5 × 6 / 2 = 15
+actual | 1 + 2 + 4 + 5 = 12
+missing | 15 − 12 = 3
+
+### w-running-sum
+i | a[i] | prefix[i]
+0 | 3 | 3
+1 | 1 | 4
+2 | 4 | 8
+3 | 1 | 9
+4 | 5 | 14
+query 1..3 | — | prefix[3] − prefix[0] = 9 − 3 = 6
+
+### w-intersection
+step | value | result set
+build seen from a | {1, 2} | {}
+b: 2 | in seen | {2}
+b: 2 | in seen (already added) | {2}
+
+### w-vowels
+ch | kind | vowels | consonants
+h | consonant | 0 | 1
+e | vowel | 1 | 1
+l, l | consonants | 1 | 3
+o | vowel | 2 | 3
+(space) | skip | 2 | 3
+w | consonant | 2 | 4
+o | vowel | 3 | 4
+r, l, d | consonants | 3 | 7
+! | skip | 3 | 7
+
+### w-char-frequency
+ch | slot (code − 97) | count after
+b | 1 | b: 1
+a | 0 | a: 1
+n | 13 | n: 1
+a | 0 | a: 2
+n | 13 | n: 2
+a | 0 | a: 3
+
+### w-anagram
+i | +1 for s[i] | −1 for t[i]
+0 | l | s
+1 | i | i
+2 | s | l
+3 | t | e
+4 | e | n
+5 | n | t
+end | every letter +1 once and −1 once | all zero → True
+
+### w-first-unique-char
+step | detail
+count "loveleetcode" | l:2 o:2 v:1 e:4 t:1 c:1 d:1
+i = 0 'l' | count 2 → skip
+i = 1 'o' | count 2 → skip
+i = 2 'v' | count 1 → return 2
+
+### w-reverse-words
+step | result
+split on ' ' | ['', '', 'the', 'sky', '', '', 'is', 'blue', '']
+remove empty | [the, sky, is, blue]
+reverse | [blue, is, sky, the]
+join | "blue is sky the"
+
+### w-title-case
+word | first letter ↑ | rest ↓ | result
+hELLO | H | ello | Hello
+wORLD | W | orld | World
+from | F | rom | From
+python | P | ython | Python
+
+### w-count-words
+ch | inWord before | action | count
+' ', ' ' | False | stay out | 0
+I | False | new word | 1
+' ' | True | leave word | 1
+l | False | new word | 2
+o, v, e | True | inside | 2
+' ' × 3 | — | leave word | 2
+c | False | new word | 3
+
+### w-pangram
+step | seen
+"hello world" | h, e, l, o, w, r, d
+size | 7 ≠ 26 → False
+
+### w-remove-duplicate-chars
+ch | new? | output
+p | yes | p
+r | yes | pr
+o | yes | pro
+g | yes | prog
+r | no | prog
+a | yes | proga
+m | yes | progam
+m | no | progam
+i, n | yes | progamin
+g | no | progamin
+
+### w-longest-common-prefix
+i | first[i] | all words match?
+0 | f | yes
+1 | l | yes
+2 | o | "flight" has i → stop, return "fl"
+
+### w-transpose
+cell (r, c) | value | goes to out[c][r]
+(0, 0) | 1 | out[0][0]
+(0, 1) | 2 | out[1][0]
+(0, 2) | 3 | out[2][0]
+(1, 0) | 4 | out[0][1]
+(1, 1) | 5 | out[1][1]
+(1, 2) | 6 | out[2][1]
+
+### w-matrix-sums
+row r | row sum | diagonal cells added | diag so far
+0 | 6 | 1 + 3 | 4
+1 | 15 | 5 + 5 | 14
+2 | 24 | 9 + 7 | 30
+odd n | — | subtract centre 5 | 25
+
+### w-fib-memo
+call | memo hit? | returns
+fib(5) → fib(4) → fib(3) → fib(2) | no | calls fib(1) = 1, fib(0) = 0
+fib(2) | stored | 1
+fib(3) = fib(2) + fib(1) | no | 2 (stored)
+fib(4) = fib(3) + fib(2) | fib(2) from memo | 3 (stored)
+fib(5) = fib(4) + fib(3) | fib(3) from memo | 5
+
+### valid-anagram
+i | s[i] (+1) | t[i] (−1)
+0 | a | n
+1 | n | a
+2 | a | g
+3 | g | a
+4 | r | r
+5 | a | a
+6 | m | m
+end | a +3−3, n +1−1, g +1−1, r +1−1, m +1−1 | all zero → True
+
+### valid-palindrome
+l | r | s[l] vs s[r] | result
+0 | 9 | r = r | move in
+1 | 8 | a = a | move in
+2 | 7 | c = c | move in
+3 | 6 → 5 (skip space) | e vs a | different → False
+
+### generate-parentheses
+cur | open | close | next move
+"" | 0 | 0 | add (
+"(" | 1 | 0 | add ( or )
+"((" | 2 | 0 | only )
+"(()" | 2 | 1 | only )
+"(())" | 2 | 2 | record
+"()" | 1 | 1 | only (
+"()(" | 2 | 1 | only )
+"()()" | 2 | 2 | record
+
+### time-based-key-value-store
+operation | foo's timestamps | result
+set bar @1 | [1] | —
+get @1 | [1] | 1 ≤ 1 → "bar"
+get @3 | [1] | latest ≤ 3 is 1 → "bar"
+set bar2 @4 | [1, 4] | —
+get @4 | [1, 4] | latest ≤ 4 is 4 → "bar2"
+get @5 | [1, 4] | latest ≤ 5 is 4 → "bar2"
+
+### merge-two-sorted-lists
+compare | take | merged so far
+1 vs 1 | 1 (list a) | 1
+2 vs 1 | 1 (list b) | 1, 1
+2 vs 3 | 2 | 1, 1, 2
+4 vs 3 | 3 | 1, 1, 2, 3
+4 vs 4 | 4 (list a) | 1, 1, 2, 3, 4
+a is empty | attach rest of b | 1, 1, 2, 3, 4, 4
+
+### linked-list-cycle
+step | slow | fast | same?
+start | 3 | 3 | —
+1 | 2 | 0 | no
+2 | 0 | 2 | no
+3 | −4 | −4 | YES → cycle
+
+### remove-nth-node-from-end-of-list
+phase | slow | fast
+start | dummy | dummy
+fast moves n + 1 = 3 | dummy | 3
+both move | 1 | 4
+both move | 2 | 5
+both move | 3 | None → stop
+delete slow.next | 3 → 5 | result 1, 2, 3, 5
+
+### copy-list-with-random-pointer
+pass | action
+1 | create 7', 13', 11' and store old → new
+2 | 7'.next = 13'
+2 | 13'.next = 11', 13'.random = 7'
+2 | 11'.random = 11'
+
+### invert-binary-tree
+visit | children before | children after
+4 | 2, 7 | 7, 2
+7 | 6, 9 | 9, 6
+9, 6 | leaves | unchanged
+2 | 1, 3 | 3, 1
+3, 1 | leaves | unchanged → [4, 7, 2, 9, 6, 3, 1]
+
+### balanced-binary-tree
+node | left h | right h | returns
+4, 4 (leaves) | 0 | 0 | 1
+3 (with two 4s) | 1 | 1 | 2
+3 (leaf) | 0 | 0 | 1
+2 (left) | 2 | 1 | 3
+2 (right leaf) | 0 | 0 | 1
+1 (root) | 3 | 1 | difference 2 → −1 → False
+
+### same-tree
+pair compared | result
+(1, 1) | equal values → check the children
+left: (2, None) | one is None → False
+
+### subtree-of-another-tree
+node of root | same(node, sub)?
+3 | 3 ≠ 4 → no, try children
+4 | 4 = 4, 1 = 1, 2 = 2 → True
+
+### lowest-common-ancestor-of-a-binary-search-tree
+query | cur | decision
+p=2, q=8 | 6 | 2 < 6 < 8 → split → answer 6
+p=2, q=4 | 6 | both smaller → go left
+p=2, q=4 | 2 | p equals node → answer 2
+
+### binary-tree-right-side-view
+level | nodes (left → right) | seen from the right
+1 | 1 | 1
+2 | 2, 3 | 3
+3 | 5, 4 | 4
+
+### validate-binary-search-tree
+node | allowed range | inside?
+5 | (−∞, +∞) | yes
+1 | (−∞, 5) | yes
+4 | (5, +∞) | NO → False
+
+### kth-smallest-element-in-a-bst
+in-order pop | k remaining
+1 | 2
+2 | 1
+3 | 0 → answer 3
+
+### construct-binary-tree-from-preorder-and-inorder-traversal
+build(lo, hi) | root (next preorder) | its inorder index | left range | right range
+(0, 4) | 3 | 1 | (0, 0) | (2, 4)
+(0, 0) | 9 | 0 | empty | empty
+(2, 4) | 20 | 3 | (2, 2) | (4, 4)
+(2, 2) | 15 | 2 | empty | empty
+(4, 4) | 7 | 4 | empty | empty
+
+### serialize-and-deserialize-binary-tree
+visit (preorder) | output so far
+1 | 1
+2 | 1,2
+None, None | 1,2,N,N
+3 | 1,2,N,N,3
+4, None, None | …,3,4,N,N
+5, None, None | …,4,N,N,5,N,N
+
+### implement-trie-prefix-tree
+operation | walk | result
+insert "apple" | a → p → p → l → e, mark e as end | —
+search "apple" | path exists, e is an end | True
+search "app" | path exists, 2nd p is not an end | False
+startsWith "app" | path exists | True
+insert "app" | mark 2nd p as end | —
+search "app" | path exists, now an end | True
+
+### design-add-and-search-words-data-structure
+query | walk | result
+"pad" | no child p at the root | False
+"bad" | b → a → d (end) | True
+".ad" | '.' tries b, d, m; b → a → d is an end | True
+"b.." | b, then any, then any → b-a-d | True
+
+### word-search-ii
+start cell | path through the grid | trie says
+(0,0) o | o → a (0,1) → t (1,1) → h (2,1) | "oath" found
+(1,3) e | e → a (1,2) → t (1,1) | "eat" found
+others | first letters p or r lead nowhere | pruned
+
+### k-closest-points-to-origin
+point | distance² | max-heap after (size ≤ 2)
+[3, 3] | 18 | {18}
+[5, −1] | 26 | {26, 18}
+[−2, 4] | 20 | {26, 20, 18} → pop 26 → {20, 18}
+answer | — | [3, 3] and [−2, 4]
+
+### kth-largest-element-in-an-array
+x | min-heap after (size ≤ 2)
+3 | {3}
+2 | {2, 3}
+1 | {1, 2, 3} → pop 1 → {2, 3}
+5 | {2, 3, 5} → pop 2 → {3, 5}
+6 | {3, 5, 6} → pop 3 → {5, 6}
+4 | {4, 5, 6} → pop 4 → {5, 6} → top = 5
+
+### design-twitter
+operation | state | feed
+post(1, 5) | user1: [5] | —
+feed(1) | people {1} | [5]
+follow(1, 2); post(2, 6) | user2: [6] | —
+feed(1) | people {1, 2}, newest first | [6, 5]
+unfollow(1, 2) | people {1} | [5]
+
+### combination-sum
+path | total | action
+[2, 2, 2] | 6 | add 2 → 8 > 7, stop; try 3 → 9, stop
+[2, 2, 3] | 7 | record
+[2, 3, …] | ≥ 8 | too big
+[3, 3] | 6 | +3 = 9 too big, move on
+[7] | 7 | record
+
+### combination-sum-ii
+path | remaining | action
+sorted input | [1, 1, 2, 5, 6, 7, 10] | target 8
+[1, 1] | 6 | + 6 → record [1, 1, 6]
+[1, 2] | 5 | + 5 → record [1, 2, 5]
+[1, 7] | 0 | record [1, 7]
+second 1 at the first level | — | skip (duplicate branch)
+[2, 6] | 0 | record [2, 6]
+
+### permutations
+path | used | next choice
+[1] | 1 | 2 or 3
+[1, 2] | 1, 2 | 3 → record [1, 2, 3]
+[1, 3] | 1, 3 | 2 → record [1, 3, 2]
+[2] … | 2 | → [2, 1, 3], [2, 3, 1]
+[3] … | 3 | → [3, 1, 2], [3, 2, 1]
+
+### subsets-ii
+dfs(start) | record | tries next
+0 | [] | 1, 2 (second 2 skipped)
+1 | [1] | 2 (second 2 skipped)
+2 | [1, 2] | 2
+3 | [1, 2, 2] | —
+2 | [2] | 2 at index 2
+3 | [2, 2] | —
+
+### word-search
+step | cell | letter | matches?
+1 | (0,0) | A | yes
+2 | (0,1) | B | yes
+3 | (0,2) | C | yes
+4 | (1,2) | C | yes
+5 | (2,2) | E | yes
+6 | (2,1) | D | yes → found
+
+### palindrome-partitioning
+start | piece tried | palindrome? | action
+0 | a | yes | go to 1
+1 | a | yes | go to 2
+2 | b | yes | record [a, a, b]
+1 | ab | no | skip
+0 | aa | yes | go to 2
+2 | b | yes | record [aa, b]
+0 | aab | no | skip
+
+### letter-combinations-of-a-phone-number
+level | digit | letters | strings so far
+0 | 2 | a, b, c | a, b, c
+1 | 3 | d, e, f | ad ae af bd be bf cd ce cf
+
+### n-queens
+row | column tried | result
+0 | 0 | place
+1 | 2 | place
+2 | none safe | backtrack
+1 | 3 | place
+2 | 1 | place
+3 | none safe | backtrack to row 0
+0 | 1 | place
+1 | 3 | place
+2 | 0 | place
+3 | 2 | place → solution .Q.. / ...Q / Q... / ..Q.
+
+### number-of-islands
+cell | land, not yet sunk? | action | count
+(0,0) | yes | sink (0,0), (0,1), (1,0) | 1
+(0,1), (1,0) | already sunk | skip | 1
+(2,2) | yes | sink (2,2) | 2
+
+### max-area-of-island
+start cell | cells sunk | area | best
+(0,1) | (0,1), (0,2), (1,1) | 3 | 3
+(2,0) | (2,0) | 1 | 3
+(2,2) | (2,2) | 1 | 3
+
+### clone-graph
+call | action
+clone(1) | create 1', map 1 → 1'
+→ neighbour 2 | clone(2): create 2'
+→ 2's neighbour 1 | already in map → reuse 1'
+→ 2's neighbour 3 | clone(3) → create 3' → its neighbour 4 → clone(4)
+→ 4's neighbours 3, 1 | both in map → reuse
+back in 1 | neighbour 4 already cloned → reuse 4'
+
+### islands-and-treasure
+BFS distance | cells filled
+0 | gates (0,2) and (3,0)
+1 | (0,3), (1,2), (2,0)
+2 | (1,1), (2,2), (1,0)
+3 | (0,0), (3,2)
+4 | (3,3)
+
+### rotting-oranges
+minute | newly rotten | fresh left
+0 | — | 6
+1 | (0,1), (1,0) | 4
+2 | (0,2), (1,1) | 2
+3 | (2,1) | 1
+4 | (2,2) | 0 → answer 4
+
+### pacific-atlantic-water-flow
+cell (height) | reached from the Pacific? | from the Atlantic? | answer?
+(0,4) h5 | yes (top edge) | yes (right edge) | yes
+(2,2) h5 | yes (climbing from the top) | yes (climbing from the right) | yes
+(3,0) h6 | yes (left edge) | yes (6 ≥ 5 at the bottom-left) | yes
+(0,0) h1 | yes | no | no
+(4,4) h4 | no | yes | no
+
+### surrounded-regions
+step | action
+border scan | the O at (3,1) is on the border → mark T
+inside | the O's at (1,1), (1,2), (2,2) are not reached
+final pass | O → X, T → O
+
+### course-schedule
+step | take | in-degree changes | queue
+start | — | 0:0 1:1 2:1 3:1 | [0]
+1 | 0 | 1 → 0 | [1]
+2 | 1 | 2 → 0 | [2]
+3 | 2 | 3 → 0 | [3]
+4 | 3 | — | [] → taken 4 = 4 → True
+
+### course-schedule-ii
+step | take | in-degree changes | order
+start | — | 0:0 1:1 2:1 3:2 | []
+1 | 0 | 1 → 0, 2 → 0 | [0]
+2 | 1 | 3 → 1 | [0, 1]
+3 | 2 | 3 → 0 | [0, 1, 2]
+4 | 3 | — | [0, 1, 2, 3]
+
+### graph-valid-tree
+check | detail
+edge count | 4 = n − 1 ✓
+(0,1) | roots 0, 1 differ → union
+(0,2) | roots 1, 2 differ → union
+(0,3) | roots 2, 3 differ → union
+(1,4) | roots 3, 4 differ → union → no cycle → True
+
+### number-of-connected-components-in-an-undirected-graph
+edge | roots | action | components
+start | — | — | 5
+(0,1) | 0, 1 | union | 4
+(1,2) | 1, 2 | union | 3
+(3,4) | 3, 4 | union | 2
+
+### redundant-connection
+edge | find(a) | find(b) | action
+[1,2] | 1 | 2 | union
+[1,3] | 2 | 3 | union
+[2,3] | 3 | 3 | same root → return [2, 3]
+
+### reconstruct-itinerary
+dfs at | tickets left there | action | route (reversed)
+JFK | MUC | go to MUC |
+MUC | LHR | go to LHR |
+LHR | SFO | go to SFO |
+SFO | SJC | go to SJC |
+SJC | none | add SJC | SJC
+back up | none left anywhere | add SFO, LHR, MUC, JFK | SJC SFO LHR MUC JFK
+reverse | — | — | JFK MUC LHR SFO SJC
+
+### min-cost-to-connect-all-points
+step | point added | edge cost | total
+1 | (0,0) | 0 | 0
+2 | (2,2) | 4 from (0,0) | 4
+3 | (5,2) | 3 from (2,2) | 7
+4 | (7,0) | 4 from (5,2) | 11
+5 | (3,10) | 9 from (2,2) | 20
+
+### swim-in-rising-water
+pop (time, cell) | pushes
+(0, (0,0)) | (2, (0,1)), (1, (1,0))
+(1, (1,0)) | (3, (1,1))
+(2, (0,1)) | —
+(3, (1,1)) | target → answer 3
+
+### foreign-dictionary
+adjacent pair | first difference | rule
+wrt / wrf | t vs f | t → f
+wrf / er | w vs e | w → e
+er / ett | r vs t | r → t
+ett / rftt | e vs r | e → r
+topological order | w → e → r → t → f | "wertf"
+
+### cheapest-flights-within-k-stops
+round | prices for [0, 1, 2, 3] | new this round
+start | [0, ∞, ∞, ∞] | —
+1 | [0, 100, ∞, ∞] | 0 → 1
+2 | [0, 100, 200, 700] | 1 → 2, 1 → 3
+answer | k = 1 means 2 rounds | 700
+
+### min-cost-climbing-stairs
+i | a (two back) | b (one back) | new = cost[i] + min(a, b)
+start | 10 | 15 | —
+2 | 15 | 30 | 20 + 10 = 30
+answer | — | — | min(15, 30) = 15
+
+### house-robber-ii
+case | houses used | best
+skip the first | [3, 2] | 3
+skip the last | [2, 3] | 3
+answer | — | 3
+
+### longest-palindromic-substring
+centre | expands to | length | best
+0 (b) | b | 1 | b
+1 (a) | bab | 3 | bab
+2 (b) | aba | 3 | bab (not longer)
+3 (a) | a | 1 | bab
+gaps | no two equal neighbours | 0 | bab
+
+### palindromic-substrings
+centre | palindromes found | count
+(0, 0) | a | 1
+(0, 1) | aa | 2
+(1, 1) | a, aaa | 4
+(1, 2) | aa | 5
+(2, 2) | a | 6
+
+### partition-equal-subset-sum
+x | reachable sums (≤ 11)
+start | {0}
+1 | {0, 1}
+5 | {0, 1, 5, 6}
+11 | {0, 1, 5, 6, 11}
+5 | {0, 1, 5, 6, 10, 11} → 11 reachable → True
+
+### longest-common-subsequence
+prefix of "abcde" | "" | a | c | e
+a | 0 | 1 | 1 | 1
+b | 0 | 1 | 1 | 1
+c | 0 | 1 | 2 | 2
+d | 0 | 1 | 2 | 2
+e | 0 | 1 | 2 | 3 ← answer
+
+### coin-change-ii
+after coin | ways[0..5]
+start | [1, 0, 0, 0, 0, 0]
+1 | [1, 1, 1, 1, 1, 1]
+2 | [1, 1, 2, 2, 3, 3]
+5 | [1, 1, 2, 2, 3, 4] → 4
+
+### target-sum
+after number | sum: ways
+start | 0:1
+1st 1 | 1:1, −1:1
+2nd 1 | 2:1, 0:2, −2:1
+3rd 1 | 3:1, 1:3, −1:3, −3:1
+4th 1 | 4:1, 2:4, 0:6, −2:4, −4:1
+5th 1 | 5:1, 3:5, 1:10, … → ways to make 3 = 5
+
+### interleaving-string
+s3 char | taken from | (i in s1, j in s2)
+a | s1 | (1, 0)
+a | s1 | (2, 0)
+d | s2 | (2, 1)
+b | s2 | (2, 2)
+b | s2 | (2, 3)
+c | s2 | (2, 4)
+b | s1 | (3, 4)
+c | s1 | (4, 4)
+a | s2 | (4, 5)
+c | s1 | (5, 5) → True
+
+### longest-increasing-path-in-a-matrix
+cell (value) | longest path starting here
+(0,0) 9, (0,1) 9 | 1
+(1,2) 8 | 1
+(1,0) 6, (1,1) 6 | 2 (→ 9)
+(0,2) 4 | 2 (→ 8)
+(2,0) 2 | 3 (→ 6 → 9)
+(2,1) 1 | 4 (→ 2 → 6 → 9) ← answer
+
+### distinct-subsequences
+s char | dp over "rabbit" prefixes [∅ r a b b i t]
+start | [1, 0, 0, 0, 0, 0, 0]
+r | [1, 1, 0, 0, 0, 0, 0]
+a | [1, 1, 1, 0, 0, 0, 0]
+b | [1, 1, 1, 1, 0, 0, 0]
+b | [1, 1, 1, 2, 1, 0, 0]
+b | [1, 1, 1, 3, 3, 0, 0]
+i | [1, 1, 1, 3, 3, 3, 0]
+t | [1, 1, 1, 3, 3, 3, 3] → 3
+
+### edit-distance
+step | word | operation
+start | horse | —
+1 | rorse | replace h → r
+2 | rose | delete r
+3 | ros | delete e → 3 operations
+
+### burst-balloons
+burst | neighbours at that moment | coins | total
+1 | 3 and 5 | 3 × 1 × 5 = 15 | 15
+5 | 3 and 8 | 3 × 5 × 8 = 120 | 135
+3 | 1 (edge) and 8 | 1 × 3 × 8 = 24 | 159
+8 | 1 and 1 (edges) | 8 | 167
+
+### regular-expression-matching
+pattern piece | matches in "aab"
+c* | zero c's
+a* | "aa"
+b | "b" → whole string matched → True
+
+### jump-game-ii
+i | farthest | curEnd | jumps
+0 | 2 | 0 → reached: jump, curEnd = 2 | 1
+1 | 4 | 2 | 1
+2 | 4 | 2 → reached: jump, curEnd = 4 | 2
+3 | 4 | 4 | 2 → answer 2
+
+### hand-of-straights
+smallest card | group | counts left
+1 | 1, 2, 3 | 2:1 3:1 4:1 6:1 7:1 8:1
+2 | 2, 3, 4 | 6:1 7:1 8:1
+6 | 6, 7, 8 | none → True
+
+### merge-triplets-to-form-target-triplet
+triplet | overshoots [2,7,5]? | positions matched | found
+[2, 5, 3] | no | 0 | {0}
+[1, 8, 4] | yes (8 > 7) | skip | {0}
+[1, 7, 5] | no | 1, 2 | {0, 1, 2} → True
+
+### partition-labels
+part | starts at | end stretches to | size
+1 | 0 | 8 (last a) | 9
+2 | 9 | 15 (last e) | 7
+3 | 16 | 23 (last j) | 8
+
+### valid-parenthesis-string
+ch | lo | hi
+( | 1 | 1
+* | 0 | 2
+) | 0 | 1
+) | 0 | 0 → lo is 0 → True
+
+### insert-interval
+phase | interval | action | new interval
+before | [1, 2] | ends before 4 → copy | [4, 8]
+merge | [3, 5] | overlaps | [3, 8]
+merge | [6, 7] | overlaps | [3, 8]
+merge | [8, 10] | overlaps (8 ≤ 8) | [3, 10]
+add | — | add [3, 10] | —
+after | [12, 16] | copy | —
+
+### merge-intervals
+interval | last merged | action | result
+[1, 3] | — | add | [1,3]
+[2, 6] | [1, 3] | 2 ≤ 3 → extend | [1,6]
+[8, 10] | [1, 6] | gap → add | [1,6] [8,10]
+[15, 18] | [8, 10] | gap → add | [1,6] [8,10] [15,18]
+
+### non-overlapping-intervals
+sorted by end | lastEnd | action | removed
+[1, 2] | 2 | keep | 0
+[2, 3] | 3 | keep (2 ≥ 2) | 0
+[1, 3] | 3 | 1 < 3 → remove | 1
+[3, 4] | 4 | keep | 1
+
+### meeting-rooms
+sorted | previous ends | clash?
+[0, 30] | — | —
+[5, 10] | 30 | 5 < 30 → clash → False
+
+### minimum-interval-to-include-each-query
+query (sorted) | intervals pushed [size, end] | popped (end < q) | answer
+2 | [4,4] from [1,4], [3,4] from [2,4] | — | 3
+3 | [4,6] from [3,6] | — | 3
+4 | [1,4] from [4,4] | — | 1
+5 | — | [1,4], [3,4], [4,4] | 4 (from [3,6])
+
+### spiral-matrix
+walk | cells | walls after
+right along top | 1, 2, 3 | top = 1
+down right side | 6, 9 | right = 1
+left along bottom | 8, 7 | bottom = 1
+up left side | 4 | left = 1
+right along top | 5 | top = 2 → walls crossed, stop
+
+### set-matrix-zeroes
+pass | detail
+1 (find zeros) | zero at (1,1) → rows {1}, cols {1}
+2 (apply) | row 1 → 0 0 0; column 1 → 0 in every row
+
+### plus-one
+i | digit | action
+2 | 9 | → 0, carry left
+1 | 2 | → 3, done → [1, 3, 0]
+
+### multiply-strings
+digit of "123" | res after multiplying by "456" | meaning
+3 | [0, 0, 1, 3, 6, 8] | 3 × 456 = 1368
+2 | [0, 1, 0, 4, 8, 8] | + 20 × 456 → 10488
+1 | [0, 5, 6, 0, 8, 8] | + 100 × 456 → 56088
+
+### detect-squares
+query | diagonal candidate | other corners (counts) | squares
+(11, 10) | (3, 2): |8| = |8| ✓ | (11, 2) × 1, (3, 10) × 1 | 1
+(11, 10) | (3, 10), (11, 2) | same row/column | skip
+after adding (11, 2) again | (3, 2) | (11, 2) × 2, (3, 10) × 1 | 2
+
+### single-number
+x | res = res ^ x
+4 | 4
+1 | 5
+2 | 7
+1 | 6
+2 | 4 → answer 4
+
+### counting-bits
+i | i >> 1 | i & 1 | ans[i]
+0 | — | — | 0
+1 | 0 | 1 | 1
+2 | 1 | 0 | 1
+3 | 1 | 1 | 2
+4 | 2 | 0 | 1
+5 | 2 | 1 | 2
+
+### reverse-bits
+step | last bit of n | res
+1 (n = 1) | 1 | 1
+2 … 32 | 0 | shifted left each time
+end | — | 1 << 31 = 2147483648
+
+### missing-number
+i | nums[i] | res after res ^= i ^ nums[i]
+start | — | 3
+0 | 3 | 3 ^ 0 ^ 3 = 0
+1 | 0 | 0 ^ 1 ^ 0 = 1
+2 | 1 | 1 ^ 2 ^ 1 = 2 → answer 2
+
+### reverse-integer
+x | digit | rev
+123 | 3 | 3
+12 | 2 | 32
+1 | 1 | 321
+sign | — | −321 (inside the 32-bit range)

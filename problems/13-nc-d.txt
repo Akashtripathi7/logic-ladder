@@ -1,0 +1,1564 @@
+## topic: backtracking | Backtracking
+
+### subsets
+title: Subsets
+lc: 78 subsets
+diff: Medium
+pattern: Backtracking: include / exclude each item
+problem: Return all subsets (the power set) of a list of distinct numbers.
+example: [1, 2, 3] → [], [1], [2], [3], [1,2], [1,3], [2,3], [1,2,3]
+analogy: Packing for a trip with 3 optional items: for each item you decide "take it" or "leave it". Every full set of decisions is one packed bag, so 2 × 2 × 2 = 8 bags.
+hints:
+- Each item is IN or OUT → 2ⁿ subsets.
+- Walk the items one by one; at item i branch twice: take it, or skip it.
+- When i reaches n, the current choices form one subset: append a COPY.
+- Choose → explore → un-choose is the backtracking template.
+brute: Count 0..2ⁿ − 1 and use the bits as in/out switches. Equally good!
+brutecx: O(n·2ⁿ)
+signal: "All subsets / combinations" → **backtracking with take/skip**.
+optimal:
+- dfs(i): i == n → res.append(cur[:]). cur.append(nums[i]); dfs(i + 1); cur.pop(); dfs(i + 1).
+cx: O(n·2ⁿ) time · O(n) depth
+code:
+def subsets(nums):
+    res, cur = [], []
+
+    def dfs(i):
+        if i == len(nums):
+            res.append(cur[:])
+            return
+        cur.append(nums[i])
+        dfs(i + 1)
+        cur.pop()
+        dfs(i + 1)
+
+    dfs(0)
+    return res
+test:
+check_u(subsets([1, 2, 3]), [[], [1], [2], [3], [1, 2], [1, 3], [2, 3], [1, 2, 3]])
+check_u(subsets([0]), [[], [0]])
+trace:
+decisions | subset recorded
+take 1, take 2, take 3 | [1, 2, 3]
+take 1, take 2, skip 3 | [1, 2]
+take 1, skip 2, take 3 | [1, 3]
+… | …
+skip all | []
+mistakes:
+- `res.append(cur)` without copying: every entry points to the same list.
+hinglish:
+## Sawaal
+List ke saare subsets (power set).
+## Analogy
+Trip ke liye 3 optional cheezein: har cheez ke liye "lo ya chhodo". Har poora decision-set ek bag hai → 2 × 2 × 2 = 8 bags.
+## Kaise sochein
+- Har item IN ya OUT → 2ⁿ subsets.
+- Item i pe do branch: lo ya chhodo.
+- i == n → current choices ek subset; COPY append karo.
+## Pattern pehchano
+"Saare subsets/combinations" → take/skip backtracking.
+## Best approach
+O(n·2ⁿ).
+## Galtiyan
+`cur` ki copy na banana.
+
+### combination-sum
+title: Combination Sum
+lc: 39 combination-sum
+diff: Medium
+pattern: Backtracking with reuse allowed
+problem: Return all unique combinations of distinct positive candidates that sum to target; a number may be reused.
+example: candidates [2, 3, 6, 7], target 7 → [[2, 2, 3], [7]]
+analogy: Paying ₹7 exactly using ₹2, ₹3, ₹6, ₹7 coins (unlimited). To avoid counting 2+2+3 and 3+2+2 as different, once you move on from a coin type you never go back to it.
+hints:
+- At each step: use candidate i AGAIN (stay at i) or move to i + 1.
+- Never go back to an earlier candidate → no duplicate combinations.
+- Stop a branch when the total exceeds the target.
+brute: Generate all combinations up to some length.
+brutecx: exponential
+signal: "Combinations summing to a target, reuse allowed" → **backtracking that stays on the same index**.
+optimal:
+- dfs(i, total): total == target → record; i == n or total > target → return; take (stay at i); skip (i + 1).
+cx: O(2^(target/min)) roughly
+code:
+def combination_sum(candidates, target):
+    res, cur = [], []
+
+    def dfs(i, total):
+        if total == target:
+            res.append(cur[:])
+            return
+        if i == len(candidates) or total > target:
+            return
+        cur.append(candidates[i])
+        dfs(i, total + candidates[i])
+        cur.pop()
+        dfs(i + 1, total)
+
+    dfs(0, 0)
+    return res
+test:
+check_u(combination_sum([2, 3, 6, 7], 7), [[2, 2, 3], [7]])
+check_u(combination_sum([2, 3, 5], 8), [[2, 2, 2, 2], [2, 3, 3], [3, 5]])
+check_u(combination_sum([2], 1), [])
+mistakes:
+- Looping from 0 at every level (creates permutations of the same combination).
+hinglish:
+## Sawaal
+Candidates se target banane wale saare unique combinations; ek number baar-baar use ho sakta hai.
+## Analogy
+₹2, ₹3, ₹6, ₹7 ke coins (unlimited) se exactly ₹7 dena. 2+2+3 aur 3+2+2 ko alag na ginne ke liye, ek coin type se aage badh gaye toh wapas nahi aate.
+## Kaise sochein
+- Har step: candidate i dobara lo (i pe raho) ya i + 1 pe jao.
+- Pichhle candidate pe kabhi wapas nahi → duplicates nahi.
+- Total target se zyada → branch band.
+## Pattern pehchano
+Reuse allowed combinations → same index pe rukne wala backtracking.
+## Galtiyan
+Har level pe 0 se loop karna.
+
+### combination-sum-ii
+title: Combination Sum II
+lc: 40 combination-sum-ii
+diff: Medium
+pattern: Sort + skip duplicates at the same level
+problem: Each candidate is used at most once and candidates may contain duplicates. Return unique combinations summing to target.
+example: [10, 1, 2, 7, 6, 1, 5], target 8 → [[1,1,6], [1,2,5], [1,7], [2,6]]
+analogy: Two identical ₹1 coins in your pocket: choosing "the first ₹1 coin" or "the second ₹1 coin" as your first pick gives the same combinations. So at each decision point, try each distinct value only once.
+hints:
+- Sort so equal values are neighbours.
+- In the loop choosing the next number, skip a value equal to the previous one AT THE SAME LEVEL.
+- Each number used once → recurse with j + 1.
+- Sorted → once a value exceeds the remaining amount, break.
+brute: Generate all subsets and deduplicate with a set.
+brutecx: O(n·2ⁿ)
+signal: Combinations with **duplicate inputs** → sort + `if j > start and a[j] == a[j − 1]: continue`.
+optimal:
+- Sort. dfs(start, remaining): 0 → record. For j from start: skip duplicates; > remaining → break; choose, recurse j + 1, undo.
+cx: O(n·2ⁿ) worst case
+code:
+def combination_sum2(candidates, target):
+    a = sorted(candidates)
+    res, cur = [], []
+
+    def dfs(start, remaining):
+        if remaining == 0:
+            res.append(cur[:])
+            return
+        for j in range(start, len(a)):
+            if j > start and a[j] == a[j - 1]:
+                continue
+            if a[j] > remaining:
+                break
+            cur.append(a[j])
+            dfs(j + 1, remaining - a[j])
+            cur.pop()
+
+    dfs(0, target)
+    return res
+test:
+check_u(combination_sum2([10, 1, 2, 7, 6, 1, 5], 8), [[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]])
+check_u(combination_sum2([2, 5, 2, 1, 2], 5), [[1, 2, 2], [5]])
+mistakes:
+- Skipping with `j > 0` instead of `j > start` (wrongly forbids [1, 1, 6]).
+hinglish:
+## Sawaal
+Har candidate ek baar; candidates mein duplicates ho sakte hain. Target banane wale unique combinations.
+## Analogy
+Jeb mein do ek jaise ₹1 ke sikke: pehli choice mein "pehla ₹1" ya "doosra ₹1" lene se same combinations bante hain. Isliye har decision point pe har distinct value sirf ek baar try karo.
+## Kaise sochein
+- Sort karo taaki same values pados mein hon.
+- Same level pe pichhli jaisi value skip.
+- Har number ek baar → j + 1 se recurse.
+- Sorted hai → value remaining se badi → break.
+## Pattern pehchano
+Duplicate input wale combinations → sort + same level skip.
+## Galtiyan
+`j > start` ki jagah `j > 0`.
+
+### permutations
+title: Permutations
+lc: 46 permutations
+diff: Medium
+pattern: Backtracking with a used set
+problem: Return all orderings of a list of distinct numbers.
+example: [1, 2, 3] → 6 permutations
+analogy: Seating 3 guests in 3 chairs: for chair 1 try every guest, for chair 2 every guest not yet seated, and so on.
+hints:
+- Fill positions one at a time; try every number not used yet.
+- Track used numbers with a boolean list (or check `x in cur` for small n).
+- When cur has n numbers, record it.
+brute: This is the approach; n! results is unavoidable.
+brutecx: O(n·n!)
+signal: "All orderings" → **backtracking over unused elements**.
+optimal:
+- dfs(): len(cur) == n → record. For i: if not used[i]: mark, append, dfs, pop, unmark.
+cx: O(n·n!) time · O(n) depth
+code:
+def permute(nums):
+    res, cur = [], []
+    used = [False] * len(nums)
+
+    def dfs():
+        if len(cur) == len(nums):
+            res.append(cur[:])
+            return
+        for i in range(len(nums)):
+            if used[i]:
+                continue
+            used[i] = True
+            cur.append(nums[i])
+            dfs()
+            cur.pop()
+            used[i] = False
+
+    dfs()
+    return res
+test:
+check_u(permute([1, 2, 3]), [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]], False)
+check(len(permute([1])), 1)
+mistakes:
+- Forgetting to reset used[i] after exploring.
+hinglish:
+## Sawaal
+Distinct numbers ke saare orders (permutations).
+## Analogy
+3 mehmaanon ko 3 kursiyon pe bithana: kursi 1 pe har mehmaan try karo, kursi 2 pe har wo mehmaan jo abhi baitha nahi…
+## Kaise sochein
+- Positions ek-ek karke bharo, har unused number try karo.
+- `used` list se track.
+- cur mein n numbers → record.
+## Pattern pehchano
+"Saare orders" → unused elements pe backtracking.
+## Galtiyan
+Explore ke baad `used[i] = False` bhoolna.
+
+### subsets-ii
+title: Subsets II
+lc: 90 subsets-ii
+diff: Medium
+pattern: Sort + skip duplicates at the same level
+problem: Return all unique subsets of a list that may contain duplicates.
+example: [1, 2, 2] → [], [1], [1,2], [1,2,2], [2], [2,2]
+analogy: A fruit bowl with 1 apple and 2 identical bananas: "just a banana" is one choice, no matter which banana you pick.
+hints:
+- Sort so duplicates are adjacent.
+- "Loop over the next choice" style: each call records cur, then tries adding each later element.
+- At the same level, skip an element equal to the previous one.
+brute: Generate all subsets and deduplicate.
+brutecx: O(n·2ⁿ) plus dedup cost
+signal: Subsets with **duplicates** → sort + skip at the same level.
+optimal:
+- Sort. dfs(start): record cur; for j from start: skip duplicates; choose, dfs(j + 1), undo.
+cx: O(n·2ⁿ)
+code:
+def subsets_with_dup(nums):
+    a = sorted(nums)
+    res, cur = [], []
+
+    def dfs(start):
+        res.append(cur[:])
+        for j in range(start, len(a)):
+            if j > start and a[j] == a[j - 1]:
+                continue
+            cur.append(a[j])
+            dfs(j + 1)
+            cur.pop()
+
+    dfs(0)
+    return res
+test:
+check_u(subsets_with_dup([1, 2, 2]), [[], [1], [1, 2], [1, 2, 2], [2], [2, 2]])
+check_u(subsets_with_dup([0]), [[], [0]])
+mistakes:
+- Not sorting first.
+hinglish:
+## Sawaal
+Duplicates wali list ke saare unique subsets.
+## Analogy
+Katori mein 1 seb aur 2 ek jaise kele: "sirf ek kela" ek hi choice hai, chahe koi bhi kela uthao.
+## Kaise sochein
+- Sort karo.
+- Har call cur record kare, phir aage ke har element ko jodne ki koshish.
+- Same level pe pichhle jaisa element skip.
+## Pattern pehchano
+Duplicates wale subsets → sort + same level skip.
+
+### word-search
+title: Word Search
+lc: 79 word-search
+diff: Medium
+pattern: Grid DFS backtracking
+problem: Can the word be traced through adjacent cells (up/down/left/right) without reusing a cell?
+example: [[A,B,C,E],[S,F,C,S],[A,D,E,E]], "ABCCED" → True
+analogy: Walking through a maze painted with letters, leaving breadcrumbs on the cells you've stepped on. If you hit a dead end, you walk back and pick up your breadcrumbs.
+hints:
+- Try starting from every cell.
+- From a cell matching word[i], look at its 4 neighbours for word[i + 1].
+- Mark the cell used while it's on the path; unmark on the way back.
+- i == len(word) → found.
+brute: This IS the approach; pruning on mismatch keeps it fast.
+brutecx: O(m·n·4^L)
+signal: Path in a grid matching a sequence → **DFS + mark visited + undo**.
+optimal:
+- dfs(r, c, i): i == L → True; out of bounds or letter mismatch → False; mark '#', try 4 ways, restore.
+cx: O(m·n·3^L) time · O(L) depth
+code:
+def exist(board, word):
+    rows, cols = len(board), len(board[0])
+
+    def dfs(r, c, i):
+        if i == len(word):
+            return True
+        if r < 0 or c < 0 or r >= rows or c >= cols or board[r][c] != word[i]:
+            return False
+        saved, board[r][c] = board[r][c], "#"
+        found = (dfs(r + 1, c, i + 1) or dfs(r - 1, c, i + 1) or
+                 dfs(r, c + 1, i + 1) or dfs(r, c - 1, i + 1))
+        board[r][c] = saved
+        return found
+
+    return any(dfs(r, c, 0) for r in range(rows) for c in range(cols))
+test:
+b = [list("ABCE"), list("SFCS"), list("ADEE")]
+check(exist(b, "ABCCED"), True)
+check(exist(b, "SEE"), True)
+check(exist(b, "ABCB"), False)
+mistakes:
+- Not restoring the cell.
+hinglish:
+## Sawaal
+Kya word grid ke adjacent cells se ban sakta hai, bina cell dobara use kiye?
+## Analogy
+Letters wali bhool-bhulaiya mein chalna, jin cells pe kadam rakha wahan breadcrumbs chhodte hue. Dead end aaye toh wapas chalo aur breadcrumbs utha lo.
+## Kaise sochein
+- Har cell se shuru try.
+- word[i] match kare toh 4 padosiyon mein word[i + 1] dhoondo.
+- Path pe cell mark, wapas aate waqt unmark.
+## Pattern pehchano
+Grid mein sequence ka path → DFS + mark + undo.
+## Galtiyan
+Cell restore na karna.
+
+### palindrome-partitioning
+title: Palindrome Partitioning
+lc: 131 palindrome-partitioning
+diff: Medium
+pattern: Backtracking over cut positions
+problem: Split a string so every piece is a palindrome. Return all such splits.
+example: "aab" → [["a","a","b"], ["aa","b"]]
+analogy: Cutting a ribbon into pieces where every piece must read the same both ways: decide where the first cut goes, and only continue if that first piece is valid.
+hints:
+- Choose the first piece s[start..end] for every end; continue only if it's a palindrome.
+- Solve the rest recursively the same way.
+- start reaches the end → record the pieces.
+brute: Try all 2^(n−1) cut patterns and check every piece.
+brutecx: O(n·2ⁿ)
+signal: "All ways to split" → **backtracking over where the next piece ends**.
+optimal:
+- dfs(start): start == n → record. For end in start..n−1: piece = s[start:end + 1]; if piece == piece[::-1]: choose, dfs(end + 1), undo.
+cx: O(n·2ⁿ)
+code:
+def partition(s):
+    res, cur = [], []
+
+    def dfs(start):
+        if start == len(s):
+            res.append(cur[:])
+            return
+        for end in range(start, len(s)):
+            piece = s[start:end + 1]
+            if piece == piece[::-1]:
+                cur.append(piece)
+                dfs(end + 1)
+                cur.pop()
+
+    dfs(0)
+    return res
+test:
+check_u(partition("aab"), [["a", "a", "b"], ["aa", "b"]], False)
+check_u(partition("a"), [["a"]], False)
+mistakes:
+- Slicing s[start:end] (end is exclusive, so you'd miss a character).
+hinglish:
+## Sawaal
+String ko aise todo ki har tukda palindrome ho. Saare tareeke do.
+## Analogy
+Ribbon ke tukde kaatna jahan har tukda aage-peeche se same padhe: pehla cut kahan lagega ye decide karo, aur tabhi aage badho jab pehla tukda sahi ho.
+## Kaise sochein
+- Pehla tukda s[start..end] har end ke liye; palindrome ho tabhi aage.
+- Baaki string ko same tareeke se recursively.
+- start end tak pahunch gaya → record.
+## Pattern pehchano
+"Todne ke saare tareeke" → agla tukda kahan khatam ho, us pe backtracking.
+
+### letter-combinations-of-a-phone-number
+title: Letter Combinations of a Phone Number
+lc: 17 letter-combinations-of-a-phone-number
+diff: Medium
+pattern: Backtracking over digit positions
+problem: Digits 2–9 map to letters like on a phone keypad. Return all letter strings the digits could represent.
+example: "23" → [ad, ae, af, bd, be, bf, cd, ce, cf]
+analogy: An old keypad lock: each wheel shows the letters of one digit; turning each wheel through its options gives every possible code.
+hints:
+- One level of recursion per digit; at each level try each letter for that digit.
+- Multiplication rule: 3 × 3 = 9 results for "23".
+- Empty input → [] (not [""]).
+brute: Iteratively extend a list of partial strings (also fine).
+brutecx: O(4ⁿ·n)
+signal: "All combinations, one choice per position" → **backtracking with depth = positions**.
+optimal:
+- dfs(i, cur): i == n → append cur; for ch in keys[digits[i]]: dfs(i + 1, cur + ch).
+cx: O(4ⁿ·n)
+code:
+def letter_combinations(digits):
+    if not digits:
+        return []
+    keys = {"2": "abc", "3": "def", "4": "ghi", "5": "jkl",
+            "6": "mno", "7": "pqrs", "8": "tuv", "9": "wxyz"}
+    res = []
+
+    def dfs(i, cur):
+        if i == len(digits):
+            res.append(cur)
+            return
+        for ch in keys[digits[i]]:
+            dfs(i + 1, cur + ch)
+
+    dfs(0, "")
+    return res
+test:
+check(letter_combinations("23"), ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"])
+check(letter_combinations(""), [])
+mistakes:
+- Returning [""] for empty input.
+hinglish:
+## Sawaal
+Phone keypad ke digits (2–9) se ban sakne wali saari letter strings.
+## Analogy
+Purane keypad wala taala: har wheel ek digit ke letters dikhata hai; har wheel ghumane se har possible code milta hai.
+## Kaise sochein
+- Har digit ek recursion level; us level pe us digit ka har letter try.
+- "23" → 3 × 3 = 9.
+- Khaali input → [].
+## Pattern pehchano
+"Har position pe ek choice, saare combinations" → backtracking.
+
+### n-queens
+title: N-Queens
+lc: 51 n-queens
+diff: Hard
+pattern: Row-by-row backtracking with column/diagonal sets
+problem: Place n queens on an n×n board so none attack each other. Return all boards.
+example: n = 4 → [".Q..","...Q","Q...","..Q."] and ["..Q.","Q...","...Q",".Q.."]
+analogy: Seating rival VIPs at a banquet: each row of tables gets exactly one VIP, and no two may share a column or a diagonal line of sight. Seat them row by row, and back up when a row has no safe seat.
+hints:
+- Exactly one queen per row: place them row by row.
+- For each row, try every column that isn't attacked.
+- Attacked = column used, or diagonal r − c used, or anti-diagonal r + c used.
+- Three sets for O(1) checks; undo after exploring.
+brute: Try every placement of n queens.
+brutecx: O(nⁿ)
+signal: Constraint placement puzzle → **backtracking + sets for fast conflict checks**.
+optimal:
+- dfs(r): r == n → record board. For c: if free: add to sets, place, dfs(r + 1), remove.
+cx: O(n!) time · O(n) space
+code:
+def solve_n_queens(n):
+    res = []
+    cols, diag, anti = set(), set(), set()
+    board = [["."] * n for _ in range(n)]
+
+    def dfs(r):
+        if r == n:
+            res.append(["".join(row) for row in board])
+            return
+        for c in range(n):
+            if c in cols or (r - c) in diag or (r + c) in anti:
+                continue
+            cols.add(c); diag.add(r - c); anti.add(r + c)
+            board[r][c] = "Q"
+            dfs(r + 1)
+            board[r][c] = "."
+            cols.remove(c); diag.remove(r - c); anti.remove(r + c)
+
+    dfs(0)
+    return res
+test:
+check_u(solve_n_queens(4), [[".Q..", "...Q", "Q...", "..Q."], ["..Q.", "Q...", "...Q", ".Q.."]], False)
+check(solve_n_queens(1), [["Q"]])
+check(len(solve_n_queens(8)), 92)
+mistakes:
+- Mixing up the diagonals: r − c is constant on one direction, r + c on the other.
+hinglish:
+## Sawaal
+n×n board pe n queens rakho taaki koi kisi ko attack na kare. Saare boards.
+## Analogy
+Banquet mein rival VIPs bithana: har row mein exactly ek VIP, aur koi do same column ya diagonal line mein nahi. Row-by-row bithao, kisi row mein safe seat na mile toh peeche jao.
+## Kaise sochein
+- Har row mein ek queen → row-by-row.
+- Har column try jo attack mein na ho.
+- Attack = column used, ya diagonal r − c used, ya anti-diagonal r + c used.
+- Teen sets, explore ke baad undo.
+## Pattern pehchano
+Constraint puzzle → backtracking + sets.
+## Galtiyan
+Diagonals mix karna.
+
+## topic: graphs | Graphs
+
+### number-of-islands
+title: Number of Islands
+lc: 200 number-of-islands
+diff: Medium
+pattern: Grid DFS flood fill
+problem: Count the islands of '1' (land) connected up/down/left/right in a grid of '1' and '0'.
+example: [["1","1","0"],["1","0","0"],["0","0","1"]] → 2
+analogy: Flying over a sea with a paint bucket: when you spot unpainted land, count a new island and pour paint so it floods the whole connected island. You'll never count it again.
+hints:
+- Scan every cell. Unvisited land → a NEW island: count it.
+- Then "sink" the whole island with DFS (turn its cells to '0') so it's never counted again.
+- Each cell is visited a constant number of times.
+brute: Flood fill IS the standard solution (BFS or Union-Find also work).
+brutecx: O(m·n)
+signal: "Count connected groups in a grid" → **flood fill from each unvisited cell**.
+optimal:
+- For each cell '1': count += 1; sink(r, c) which sets '0' and recurses into 4 neighbours.
+cx: O(m·n) time · O(m·n) worst-case recursion
+code:
+def num_islands(grid):
+    rows, cols = len(grid), len(grid[0])
+
+    def sink(r, c):
+        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != "1":
+            return
+        grid[r][c] = "0"
+        sink(r + 1, c); sink(r - 1, c); sink(r, c + 1); sink(r, c - 1)
+
+    count = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == "1":
+                count += 1
+                sink(r, c)
+    return count
+test:
+check(num_islands([list("110"), list("100"), list("001")]), 2)
+check(num_islands([list("11110"), list("11010"), list("11000"), list("00000")]), 1)
+mistakes:
+- Counting every land cell instead of every island (you must sink after counting).
+hinglish:
+## Sawaal
+Grid mein '1' (zameen) ke kitne islands hain (up/down/left/right se jude)?
+## Analogy
+Samundar ke upar paint ki baalti leke udna: bina rang wali zameen dikhe toh naya island gino aur paint daalo taaki poora juda island rang jaaye. Dobara nahi ginoge.
+## Kaise sochein
+- Har cell scan; unvisited zameen = naya island, count++.
+- Phir DFS se poora island "dubo" do ('0' kar do).
+## Pattern pehchano
+"Grid mein jude groups gino" → flood fill.
+## Best approach
+O(m·n).
+
+### max-area-of-island
+title: Max Area of Island
+lc: 695 max-area-of-island
+diff: Medium
+pattern: Flood fill returning a size
+problem: Return the area (number of cells) of the largest island of 1s, or 0.
+example: [[0,1,1],[0,1,0],[1,0,1]] → 3
+analogy: Measuring each farm on a map by walking its boundary-connected fields and counting them; keep the biggest farm.
+hints:
+- Same as Number of Islands, but the DFS returns how many cells it sank.
+- area(r, c) = 1 + area of 4 neighbours (0 for water or out of bounds).
+- Keep the maximum.
+brute: Flood fill is standard.
+brutecx: O(m·n)
+signal: "Size of connected groups" → **DFS that returns a count**.
+optimal:
+- area(r, c): invalid or 0 → 0; mark 0; return 1 + 4 neighbours. best = max over cells.
+cx: O(m·n)
+code:
+def max_area_of_island(grid):
+    rows, cols = len(grid), len(grid[0])
+
+    def area(r, c):
+        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != 1:
+            return 0
+        grid[r][c] = 0
+        return 1 + area(r + 1, c) + area(r - 1, c) + area(r, c + 1) + area(r, c - 1)
+
+    return max(area(r, c) for r in range(rows) for c in range(cols))
+test:
+check(max_area_of_island([[0, 1, 1], [0, 1, 0], [1, 0, 1]]), 3)
+check(max_area_of_island([[0, 0]]), 0)
+mistakes:
+- Marking visited after recursing (infinite back-and-forth).
+hinglish:
+## Sawaal
+Sabse bade island ka area (cells ki ginti).
+## Analogy
+Map pe har khet ko uske jude hue fields chal ke gino; sabse bada khet yaad rakho.
+## Kaise sochein
+- Number of Islands jaisa, bas DFS dubaaye gaye cells ki ginti lautaaye.
+- area = 1 + chaaron padosi.
+## Best approach
+O(m·n).
+## Galtiyan
+Recurse karne ke baad mark karna.
+
+### clone-graph
+title: Clone Graph
+lc: 133 clone-graph
+diff: Medium
+pattern: DFS + dict original → copy
+problem: Deep-copy a connected undirected graph given one node.
+example: a square 1–2–3–4–1 → an identical separate square
+analogy: Photocopying a friendship network: before copying a person, check your "already copied" list, otherwise mutual friends would send you round in circles copying the same people forever.
+hints:
+- Graphs have cycles; naive copying loops forever.
+- Keep a dict original → clone. If already cloned, reuse the clone.
+- Store the clone in the dict BEFORE cloning its neighbours.
+brute: Same idea; nothing simpler is correct.
+brutecx: O(V + E)
+signal: Copy a graph → **visited dict original → copy**.
+optimal:
+- clone(n): if n in copies → copies[n]; c = GNode(n.val); copies[n] = c; c.neighbors = [clone(x) for x in n.neighbors].
+cx: O(V + E) time · O(V) space
+code:
+class GNode:
+    def __init__(self, val, neighbors=None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+def clone_graph(node):
+    copies = {}
+
+    def clone(n):
+        if n in copies:
+            return copies[n]
+        c = GNode(n.val)
+        copies[n] = c
+        c.neighbors = [clone(x) for x in n.neighbors]
+        return c
+
+    return clone(node) if node else None
+test:
+ns = [GNode(i + 1) for i in range(4)]
+for a, b in [(0, 1), (1, 2), (2, 3), (3, 0)]:
+    ns[a].neighbors.append(ns[b]); ns[b].neighbors.append(ns[a])
+c = clone_graph(ns[0])
+check(c.val, 1)
+check(c is ns[0], False)
+check([x.val for x in c.neighbors], [2, 4])
+check(c.neighbors[0].neighbors[0] is c, True)
+mistakes:
+- Storing into the dict only after cloning neighbours (infinite recursion on cycles).
+hinglish:
+## Sawaal
+Ek node diya hai; poore graph ki deep copy banao.
+## Analogy
+Dosti network ki photocopy: kisi insaan ko copy karne se pehle "already copied" list check karo, warna common dost tumhe gol-gol ghumate rahenge.
+## Kaise sochein
+- Graph mein cycles hain.
+- Dict original → clone; already cloned → reuse.
+- Neighbours clone karne se PEHLE clone dict mein daalo.
+## Pattern pehchano
+Graph copy → original → copy dict.
+## Best approach
+O(V + E).
+
+### islands-and-treasure
+title: Walls and Gates (Islands and Treasure)
+lc: 286 walls-and-gates
+nc: islands-and-treasure
+diff: Medium
+pattern: Multi-source BFS
+problem: −1 = wall, 0 = gate, INF (2147483647) = empty room. Fill each room with its distance to the nearest gate.
+example: A room two steps from the closest gate gets 2.
+analogy: Several fire stations send out trucks at the same moment; every street gets the time of the first truck that arrives. That's all the gates rippling outward together.
+hints:
+- BFS from each gate separately is slow.
+- Put ALL gates in the queue at the start: multi-source BFS.
+- The first time a room is reached is its nearest-gate distance; filled rooms are skipped.
+brute: BFS from every gate, keep minimums.
+brutecx: O(g·m·n)
+signal: "Distance to the nearest of many sources" → **multi-source BFS**.
+optimal:
+- Queue all gates; pop; for each INF neighbour: set dist + 1, enqueue.
+cx: O(m·n)
+code:
+from collections import deque
+
+INF = 2147483647
+
+def islands_and_treasure(grid):
+    rows, cols = len(grid), len(grid[0])
+    q = deque((r, c) for r in range(rows) for c in range(cols) if grid[r][c] == 0)
+    while q:
+        r, c = q.popleft()
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == INF:
+                grid[nr][nc] = grid[r][c] + 1
+                q.append((nr, nc))
+    return grid
+test:
+g = [[INF, -1, 0, INF], [INF, INF, INF, -1], [INF, -1, INF, -1], [0, -1, INF, INF]]
+check(islands_and_treasure(g), [[3, -1, 0, 1], [2, 2, 1, -1], [1, -1, 2, -1], [0, -1, 3, 4]])
+mistakes:
+- Separate BFS per gate overwriting with larger distances.
+hinglish:
+## Sawaal
+−1 deewar, 0 gate, INF khaali room. Har room mein sabse paas ke gate ki doori likho.
+## Analogy
+Kai fire stations ek saath trucks bhejte hain; har gali ko pehle pahunchne wale truck ka time milta hai. Saare gates saath mein lehron ki tarah phailte hain.
+## Kaise sochein
+- Har gate se alag BFS slow.
+- SAARE gates shuru mein queue mein: multi-source BFS.
+- Room pehli baar jahan se pahuncha wahi sabse paas ki doori.
+## Pattern pehchano
+"Kai sources mein se sabse paas wale ki doori" → multi-source BFS.
+## Best approach
+O(m·n).
+
+### rotting-oranges
+title: Rotting Oranges
+lc: 994 rotting-oranges
+diff: Medium
+pattern: Multi-source BFS counting levels (minutes)
+problem: 0 empty, 1 fresh, 2 rotten. Every minute rotten oranges rot their 4 neighbours. Minutes until none are fresh, or −1.
+example: [[2,1,1],[1,1,0],[0,1,1]] → 4
+analogy: A rumour spreading through a hostel: everyone who knows tells their neighbours each minute. Count the minutes until everyone knows (or find someone nobody can reach).
+hints:
+- All rotten oranges spread at the same time → start BFS from all of them.
+- Each BFS level = one minute.
+- Count fresh first; decrement as they rot; if some remain → −1.
+brute: Simulate minute by minute scanning the grid: O((m·n)²).
+brutecx: O((m·n)²)
+signal: Simultaneous spreading over time → **BFS by levels from all sources**.
+optimal:
+- Queue all 2s; fresh = count of 1s. While q and fresh: process one level; minutes += 1.
+- Return minutes if fresh == 0 else −1.
+cx: O(m·n)
+code:
+from collections import deque
+
+def oranges_rotting(grid):
+    rows, cols = len(grid), len(grid[0])
+    q = deque()
+    fresh = 0
+    for r in range(rows):
+        for c in range(cols):
+            if grid[r][c] == 2:
+                q.append((r, c))
+            elif grid[r][c] == 1:
+                fresh += 1
+    minutes = 0
+    while q and fresh:
+        for _ in range(len(q)):
+            r, c = q.popleft()
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == 1:
+                    grid[nr][nc] = 2
+                    fresh -= 1
+                    q.append((nr, nc))
+        minutes += 1
+    return minutes if fresh == 0 else -1
+test:
+check(oranges_rotting([[2, 1, 1], [1, 1, 0], [0, 1, 1]]), 4)
+check(oranges_rotting([[2, 1, 1], [0, 1, 1], [1, 0, 1]]), -1)
+check(oranges_rotting([[0, 2]]), 0)
+mistakes:
+- Counting a minute after nothing new rots.
+hinglish:
+## Sawaal
+Har minute sade santre apne padosi fresh santron ko sada dete hain. Kitne minute mein koi fresh nahi bachega? Na ho sake toh −1.
+## Analogy
+Hostel mein afwaah failna: jise pata hai wo har minute padosiyon ko bata deta hai. Kitne minute mein sabko pata chalega (ya koi aisa hai jahan koi pahunch hi nahi sakta)?
+## Kaise sochein
+- Saare sade santre ek saath → sabse BFS shuru.
+- Har BFS level = ek minute.
+- Pehle fresh gino, sadne pe ghatao; bache toh −1.
+## Pattern pehchano
+Samay ke saath ek saath failna → levels wala multi-source BFS.
+
+### pacific-atlantic-water-flow
+title: Pacific Atlantic Water Flow
+lc: 417 pacific-atlantic-water-flow
+diff: Medium
+pattern: Reverse flood fill from the oceans
+problem: Water flows to neighbours of equal or lower height. The Pacific touches the top and left edges, the Atlantic the bottom and right. Return cells that can reach both.
+example: heights 5×5 → [[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]
+analogy: Instead of testing where every raindrop flows, send two climbers uphill from each coast. Every spot the Pacific climber can reach drains to the Pacific; the spots both climbers reach are the answer.
+hints:
+- DFS from every cell to both oceans repeats a lot of work.
+- Reverse it: start at the ocean edges and climb UPHILL (to neighbours ≥ current).
+- Once for each ocean; answer = cells in both sets.
+brute: DFS from every cell.
+brutecx: O((m·n)²)
+signal: "Which cells can reach the boundary?" → **search backwards from the boundary**.
+optimal:
+- pac, atl = set(), set(); dfs from top row + left column into pac, bottom row + right column into atl, moving to neighbours with height ≥ current.
+- Return sorted cells in both.
+cx: O(m·n)
+code:
+def pacific_atlantic(h):
+    rows, cols = len(h), len(h[0])
+    pac, atl = set(), set()
+
+    def dfs(r, c, seen, prev):
+        if (r, c) in seen or r < 0 or c < 0 or r >= rows or c >= cols or h[r][c] < prev:
+            return
+        seen.add((r, c))
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            dfs(r + dr, c + dc, seen, h[r][c])
+
+    for c in range(cols):
+        dfs(0, c, pac, h[0][c])
+        dfs(rows - 1, c, atl, h[rows - 1][c])
+    for r in range(rows):
+        dfs(r, 0, pac, h[r][0])
+        dfs(r, cols - 1, atl, h[r][cols - 1])
+    return sorted([r, c] for r, c in pac & atl)
+test:
+h = [[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]]
+check(pacific_atlantic(h), [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]])
+mistakes:
+- Moving downhill during the reverse search (must go UP, ≥).
+hinglish:
+## Sawaal
+Paani barabar ya neechi height ki taraf behta hai. Pacific upar/left edge pe, Atlantic neeche/right. Kaun se cells dono tak pahunch sakte hain?
+## Analogy
+Har boond kahan behti hai ye test karne ki jagah, har coast se do climbers upar ki taraf bhejo. Pacific climber jahan pahunche wo Pacific mein behta hai; dono climbers jahan pahunchein wahi answer.
+## Kaise sochein
+- Har cell se DFS repeated kaam hai.
+- Ulta: ocean edges se UPAR chadho (padosi ≥ current).
+- Dono oceans ke liye ek-ek baar; dono sets ka intersection.
+## Pattern pehchano
+"Kaun boundary tak pahunch sakta hai" → boundary se ulta search.
+## Galtiyan
+Reverse search mein neeche jaana.
+
+### surrounded-regions
+title: Surrounded Regions
+lc: 130 surrounded-regions
+diff: Medium
+pattern: Mark the safe region from the border, flip the rest
+problem: Flip every 'O' region completely surrounded by 'X' into 'X'. 'O's connected to the border are safe.
+example: [[X,X,X,X],[X,O,O,X],[X,X,O,X],[X,O,X,X]] → only the bottom border 'O' stays
+analogy: Villages cut off from the coast get flooded, but any village connected by road to the coast can evacuate. Start from the coast, mark every reachable village safe, and flood the rest.
+hints:
+- Hard to decide "surrounded"; easy to decide "touches the border".
+- DFS from every border 'O', marking its region safe ('T').
+- Then remaining 'O' → 'X', and 'T' → 'O'.
+brute: For each region, check whether any cell touches the border.
+brutecx: O(m·n) but awkward
+signal: "Enclosed vs connected to the edge" → **flood fill from the border**.
+optimal:
+- mark(r, c) from all border cells; final pass flips.
+cx: O(m·n)
+code:
+def solve(board):
+    rows, cols = len(board), len(board[0])
+
+    def mark(r, c):
+        if r < 0 or c < 0 or r >= rows or c >= cols or board[r][c] != "O":
+            return
+        board[r][c] = "T"
+        mark(r + 1, c); mark(r - 1, c); mark(r, c + 1); mark(r, c - 1)
+
+    for r in range(rows):
+        mark(r, 0); mark(r, cols - 1)
+    for c in range(cols):
+        mark(0, c); mark(rows - 1, c)
+    for r in range(rows):
+        for c in range(cols):
+            board[r][c] = "X" if board[r][c] == "O" else ("O" if board[r][c] == "T" else board[r][c])
+    return board
+test:
+b = [list("XXXX"), list("XOOX"), list("XXOX"), list("XOXX")]
+check(solve(b), [list("XXXX"), list("XXXX"), list("XXXX"), list("XOXX")])
+mistakes:
+- Flipping during the border scan.
+hinglish:
+## Sawaal
+'X' se poori tarah ghire 'O' regions ko 'X' karo; border se jude 'O' safe hain.
+## Analogy
+Coast se kate hue gaon doob jaate hain, lekin jo gaon road se coast se juda hai wahan se log nikal sakte hain. Coast se shuru karke har pahunchne layak gaon safe mark karo, baaki dubo do.
+## Kaise sochein
+- "Ghira hua" decide karna mushkil; "border ko chhoota hai" aasaan.
+- Border ke 'O' se DFS, region ko 'T' mark.
+- Baaki 'O' → 'X', 'T' → 'O'.
+## Pattern pehchano
+"Edge se juda vs band" → border se flood fill.
+
+### course-schedule
+title: Course Schedule
+lc: 207 course-schedule
+diff: Medium
+pattern: Topological sort (Kahn's BFS)
+problem: numCourses courses and pairs [a, b] meaning "take b before a". Can you finish all courses?
+example: 2 courses, [[1, 0]] → True;   [[1, 0], [0, 1]] → False
+analogy: Getting dressed: socks before shoes, shirt before tie. You can always start with something that has no requirements left. If two items each require the other first, you're stuck forever: that's a cycle.
+hints:
+- Arrows b → a. Finishing is possible exactly when there's NO cycle.
+- Kahn: count incoming arrows (in-degree). Courses with 0 can be taken now.
+- Take one (queue), remove its arrows; courses that drop to 0 join the queue.
+- Taken all numCourses → no cycle.
+brute: DFS cycle check from each course without memo.
+brutecx: O(V·(V + E))
+signal: Dependencies / prerequisites / ordering → **topological sort** (a cycle = impossible).
+optimal:
+- adj, indeg; queue all 0s; pop, taken += 1, decrement neighbours, push new 0s.
+- Return taken == numCourses.
+cx: O(V + E)
+code:
+from collections import deque
+
+def can_finish(num_courses, prereq):
+    adj = [[] for _ in range(num_courses)]
+    indeg = [0] * num_courses
+    for a, b in prereq:
+        adj[b].append(a)
+        indeg[a] += 1
+    q = deque(i for i in range(num_courses) if indeg[i] == 0)
+    taken = 0
+    while q:
+        c = q.popleft()
+        taken += 1
+        for nxt in adj[c]:
+            indeg[nxt] -= 1
+            if indeg[nxt] == 0:
+                q.append(nxt)
+    return taken == num_courses
+test:
+check(can_finish(2, [[1, 0]]), True)
+check(can_finish(2, [[1, 0], [0, 1]]), False)
+check(can_finish(4, [[1, 0], [2, 1], [3, 2]]), True)
+mistakes:
+- Drawing the arrow the wrong way ([a, b] means b first: b → a).
+hinglish:
+## Sawaal
+[a, b] matlab "a se pehle b". Kya saare courses complete ho sakte hain?
+## Analogy
+Kapde pehnna: joote se pehle mozze, tie se pehle shirt. Hamesha kisi aisi cheez se shuru kar sakte ho jiski koi requirement bachi na ho. Agar do cheezein ek doosre ko pehle maangein toh atak jaoge: yahi cycle hai.
+## Kaise sochein
+- Arrow b → a. Cycle nahi → possible.
+- Kahn: har course ke aane wale arrows gino (in-degree). 0 wale abhi le sakte ho.
+- Ek lo, uske arrows hatao; jo 0 ho jaayein queue mein.
+- Saare liye → cycle nahi.
+## Pattern pehchano
+Prerequisites / dependencies / order → topological sort.
+## Galtiyan
+Arrow ulta banana.
+
+### course-schedule-ii
+title: Course Schedule II
+lc: 210 course-schedule-ii
+diff: Medium
+pattern: Topological sort (return the order)
+problem: Same as Course Schedule, but return a valid order, or [] if impossible.
+example: 4, [[1,0],[2,0],[3,1],[3,2]] → [0, 1, 2, 3]
+analogy: The same dressing routine, but now you write down the order you put things on.
+hints:
+- Kahn's algorithm already produces an order: the order courses leave the queue.
+- Fewer than numCourses in the order → cycle → [].
+brute: Try all orderings.
+brutecx: O(n!)
+signal: "Give an order respecting dependencies" → **topological sort**.
+optimal:
+- Same as Course Schedule; record each popped course.
+cx: O(V + E)
+code:
+from collections import deque
+
+def find_order(num_courses, prereq):
+    adj = [[] for _ in range(num_courses)]
+    indeg = [0] * num_courses
+    for a, b in prereq:
+        adj[b].append(a)
+        indeg[a] += 1
+    q = deque(i for i in range(num_courses) if indeg[i] == 0)
+    order = []
+    while q:
+        c = q.popleft()
+        order.append(c)
+        for nxt in adj[c]:
+            indeg[nxt] -= 1
+            if indeg[nxt] == 0:
+                q.append(nxt)
+    return order if len(order) == num_courses else []
+test:
+check(find_order(4, [[1, 0], [2, 0], [3, 1], [3, 2]]), [0, 1, 2, 3])
+check(find_order(2, [[1, 0], [0, 1]]), [])
+check(find_order(1, []), [0])
+mistakes:
+- Returning a partial order when there's a cycle.
+hinglish:
+## Sawaal
+Course Schedule jaisa, lekin valid order lautao, ya [] agar impossible.
+## Analogy
+Wahi kapde pehnne ka routine, bas ab likhte jao kis order mein pehna.
+## Kaise sochein
+- Kahn ka queue se nikalne ka order hi answer hai.
+- Order mein numCourses se kam → cycle → [].
+## Pattern pehchano
+Dependencies ka order → topological sort.
+
+### graph-valid-tree
+title: Graph Valid Tree
+lc: 261 graph-valid-tree
+nc: valid-tree
+diff: Medium
+pattern: Tree = connected + n − 1 edges (Union-Find)
+problem: Given n nodes and undirected edges, is the graph a valid tree?
+example: n = 5, [[0,1],[0,2],[0,3],[1,4]] → True
+analogy: Connecting n houses with cables so that every house is connected but there is no loop of cable: that takes exactly n − 1 cables, and adding a cable between already-connected houses makes a loop.
+hints:
+- A tree with n nodes has exactly n − 1 edges.
+- With n − 1 edges, just check "no cycle".
+- Union-Find: if both ends of an edge already share a root → cycle.
+brute: DFS with parent tracking, then check all nodes were visited.
+brutecx: O(V + E)
+signal: Undirected cycle / connectivity → **Union-Find**.
+optimal:
+- len(edges) != n − 1 → False. parent = list(range(n)); find with path compression; same root → False; else union.
+cx: O(E·α(n))
+code:
+def valid_tree(n, edges):
+    if len(edges) != n - 1:
+        return False
+    parent = list(range(n))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for a, b in edges:
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            return False
+        parent[ra] = rb
+    return True
+test:
+check(valid_tree(5, [[0, 1], [0, 2], [0, 3], [1, 4]]), True)
+check(valid_tree(5, [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]]), False)
+check(valid_tree(4, [[0, 1], [2, 3]]), False)
+mistakes:
+- Skipping the edge-count check (misses disconnected graphs).
+hinglish:
+## Sawaal
+n nodes aur undirected edges: kya ye valid tree hai?
+## Analogy
+n gharon ko cables se aise jodna ki sab jude hon lekin cable ka koi loop na ho: exactly n − 1 cables lagti hain, aur pehle se jude gharon ke beech cable jodna loop bana deta hai.
+## Kaise sochein
+- Tree mein exactly n − 1 edges.
+- n − 1 edges hain toh bas "cycle nahi" check karo.
+- Union-Find: edge ke dono end same root pe → cycle.
+## Pattern pehchano
+Undirected cycle / connectivity → Union-Find.
+
+### number-of-connected-components-in-an-undirected-graph
+title: Number of Connected Components
+lc: 323 number-of-connected-components-in-an-undirected-graph
+nc: count-connected-components
+diff: Medium
+pattern: Union-Find (count successful unions)
+problem: n nodes and undirected edges: return the number of connected components.
+example: n = 5, [[0,1],[1,2],[3,4]] → 2
+analogy: Every student starts in their own friend group. Each friendship that connects two DIFFERENT groups merges them, so the number of groups drops by one.
+hints:
+- Start with n components.
+- An edge joining two different components merges them: count − 1.
+- An edge inside a component changes nothing.
+brute: DFS from each unvisited node and count starts (also O(V + E)).
+brutecx: O(V + E)
+signal: "How many groups?" with edges → **Union-Find**.
+optimal:
+- count = n; for each edge: roots differ → union, count −= 1.
+cx: O(E·α(n))
+code:
+def count_components(n, edges):
+    parent = list(range(n))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    count = n
+    for a, b in edges:
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+            count -= 1
+    return count
+test:
+check(count_components(5, [[0, 1], [1, 2], [3, 4]]), 2)
+check(count_components(5, [[0, 1], [1, 2], [2, 3], [3, 4]]), 1)
+mistakes:
+- Setting parent[a] = b directly instead of linking the ROOTS.
+hinglish:
+## Sawaal
+Graph ke kitne alag jude hue hisse (components) hain?
+## Analogy
+Har student apne alag friend group mein shuru karta hai. Jo dosti do ALAG groups ko jode, wo unhe merge kar deti hai, groups ek kam ho jaate hain.
+## Kaise sochein
+- Shuru mein n components.
+- Alag components ko jodne wali edge → count − 1.
+## Pattern pehchano
+"Kitne groups" → Union-Find.
+## Galtiyan
+Roots ki jagah seedha nodes ko jodna.
+
+### redundant-connection
+title: Redundant Connection
+lc: 684 redundant-connection
+diff: Medium
+pattern: Union-Find: the first edge closing a cycle
+problem: A tree with one extra edge. Return that edge (the last one in the input if several qualify).
+example: [[1,2],[1,3],[2,3]] → [2,3]
+analogy: Laying roads between villages one by one: the first road you build between two villages that were ALREADY reachable from each other is the unnecessary one.
+hints:
+- Add edges one by one. The first edge whose ends are already connected creates the cycle.
+- "Already connected?" is exactly what Union-Find answers.
+brute: Remove each edge (from the end) and check connectivity.
+brutecx: O(E·(V + E))
+signal: "Which edge creates the cycle?" → **Union-Find as you go**.
+optimal:
+- parent of size n + 1 (labels 1..n); same root → return edge; else union.
+cx: O(E·α(n))
+code:
+def find_redundant_connection(edges):
+    parent = list(range(len(edges) + 1))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for a, b in edges:
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            return [a, b]
+        parent[ra] = rb
+    return []
+test:
+check(find_redundant_connection([[1, 2], [1, 3], [2, 3]]), [2, 3])
+check(find_redundant_connection([[1, 2], [2, 3], [3, 4], [1, 4], [1, 5]]), [1, 4])
+mistakes:
+- Sizing parent for n when labels go from 1 to n.
+hinglish:
+## Sawaal
+Tree mein ek extra edge hai. Wo edge lautao.
+## Analogy
+Gaon ke beech sadak ek-ek karke banana: jo pehli sadak aise do gaon ke beech bane jo PEHLE se ek doosre tak pahunch sakte the, wahi bekaar sadak hai.
+## Kaise sochein
+- Edges ek-ek karke jodo; pehli edge jiske ends already jude hain → cycle.
+- "Already jude hain?" Union-Find batata hai.
+## Pattern pehchano
+"Kaunsi edge cycle banati hai" → chalte-chalte Union-Find.
+
+### word-ladder
+title: Word Ladder
+lc: 127 word-ladder
+diff: Hard
+pattern: BFS on an implicit graph of words
+problem: Change one letter at a time from beginWord to endWord, every intermediate word in wordList. Return the number of words in the shortest sequence, or 0.
+example: hit → hot → dot → dog → cog = 5
+analogy: A game of "change one letter" where every valid word is a stepping stone. BFS explores all words 1 change away, then 2 away, so the first time you reach the target is the shortest path.
+hints:
+- Words are nodes; two words connect if they differ by one letter.
+- Shortest sequence in an unweighted graph → BFS.
+- Neighbours: for each position try all 26 letters and check a set.
+- Remove a word from the set once visited.
+brute: Compare every pair of words to build the graph first: O(n²·L).
+brutecx: O(n²·L)
+signal: Fewest steps, each step costs the same → **BFS**.
+optimal:
+- words = set(wordList); queue = [(begin, 1)]; pop; for every 1-letter change: == end → steps + 1; in words → remove, enqueue.
+cx: O(n·L·26)
+code:
+from collections import deque
+
+def ladder_length(begin, end, word_list):
+    words = set(word_list)
+    if end not in words:
+        return 0
+    q = deque([(begin, 1)])
+    while q:
+        w, steps = q.popleft()
+        if w == end:
+            return steps
+        for i in range(len(w)):
+            for ch in "abcdefghijklmnopqrstuvwxyz":
+                nxt = w[:i] + ch + w[i + 1:]
+                if nxt in words:
+                    words.remove(nxt)
+                    q.append((nxt, steps + 1))
+    return 0
+test:
+check(ladder_length("hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"]), 5)
+check(ladder_length("hit", "cog", ["hot", "dot", "dog", "lot", "log"]), 0)
+trace:
+steps | words at this level
+1 | hit
+2 | hot
+3 | dot, lot
+4 | dog, log
+5 | cog → answer 5
+mistakes:
+- Using DFS (finds A path, not the shortest).
+hinglish:
+## Sawaal
+Ek-ek letter badal ke beginWord se endWord tak jao (har beech wala word list mein ho). Sabse chhoti sequence mein kitne words?
+## Analogy
+"Ek letter badlo" game jisme har valid word ek pathar hai jis pe kadam rakh sakte ho. BFS pehle 1 badlaav door wale sab words dekhta hai, phir 2 door, isliye target pehli baar jahan mile wahi sabse chhota raasta.
+## Kaise sochein
+- Words nodes hain; ek letter ka farak → edge.
+- Unweighted sabse chhota raasta → BFS.
+- Padosi: har position pe 26 letters try, set mein check.
+## Pattern pehchano
+Sabse kam steps, har step same cost → BFS.
+## Galtiyan
+DFS use karna.
+
+## topic: advanced-graphs | Advanced Graphs
+
+### network-delay-time
+title: Network Delay Time
+lc: 743 network-delay-time
+diff: Medium
+pattern: Dijkstra's shortest path
+problem: A signal starts at node k; directed edges [u, v, w] take w time. Return the time for all n nodes to receive it, or −1.
+example: [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2 → 2
+analogy: News spreading from one city along roads with travel times. The next city to hear the news is always the closest one not yet reached; a priority queue picks it.
+hints:
+- Each node's arrival time = shortest distance from k; the answer is the largest.
+- Weighted edges → BFS isn't enough → Dijkstra.
+- Always finalise the closest unfinished node next, via a min-heap of (dist, node).
+brute: Bellman-Ford: relax every edge n − 1 times.
+brutecx: O(V·E)
+signal: Shortest paths with **non-negative weights** → **Dijkstra + min-heap**.
+optimal:
+- heap = [(0, k)]; dist = {}; pop; skip if done; dist[u] = d; push neighbours.
+- len(dist) == n → max(dist.values()) else −1.
+cx: O(E log V)
+code:
+import heapq
+from collections import defaultdict
+
+def network_delay_time(times, n, k):
+    adj = defaultdict(list)
+    for u, v, w in times:
+        adj[u].append((v, w))
+    dist = {}
+    heap = [(0, k)]
+    while heap:
+        d, u = heapq.heappop(heap)
+        if u in dist:
+            continue
+        dist[u] = d
+        for v, w in adj[u]:
+            if v not in dist:
+                heapq.heappush(heap, (d + w, v))
+    return max(dist.values()) if len(dist) == n else -1
+test:
+check(network_delay_time([[2, 1, 1], [2, 3, 1], [3, 4, 1]], 4, 2), 2)
+check(network_delay_time([[1, 2, 1]], 2, 2), -1)
+mistakes:
+- Finalising a node when PUSHED instead of when POPPED.
+hinglish:
+## Sawaal
+Node k se signal; edge [u, v, w] mein w time. Saare n nodes tak pahunchne ka time, ya −1.
+## Analogy
+Ek shehar se khabar sadkon pe travel time ke saath phailti hai. Agla shehar jise khabar milegi hamesha wo hai jo abhi tak na pahunche shehron mein sabse paas ho; priority queue use chunti hai.
+## Kaise sochein
+- Har node ka time = k se shortest distance; answer = sabse bada.
+- Weighted edges → BFS kaafi nahi → Dijkstra.
+- Hamesha sabse paas wala unfinished node, min-heap se.
+## Pattern pehchano
+Non-negative weights shortest path → Dijkstra.
+## Galtiyan
+Push pe final maan lena (pop pe final hota hai).
+
+### reconstruct-itinerary
+title: Reconstruct Itinerary
+lc: 332 reconstruct-itinerary
+diff: Hard
+pattern: Eulerian path (Hierholzer's algorithm)
+problem: Use every ticket [from, to] exactly once starting at JFK; return the itinerary, smallest in dictionary order if several.
+example: [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]] → [JFK, MUC, LHR, SFO, SJC]
+analogy: A travel diary written backwards: you keep flying until you land somewhere with no tickets left, write that airport down, then back up. Reading the diary in reverse gives the trip.
+hints:
+- "Use every edge exactly once" = an Eulerian path.
+- Sort destinations so the smallest is tried first.
+- Hierholzer: DFS consuming tickets; when an airport has no tickets left, append it to the route. The route comes out REVERSED.
+brute: Backtracking over ticket orders.
+brutecx: exponential worst case
+signal: "Use all edges exactly once" → **Hierholzer's post-order DFS**.
+optimal:
+- adj[from] sorted descending (pop() gives the smallest). dfs(a): while adj[a]: dfs(adj[a].pop()); route.append(a). Return reversed.
+cx: O(E log E)
+code:
+from collections import defaultdict
+
+def find_itinerary(tickets):
+    adj = defaultdict(list)
+    for a, b in sorted(tickets, reverse=True):
+        adj[a].append(b)
+    route = []
+
+    def dfs(a):
+        while adj[a]:
+            dfs(adj[a].pop())
+        route.append(a)
+
+    dfs("JFK")
+    return route[::-1]
+test:
+check(find_itinerary([["MUC", "LHR"], ["JFK", "MUC"], ["SFO", "SJC"], ["LHR", "SFO"]]), ["JFK", "MUC", "LHR", "SFO", "SJC"])
+check(find_itinerary([["JFK", "SFO"], ["JFK", "ATL"], ["SFO", "ATL"], ["ATL", "JFK"], ["ATL", "SFO"]]), ["JFK", "ATL", "JFK", "SFO", "ATL", "SFO"])
+check(find_itinerary([["JFK", "KUL"], ["JFK", "NRT"], ["NRT", "JFK"]]), ["JFK", "NRT", "JFK", "KUL"])
+mistakes:
+- Adding airports to the route on the way down (dead ends like KUL break it).
+hinglish:
+## Sawaal
+Har ticket exactly ek baar use karke JFK se itinerary banao; kai ho toh dictionary order mein sabse chhota.
+## Analogy
+Ulti likhi travel diary: udte raho jab tak kisi aise airport pe na utro jahan koi ticket na bacha ho, wo airport likho, phir peeche jao. Diary ulti padho toh trip milti hai.
+## Kaise sochein
+- "Har edge exactly ek baar" = Eulerian path.
+- Destinations sort karo (sabse chhota pehle).
+- Hierholzer: tickets use karte DFS; airport ke tickets khatam → route mein jodo. Route ulta aata hai.
+## Pattern pehchano
+"Saari edges ek baar" → Hierholzer.
+## Galtiyan
+Neeche jaate waqt route mein jodna.
+
+### min-cost-to-connect-all-points
+title: Min Cost to Connect All Points
+lc: 1584 min-cost-to-connect-all-points
+diff: Medium
+pattern: Minimum Spanning Tree (Prim)
+problem: Connect all points with minimum total cost; an edge costs the Manhattan distance |x1−x2| + |y1−y2|.
+example: [[0,0],[2,2],[3,10],[5,2],[7,0]] → 20
+analogy: Laying water pipes to connect every house in a colony as cheaply as possible: grow the network from one house, always adding the cheapest pipe that reaches a new house.
+hints:
+- "Connect everything with minimum total edge cost" = Minimum Spanning Tree.
+- Prim: grow from one point; repeatedly add the cheapest point connecting to the tree.
+- Dense graph (every pair connected) → the O(n²) array version is simplest.
+brute: Try all spanning trees.
+brutecx: exponential
+signal: "Connect all nodes at minimum total cost" → **MST (Prim / Kruskal)**.
+optimal:
+- dist = [inf] * n, dist[0] = 0; repeat n times: pick the closest non-tree point u; total += dist[u]; update others with cost(u, v).
+cx: O(n²)
+code:
+def min_cost_connect_points(points):
+    n = len(points)
+    in_tree = [False] * n
+    dist = [float("inf")] * n
+    dist[0] = 0
+    total = 0
+    for _ in range(n):
+        u = min((i for i in range(n) if not in_tree[i]), key=lambda i: dist[i])
+        in_tree[u] = True
+        total += dist[u]
+        for v in range(n):
+            if not in_tree[v]:
+                cost = abs(points[u][0] - points[v][0]) + abs(points[u][1] - points[v][1])
+                dist[v] = min(dist[v], cost)
+    return total
+test:
+check(min_cost_connect_points([[0, 0], [2, 2], [3, 10], [5, 2], [7, 0]]), 20)
+check(min_cost_connect_points([[3, 12], [-2, 5], [-4, 1]]), 18)
+mistakes:
+- Adding distances to all tree points (each new point connects with ONE edge).
+hinglish:
+## Sawaal
+Saare points ko sabse kam total cost mein jodo; cost = Manhattan distance.
+## Analogy
+Colony ke har ghar tak sabse saste mein paani ki pipe bichhana: ek ghar se network badhao, hamesha wo sabse sasti pipe jodo jo kisi naye ghar tak pahunche.
+## Kaise sochein
+- "Sab jodo, minimum total cost" = Minimum Spanning Tree.
+- Prim: ek point se badhao, hamesha sabse sasta naya point.
+## Pattern pehchano
+Sab nodes minimum cost se jodna → MST.
+## Best approach
+O(n²).
+
+### swim-in-rising-water
+title: Swim in Rising Water
+lc: 778 swim-in-rising-water
+diff: Hard
+pattern: Dijkstra on "max along the path"
+problem: At time t you can swim through cells with elevation ≤ t. Minimum time to go from top-left to bottom-right.
+example: [[0,2],[1,3]] → 3
+analogy: Crossing a flooded town where you must wait for the water to rise over each wall. The trip time is decided by the highest wall on your route, so you look for the route whose highest wall is as low as possible.
+hints:
+- A path's cost = the HIGHEST cell on it; minimise that maximum.
+- Dijkstra still works: always expand the reachable cell with the lowest "max so far".
+- Min-heap of (max elevation so far, r, c); first time you pop the target is the answer.
+brute: Binary search on t + BFS reachability (also valid).
+brutecx: O(n² log n)
+signal: "Minimise the worst step on a path" → **Dijkstra with max instead of sum**.
+optimal:
+- heap = [(grid[0][0], 0, 0)]; pop; target → return; push unvisited neighbours with max(t, height).
+cx: O(n² log n)
+code:
+import heapq
+
+def swim_in_water(grid):
+    n = len(grid)
+    seen = {(0, 0)}
+    heap = [(grid[0][0], 0, 0)]
+    while heap:
+        t, r, c = heapq.heappop(heap)
+        if r == n - 1 and c == n - 1:
+            return t
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < n and 0 <= nc < n and (nr, nc) not in seen:
+                seen.add((nr, nc))
+                heapq.heappush(heap, (max(t, grid[nr][nc]), nr, nc))
+    return -1
+test:
+check(swim_in_water([[0, 2], [1, 3]]), 3)
+check(swim_in_water([[0, 1, 2, 3, 4], [24, 23, 22, 21, 5], [12, 13, 14, 15, 16], [11, 17, 18, 19, 20], [10, 9, 8, 7, 6]]), 16)
+mistakes:
+- Summing elevations (normal Dijkstra cost) instead of taking the max.
+hinglish:
+## Sawaal
+Time t pe sirf ≤ t height wale cells mein tair sakte ho. Top-left se bottom-right tak minimum time?
+## Analogy
+Baadh wale shehar ko paar karna jahan har deewar ke upar paani chadhne ka wait karna padta hai. Safar ka time raaste ki sabse oonchi deewar decide karti hai, isliye aisa raasta dhoondo jiski sabse oonchi deewar sabse neechi ho.
+## Kaise sochein
+- Path ki cost = sabse ooncha cell; use minimise karo.
+- Dijkstra: hamesha sabse kam "ab tak ka max" wala cell.
+- Target pehli baar pop hua → answer.
+## Pattern pehchano
+"Raaste ka worst step minimise" → max wala Dijkstra.
+## Galtiyan
+Heights jodna.
+
+### foreign-dictionary
+title: Alien Dictionary
+lc: 269 alien-dictionary
+nc: foreign-dictionary
+diff: Hard
+pattern: Build letter-order edges + topological sort
+problem: Words from an alien language are given in sorted order. Return a possible letter order, or "" if contradictory.
+example: ["wrt","wrf","er","ett","rftt"] → "wertf"
+analogy: Working out a foreign alphabet from a dictionary: two neighbouring words only teach you one thing, which is that at their first different letter, the first word's letter comes earlier.
+hints:
+- Compare ADJACENT words: the first differing position gives a rule a → b.
+- A longer word before its own prefix ("abc" before "ab") is invalid.
+- Rules are edges; a valid order is a topological sort; a cycle means "".
+- Include every letter that appears, even with no rules.
+brute: Try all permutations of letters.
+brutecx: O(k!)
+signal: Derive an order from "comes before" facts → **graph + topological sort**.
+optimal:
+- adj = {ch: set()} for all letters; indeg; for adjacent pairs add the first-difference edge (once); invalid prefix → "".
+- Kahn's BFS; if output shorter than the letter count → "".
+cx: O(total characters)
+code:
+from collections import deque
+
+def alien_order(words):
+    adj = {ch: set() for w in words for ch in w}
+    indeg = {ch: 0 for ch in adj}
+    for a, b in zip(words, words[1:]):
+        for x, y in zip(a, b):
+            if x != y:
+                if y not in adj[x]:
+                    adj[x].add(y)
+                    indeg[y] += 1
+                break
+        else:
+            if len(a) > len(b):
+                return ""
+    q = deque(ch for ch in indeg if indeg[ch] == 0)
+    out = []
+    while q:
+        ch = q.popleft()
+        out.append(ch)
+        for nx in adj[ch]:
+            indeg[nx] -= 1
+            if indeg[nx] == 0:
+                q.append(nx)
+    return "".join(out) if len(out) == len(indeg) else ""
+test:
+check(alien_order(["wrt", "wrf", "er", "ett", "rftt"]), "wertf")
+check(alien_order(["z", "x"]), "zx")
+check(alien_order(["z", "x", "z"]), "")
+check(alien_order(["abc", "ab"]), "")
+mistakes:
+- Comparing all pairs, or continuing after the first difference.
+hinglish:
+## Sawaal
+Alien language ke words sorted order mein diye hain. Letters ka order do, ya "" agar contradiction ho.
+## Analogy
+Dictionary se videshi alphabet samajhna: do pados wale words sirf ek baat sikhate hain: pehle alag letter pe, pehle word ka letter pehle aata hai.
+## Kaise sochein
+- PADOS wale words compare: pehla farak → rule a → b.
+- Lamba word apne hi prefix se pehle ("abc" phir "ab") → invalid.
+- Rules edges hain; valid order = topological sort; cycle → "".
+## Pattern pehchano
+"Pehle aata hai" facts se order → graph + topo sort.
+
+### cheapest-flights-within-k-stops
+title: Cheapest Flights Within K Stops
+lc: 787 cheapest-flights-within-k-stops
+diff: Medium
+pattern: Bellman-Ford with k + 1 rounds
+problem: Cheapest price from src to dst using at most k stops (k + 1 flights), or −1.
+example: n = 4, flights [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src 0, dst 3, k = 1 → 700
+analogy: A travel agent who can check prices in "rounds": after round 1 they know the best prices with 1 flight, after round 2 with up to 2 flights. With a limit of k stops, they stop after k + 1 rounds.
+hints:
+- Plain Dijkstra ignores the stop limit.
+- Bellman-Ford round i finds the best prices using at most i edges → run exactly k + 1 rounds.
+- Each round reads from a COPY of the previous prices so one round can't chain flights.
+brute: DFS over all paths up to k + 1 flights.
+brutecx: exponential
+signal: Shortest path **with a limit on edges** → **Bellman-Ford for limit rounds**.
+optimal:
+- price = [inf] * n; price[src] = 0; repeat k + 1 times: tmp = price[:]; relax every flight from price into tmp; price = tmp.
+cx: O(k·E)
+code:
+def find_cheapest_price(n, flights, src, dst, k):
+    price = [float("inf")] * n
+    price[src] = 0
+    for _ in range(k + 1):
+        tmp = price[:]
+        for u, v, w in flights:
+            if price[u] + w < tmp[v]:
+                tmp[v] = price[u] + w
+        price = tmp
+    return -1 if price[dst] == float("inf") else price[dst]
+test:
+check(find_cheapest_price(4, [[0, 1, 100], [1, 2, 100], [2, 0, 100], [1, 3, 600], [2, 3, 200]], 0, 3, 1), 700)
+check(find_cheapest_price(3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 1), 200)
+check(find_cheapest_price(3, [[0, 1, 100], [1, 2, 100], [0, 2, 500]], 0, 2, 0), 500)
+mistakes:
+- Updating `price` in place during a round.
+hinglish:
+## Sawaal
+Maximum k stops (k + 1 flights) mein src se dst ka sabse sasta price, ya −1.
+## Analogy
+Travel agent jo "rounds" mein price check karta hai: round 1 ke baad 1 flight wale best price pata, round 2 ke baad 2 flights tak ke. k stops ki limit hai toh k + 1 rounds ke baad ruk jao.
+## Kaise sochein
+- Normal Dijkstra stop limit ignore karta hai.
+- Bellman-Ford ka round i = max i edges wale best prices → exactly k + 1 rounds.
+- Har round pichhle prices ki COPY se padho.
+## Pattern pehchano
+Edges ki limit ke saath shortest path → Bellman-Ford.
+## Galtiyan
+Round ke andar wahi list update karna.

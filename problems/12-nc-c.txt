@@ -1,0 +1,1433 @@
+## topic: trees | Trees
+
+### invert-binary-tree
+title: Invert Binary Tree
+lc: 226 invert-binary-tree
+diff: Easy
+pattern: Recursive DFS (same job at every node)
+problem: Mirror a binary tree: swap the left and right child of every node.
+example: [4, 2, 7, 1, 3, 6, 9] → [4, 7, 2, 9, 6, 3, 1]
+analogy: Looking at a family tree in a mirror: every parent's left and right children swap places, all the way down.
+hints:
+- What happens at ONE node? Swap its two children.
+- The same must happen to every node below: invert the left subtree and the right subtree.
+- Base case: an empty tree (None) is already inverted.
+brute: Recursion IS the simple solution (BFS with a queue also works).
+brutecx: O(n)
+signal: "Do something to every node" → **DFS recursion**: handle this node, trust the calls on the children.
+optimal:
+- If root is None → None. Swap children; invert both; return root.
+cx: O(n) time · O(h) space (h = height)
+code:
+# TreeNode is defined on the Trees topic page (val, left, right).
+def invert_tree(root):
+    if root is None:
+        return None
+    root.left, root.right = invert_tree(root.right), invert_tree(root.left)
+    return root
+test:
+check(tree_to_array(invert_tree(build_tree([4, 2, 7, 1, 3, 6, 9]))), [4, 7, 2, 9, 6, 3, 1])
+check(tree_to_array(invert_tree(None)), [])
+mistakes:
+- Forgetting the base case (AttributeError on None).
+hinglish:
+## Sawaal
+Tree ka mirror image banao: har node ke left aur right child swap.
+## Analogy
+Family tree ko shishe mein dekhna: har parent ke left-right bachche jagah badal lete hain, neeche tak.
+## Kaise sochein
+- EK node pe kya karna hai? Do bachche swap.
+- Wahi har node pe → left subtree aur right subtree invert karo (recursion).
+- Base case: None pehle se inverted hai.
+## Pattern pehchano
+"Har node pe kuch karo" → DFS recursion.
+## Best approach
+O(n).
+
+### maximum-depth-of-binary-tree
+title: Maximum Depth of Binary Tree
+lc: 104 maximum-depth-of-binary-tree
+diff: Easy
+pattern: DFS returning a value up the tree
+problem: Return the number of nodes on the longest root-to-leaf path.
+example: [3, 9, 20, None, None, 15, 7] → 3
+analogy: A company asking "how many management levels do we have?": every manager asks their direct reports, takes the deeper answer and adds 1 for themselves.
+hints:
+- Ask each child: how deep are you? Your depth = 1 + the deeper child.
+- Empty tree → 0.
+- Answers bubble up from the leaves.
+brute: BFS counting levels (also O(n)).
+brutecx: O(n)
+signal: A property built from the children's answers → **post-order DFS**.
+optimal:
+- depth(None) = 0; depth(n) = 1 + max(depth(left), depth(right)).
+cx: O(n) time · O(h) space
+code:
+def max_depth(root):
+    if root is None:
+        return 0
+    return 1 + max(max_depth(root.left), max_depth(root.right))
+test:
+check(max_depth(build_tree([3, 9, 20, None, None, 15, 7])), 3)
+check(max_depth(None), 0)
+trace:
+node | left depth | right depth | returns
+9 | 0 | 0 | 1
+15 | 0 | 0 | 1
+7 | 0 | 0 | 1
+20 | 1 | 1 | 2
+3 | 1 | 2 | 3
+mistakes:
+- Returning 1 for None.
+hinglish:
+## Sawaal
+Root se sabse gehri leaf tak kitne nodes?
+## Analogy
+Company poochti hai "kitne management levels hain?": har manager apne direct reports se poochta hai, sabse gehra jawab leke apna 1 jodta hai.
+## Kaise sochein
+- Har bachche se poocho: tum kitne gehre ho? Meri depth = 1 + gehra bachcha.
+- Khaali tree → 0.
+## Pattern pehchano
+Bachchon ke answers se banne wali property → post-order DFS.
+## Best approach
+O(n).
+
+### diameter-of-binary-tree
+title: Diameter of Binary Tree
+lc: 543 diameter-of-binary-tree
+diff: Easy
+pattern: DFS returns height, updates a global best
+problem: Return the number of edges on the longest path between any two nodes (it may not pass the root).
+example: [1, 2, 3, 4, 5] → 3 (4 → 2 → 1 → 3)
+analogy: The longest walk between two villages in a hill range connected by trails: every such walk climbs to some highest point and comes back down. At each hilltop, add the deepest valley on the left to the deepest on the right.
+hints:
+- Every path bends at a highest node; there, length = height(left) + height(right).
+- Visit every node, compute left + right, keep the best.
+- One DFS returns the height (for the parent) AND updates `best` (outside).
+brute: For each node, compute both heights separately: O(n²).
+brutecx: O(n²)
+signal: "Best path anywhere" → **DFS returns one thing, updates a global best**.
+optimal:
+- best = 0; height(n): None → 0; l, r = heights; best = max(best, l + r); return 1 + max(l, r).
+cx: O(n) time · O(h) space
+code:
+def diameter_of_binary_tree(root):
+    best = 0
+
+    def height(node):
+        nonlocal best
+        if node is None:
+            return 0
+        l, r = height(node.left), height(node.right)
+        best = max(best, l + r)
+        return 1 + max(l, r)
+
+    height(root)
+    return best
+test:
+check(diameter_of_binary_tree(build_tree([1, 2, 3, 4, 5])), 3)
+check(diameter_of_binary_tree(build_tree([1, 2])), 1)
+trace:
+node | l | r | l + r | best
+4 | 0 | 0 | 0 | 0
+5 | 0 | 0 | 0 | 0
+2 | 1 | 1 | 2 | 2
+3 | 0 | 0 | 0 | 2
+1 | 2 | 1 | 3 | 3
+mistakes:
+- Returning l + r to the parent (it needs the height).
+hinglish:
+## Sawaal
+Kisi bhi do nodes ke beech ka sabse lamba path (edges mein).
+## Analogy
+Pahaadi gaon ke beech sabse lambi paidal yatra: har aisi yatra kisi sabse oonchi jagah tak chadh ke neeche utarti hai. Har choti pe left ki sabse gehri ghaati + right ki sabse gehri ghaati jodo.
+## Kaise sochein
+- Har path kisi sabse oonche node pe mudta hai: wahan length = left height + right height.
+- Har node pe ye nikaalo, best rakho.
+- Ek DFS parent ko height lautata hai, aur bahar wala `best` update karta hai.
+## Pattern pehchano
+"Kahin bhi best path" → DFS + global best (`nonlocal best`).
+## Best approach
+O(n).
+## Galtiyan
+Parent ko l + r lautana (usse height chahiye).
+
+### balanced-binary-tree
+title: Balanced Binary Tree
+lc: 110 balanced-binary-tree
+diff: Easy
+pattern: DFS with a "failed" signal
+problem: A tree is balanced if at every node the heights of the two subtrees differ by at most 1. Return whether it is.
+example: [3, 9, 20, None, None, 15, 7] → True
+analogy: A school inspector checking every classroom's two benches for fairness. Once any room fails, the report can say "fail" immediately without re-measuring everything.
+hints:
+- Checking heights separately at every node repeats work: O(n²).
+- Compute height bottom-up and check balance at the same time.
+- Return −1 as an "already unbalanced" signal so parents stop early.
+brute: At each node call height() on both children.
+brutecx: O(n²)
+signal: Validate a property at every node → **post-order DFS carrying info up**.
+optimal:
+- h(n): None → 0; l, r; if l == −1 or r == −1 or |l − r| > 1 → −1; else 1 + max.
+cx: O(n) time · O(h) space
+code:
+def is_balanced(root):
+    def h(node):
+        if node is None:
+            return 0
+        l, r = h(node.left), h(node.right)
+        if l == -1 or r == -1 or abs(l - r) > 1:
+            return -1
+        return 1 + max(l, r)
+    return h(root) != -1
+test:
+check(is_balanced(build_tree([3, 9, 20, None, None, 15, 7])), True)
+check(is_balanced(build_tree([1, 2, 2, 3, 3, None, None, 4, 4])), False)
+check(is_balanced(None), True)
+mistakes:
+- Only checking the root's two subtrees.
+hinglish:
+## Sawaal
+Har node pe dono subtrees ki height ka farak ≤ 1? Tab balanced.
+## Analogy
+School inspector har classroom ki do benches ki fairness check karta hai. Ek bhi room fail hua toh report turant "fail" likh deti hai, sab dobara naapne ki zaroorat nahi.
+## Kaise sochein
+- Har node pe alag height nikaalna O(n²).
+- Neeche se height nikaalo aur saath hi balance check karo.
+- −1 = "already unbalanced" signal.
+## Pattern pehchano
+Har node pe property validate → post-order DFS.
+## Best approach
+O(n).
+
+### same-tree
+title: Same Tree
+lc: 100 same-tree
+diff: Easy
+pattern: Parallel DFS on two trees
+problem: Return True if two binary trees have the same shape and values.
+example: [1, 2, 3] and [1, 2, 3] → True;   [1, 2] and [1, None, 2] → False
+analogy: Two people walking through identical-looking buildings room by room, comparing: same room here? Same doors? The first difference ends the check.
+hints:
+- Walk both trees together.
+- Both None → same. One None → different. Different values → different.
+- Otherwise left with left AND right with right.
+brute: Serialise both and compare strings.
+brutecx: O(n)
+signal: Comparing two trees → **recursion on pairs of nodes**.
+optimal:
+- same(p, q): both None → True; one None or values differ → False; return same(left) and same(right).
+cx: O(n) time · O(h) space
+code:
+def is_same_tree(p, q):
+    if p is None and q is None:
+        return True
+    if p is None or q is None or p.val != q.val:
+        return False
+    return is_same_tree(p.left, q.left) and is_same_tree(p.right, q.right)
+test:
+check(is_same_tree(build_tree([1, 2, 3]), build_tree([1, 2, 3])), True)
+check(is_same_tree(build_tree([1, 2]), build_tree([1, None, 2])), False)
+mistakes:
+- Comparing only the values in a traversal ([1, 2] and [1, None, 2] have the same values).
+hinglish:
+## Sawaal
+Do trees ka shape aur values same hain?
+## Analogy
+Do log bilkul ek jaisi dikhne wali buildings mein room-by-room saath chalte hue compare karte hain. Pehla farak mila toh check khatam.
+## Kaise sochein
+- Dono None → same. Ek None → alag. Values alag → alag.
+- Warna left-left AUR right-right.
+## Pattern pehchano
+Do trees compare → nodes ke pairs pe recursion.
+## Best approach
+O(n).
+
+### subtree-of-another-tree
+title: Subtree of Another Tree
+lc: 572 subtree-of-another-tree
+diff: Easy
+pattern: DFS + Same Tree at each node
+problem: Return True if `sub` matches some node of `root` together with all its descendants.
+example: root [3, 4, 5, 1, 2], sub [4, 1, 2] → True
+analogy: Checking whether a small family photo appears anywhere inside a big family tree: try placing it at every person, and compare generation by generation.
+hints:
+- Could the match start at this node? Use is_same_tree(node, sub).
+- If not here, try the left and right subtrees.
+- Reuse your Same Tree solution: big problems are built from small solved ones.
+brute: This is the standard solution: O(m·n).
+brutecx: O(m·n)
+signal: "Does pattern B occur inside A?" → **try every start + a matcher**.
+optimal:
+- sub None → True; root None → False; same(root, sub) → True; else recurse left or right.
+cx: O(m·n) time · O(h) space
+code:
+def same(p, q):
+    if p is None and q is None:
+        return True
+    if p is None or q is None or p.val != q.val:
+        return False
+    return same(p.left, q.left) and same(p.right, q.right)
+
+def is_subtree(root, sub):
+    if sub is None:
+        return True
+    if root is None:
+        return False
+    if same(root, sub):
+        return True
+    return is_subtree(root.left, sub) or is_subtree(root.right, sub)
+test:
+check(is_subtree(build_tree([3, 4, 5, 1, 2]), build_tree([4, 1, 2])), True)
+check(is_subtree(build_tree([3, 4, 5, 1, 2, None, None, None, None, 0]), build_tree([4, 1, 2])), False)
+mistakes:
+- Checking only whether sub's values appear somewhere.
+hinglish:
+## Sawaal
+Kya `sub` tree, `root` ke kisi node aur uske saare descendants se bilkul match karta hai?
+## Analogy
+Chhoti family photo badi family tree mein kahin hai kya: har insaan pe rakh ke dekho, generation-by-generation compare karo.
+## Kaise sochein
+- Is node se match shuru ho sakta hai? `same(node, sub)`.
+- Nahi → left aur right subtree mein try.
+- Same Tree wala solution reuse karo.
+## Pattern pehchano
+"B, A ke andar kahin hai?" → har start + matcher.
+## Best approach
+O(m·n).
+
+### lowest-common-ancestor-of-a-binary-search-tree
+title: Lowest Common Ancestor of a BST
+lc: 235 lowest-common-ancestor-of-a-binary-search-tree
+diff: Medium
+pattern: Use the BST ordering to walk down
+problem: In a BST, return the lowest node that has both p and q as descendants (a node counts as its own descendant).
+example: BST [6, 2, 8, 0, 4, 7, 9, None, None, 3, 5], p = 2, q = 8 → 6
+analogy: Two addresses in the same city. Start at the city centre and walk down the road signs: while both addresses are in the same direction, keep walking; the junction where their directions split is their meeting point.
+hints:
+- In a BST, if both values are smaller than the node, both are in the LEFT subtree.
+- Both larger → go right.
+- Otherwise they split here (or one IS this node): this is the LCA.
+brute: Find both root-to-node paths and compare.
+brutecx: O(n)
+signal: **BST** → the ordering tells you which way to go.
+optimal:
+- cur = root; while cur: both smaller → left; both larger → right; else return cur.
+cx: O(h) time · O(1) space
+code:
+def lowest_common_ancestor(root, p, q):
+    cur = root
+    while cur:
+        if p < cur.val and q < cur.val:
+            cur = cur.left
+        elif p > cur.val and q > cur.val:
+            cur = cur.right
+        else:
+            return cur
+    return None
+test:
+t = build_tree([6, 2, 8, 0, 4, 7, 9, None, None, 3, 5])
+check(lowest_common_ancestor(t, 2, 8).val, 6)
+check(lowest_common_ancestor(t, 2, 4).val, 2)
+check(lowest_common_ancestor(t, 3, 5).val, 4)
+mistakes:
+- Ignoring the BST property and doing a general-tree search.
+hinglish:
+## Sawaal
+BST mein p aur q ka lowest common ancestor.
+## Analogy
+Ek hi shehar ke do address. City centre se road signs follow karo: jab tak dono address ek hi direction mein hain, chalte raho; jis chauraahe pe unki directions alag hoti hain wahi milne ki jagah hai.
+## Kaise sochein
+- Dono node se chhote → left. Dono bade → right.
+- Warna yahi split hai → answer.
+## Pattern pehchano
+BST → order se direction decide.
+## Best approach
+O(h).
+
+### binary-tree-level-order-traversal
+title: Binary Tree Level Order Traversal
+lc: 102 binary-tree-level-order-traversal
+diff: Medium
+pattern: BFS with a queue (level by level)
+problem: Return the values level by level, left to right.
+example: [3, 9, 20, None, None, 15, 7] → [[3], [9, 20], [15, 7]]
+analogy: Ripples from a stone dropped in water: first the centre, then the first ring, then the second ring. A queue processes the tree ring by ring.
+hints:
+- Level by level = BFS = a queue (deque).
+- At the start of each round the queue holds EXACTLY one level: record its size and process that many nodes.
+- While processing, enqueue children: they're the next level.
+brute: DFS passing the depth and appending to result[depth] (also O(n)).
+brutecx: O(n)
+signal: "Level by level / nearest first" → **BFS grouped by queue size**.
+optimal:
+- q = deque([root]); while q: level = [] of len(q) pops; enqueue children; res.append(level).
+cx: O(n) time · O(n) space
+code:
+from collections import deque
+
+def level_order(root):
+    if not root:
+        return []
+    res, q = [], deque([root])
+    while q:
+        level = []
+        for _ in range(len(q)):
+            node = q.popleft()
+            level.append(node.val)
+            if node.left:
+                q.append(node.left)
+            if node.right:
+                q.append(node.right)
+        res.append(level)
+    return res
+test:
+check(level_order(build_tree([3, 9, 20, None, None, 15, 7])), [[3], [9, 20], [15, 7]])
+check(level_order(None), [])
+trace:
+round | queue at start | level
+1 | [3] | [3]
+2 | [9, 20] | [9, 20]
+3 | [15, 7] | [15, 7]
+mistakes:
+- Using a list's pop(0) (O(n) each); use deque.popleft().
+hinglish:
+## Sawaal
+Tree ki values level-by-level, left se right.
+## Analogy
+Paani mein patthar girane se lehrein: pehle beech, phir pehla ghera, phir doosra. Queue tree ko ghera-dar-ghera process karti hai.
+## Kaise sochein
+- Level by level = BFS = queue (deque).
+- Har round ki shuruaat mein queue mein EXACTLY ek level hota hai: uska size note karo aur utne nodes nikaalo.
+- Nikaalte waqt bachche daalo: wo agla level.
+## Pattern pehchano
+"Level by level / sabse paas pehle" → BFS.
+## Best approach
+O(n).
+
+### binary-tree-right-side-view
+title: Binary Tree Right Side View
+lc: 199 binary-tree-right-side-view
+diff: Medium
+pattern: BFS, last node of each level
+problem: Standing on the right of the tree, return the values you can see top to bottom.
+example: [1, 2, 3, None, 5, None, 4] → [1, 3, 4]
+analogy: Looking at a building from the right side: on each floor you only see the rightmost window.
+hints:
+- One node per level is visible: the rightmost.
+- Level-order BFS; record the last node of each level.
+- (DFS alternative: right before left, record the first node at each new depth.)
+brute: Build all levels, take the last of each.
+brutecx: O(n)
+signal: "One node per level" → **BFS by level**.
+optimal:
+- BFS; when i == size − 1, record node.val.
+cx: O(n) time · O(n) space
+code:
+from collections import deque
+
+def right_side_view(root):
+    if not root:
+        return []
+    res, q = [], deque([root])
+    while q:
+        size = len(q)
+        for i in range(size):
+            node = q.popleft()
+            if i == size - 1:
+                res.append(node.val)
+            if node.left:
+                q.append(node.left)
+            if node.right:
+                q.append(node.right)
+    return res
+test:
+check(right_side_view(build_tree([1, 2, 3, None, 5, None, 4])), [1, 3, 4])
+check(right_side_view(build_tree([1, 2])), [1, 2])
+mistakes:
+- Only following right children (a left branch can stick out lower down).
+hinglish:
+## Sawaal
+Tree ke right side khade hoke upar se neeche kaun se nodes dikhenge?
+## Analogy
+Building ko right side se dekho: har floor pe sirf sabse right wali khidki dikhti hai.
+## Kaise sochein
+- Har level ka ek node dikhta hai: sabse right wala.
+- Level-order BFS, har level ka aakhri node record.
+## Pattern pehchano
+"Har level ka ek node" → BFS by level.
+## Best approach
+O(n).
+## Galtiyan
+Sirf right children follow karna.
+
+### count-good-nodes-in-binary-tree
+title: Count Good Nodes in Binary Tree
+lc: 1448 count-good-nodes-in-binary-tree
+diff: Medium
+pattern: DFS passing information down
+problem: A node is "good" if no node on the path from the root to it has a greater value. Count good nodes.
+example: [3, 1, 4, 3, None, 1, 5] → 4
+analogy: A hiking trail: a viewpoint is "good" if it's at least as high as every point you passed on the way. You carry the "highest so far" number in your pocket as you walk.
+hints:
+- Each node needs the max value on the path above it.
+- Pass that max DOWN as a parameter.
+- Good if value ≥ max; then update the max for the children.
+brute: For each node walk up its path (needs parent pointers): O(n·h).
+brutecx: O(n·h)
+signal: "Depends on the path from the root" → **DFS with a parameter passed down**.
+optimal:
+- dfs(n, mx): None → 0; good = n.val ≥ mx; m = max(mx, n.val); return good + dfs(left, m) + dfs(right, m).
+cx: O(n) time · O(h) space
+code:
+def good_nodes(root):
+    def dfs(node, mx):
+        if node is None:
+            return 0
+        good = 1 if node.val >= mx else 0
+        mx = max(mx, node.val)
+        return good + dfs(node.left, mx) + dfs(node.right, mx)
+    return dfs(root, float("-inf"))
+test:
+check(good_nodes(build_tree([3, 1, 4, 3, None, 1, 5])), 4)
+check(good_nodes(build_tree([3, 3, None, 4, 2])), 3)
+trace:
+node | max above | good?
+3 (root) | −inf | yes
+1 | 3 | no
+3 (under 1) | 3 | yes
+4 | 3 | yes
+1 (under 4) | 4 | no
+5 | 4 | yes → 4
+mistakes:
+- One global max that doesn't reset when you go back to another branch.
+hinglish:
+## Sawaal
+Node "good" hai agar root se wahan tak ke raaste mein koi usse bada node na ho. Gino.
+## Analogy
+Trekking trail: viewpoint "good" hai agar wo raaste mein aaye har point jitna ya usse ooncha ho. "Ab tak sabse ooncha" number jeb mein rakh ke chalte ho.
+## Kaise sochein
+- Har node ko upar ke raaste ka max chahiye.
+- Wo max parameter bana ke NEECHE bhejo.
+- value ≥ max → good; bachchon ke liye max update.
+## Pattern pehchano
+"Root se raaste pe depend" → parameter wala DFS.
+## Best approach
+O(n).
+
+### validate-binary-search-tree
+title: Validate Binary Search Tree
+lc: 98 validate-binary-search-tree
+diff: Medium
+pattern: DFS with an allowed (low, high) range
+problem: Is the tree a valid BST (everything in a left subtree < node < everything in the right subtree)?
+example: [2, 1, 3] → True;   [5, 1, 4, None, None, 3, 6] → False
+analogy: Seating by roll number in a hall: going left means "smaller than the person you just passed", going right means "bigger". Each seat inherits limits from EVERY person above it, not just the nearest one.
+hints:
+- node.left < node < node.right is NOT enough: a grandchild can break the rule.
+- Each node has an allowed range. The root allows (−inf, +inf).
+- Left: the upper bound becomes the parent's value. Right: the lower bound does.
+brute: In-order traversal must be strictly increasing (also O(n), with O(n) space).
+brutecx: O(n)
+signal: Constraint inherited from ancestors → **DFS with bounds passed down**.
+optimal:
+- valid(n, lo, hi): None → True; not lo < val < hi → False; recurse left (lo, val), right (val, hi).
+cx: O(n) time · O(h) space
+code:
+def is_valid_bst(root):
+    def valid(node, lo, hi):
+        if node is None:
+            return True
+        if not (lo < node.val < hi):
+            return False
+        return valid(node.left, lo, node.val) and valid(node.right, node.val, hi)
+    return valid(root, float("-inf"), float("inf"))
+test:
+check(is_valid_bst(build_tree([2, 1, 3])), True)
+check(is_valid_bst(build_tree([5, 1, 4, None, None, 3, 6])), False)
+check(is_valid_bst(build_tree([5, 4, 6, None, None, 3, 7])), False)
+mistakes:
+- Only comparing a node with its direct children.
+hinglish:
+## Sawaal
+Kya tree valid BST hai (left subtree ka sab < node < right subtree ka sab)?
+## Analogy
+Hall mein roll number se baithna: left jaana matlab "jisse abhi guzre usse chhota", right matlab "bada". Har seat ko upar ke HAR insaan se limits milti hain, sirf paas wale se nahi.
+## Kaise sochein
+- Sirf bachchon se compare kaafi nahi; grandchild bhi rule tod sakta hai.
+- Har node ki ek allowed range. Root: (−inf, +inf).
+- Left jao → upper bound = parent. Right → lower bound = parent.
+## Pattern pehchano
+Ancestors se aane wali condition → bounds wala DFS.
+## Best approach
+O(n).
+## Galtiyan
+Sirf direct children compare karna.
+
+### kth-smallest-element-in-a-bst
+title: Kth Smallest Element in a BST
+lc: 230 kth-smallest-element-in-a-bst
+diff: Medium
+pattern: In-order traversal (sorted order)
+problem: Return the kth smallest value (1-indexed) in a BST.
+example: [3, 1, 4, None, 2], k = 1 → 1
+analogy: Reading a sorted phone directory: an in-order walk of a BST reads names in alphabetical order, so the kth name you read is the answer.
+hints:
+- In-order (left, node, right) of a BST visits values in SORTED order.
+- The kth node visited is the answer.
+- An iterative version with a stack can stop exactly at the kth node.
+brute: Collect all values, sort, pick index k − 1.
+brutecx: O(n log n)
+signal: **BST + order/rank questions** → in-order traversal.
+optimal:
+- stack, cur = [], root; go left pushing; pop → k −= 1; if k == 0 return; cur = node.right.
+cx: O(h + k) time · O(h) space
+code:
+def kth_smallest(root, k):
+    stack, cur = [], root
+    while cur or stack:
+        while cur:
+            stack.append(cur)
+            cur = cur.left
+        node = stack.pop()
+        k -= 1
+        if k == 0:
+            return node.val
+        cur = node.right
+    return -1
+test:
+check(kth_smallest(build_tree([3, 1, 4, None, 2]), 1), 1)
+check(kth_smallest(build_tree([5, 3, 6, 2, 4, None, None, 1]), 3), 3)
+mistakes:
+- Using pre-order (node, left, right), which isn't sorted.
+hinglish:
+## Sawaal
+BST mein k-va sabse chhota value.
+## Analogy
+Sorted phone directory padhna: BST ka in-order walk naam alphabetical order mein padhta hai, k-va naam hi answer.
+## Kaise sochein
+- BST ka in-order (left, node, right) SORTED order deta hai.
+- k-va visit hua node answer.
+- Stack wala iterative version k pe ruk sakta hai.
+## Pattern pehchano
+BST + order/rank → in-order traversal.
+## Best approach
+O(h + k).
+
+### construct-binary-tree-from-preorder-and-inorder-traversal
+title: Construct Binary Tree from Preorder and Inorder
+lc: 105 construct-binary-tree-from-preorder-and-inorder-traversal
+diff: Medium
+pattern: Recursion + index map
+problem: Rebuild a tree (unique values) from its preorder and inorder traversals.
+example: preorder [3, 9, 20, 15, 7], inorder [9, 3, 15, 20, 7] → [3, 9, 20, None, None, 15, 7]
+analogy: Preorder is a family introduction that always names the head of the family first. Inorder is a seating line where the head sits between their left family and their right family. The head's seat tells you who belongs on which side.
+hints:
+- Preorder starts with the root: 3.
+- In inorder, everything left of 3 is the left subtree, everything right is the right subtree.
+- Left subtree size = 3's position in inorder; that tells you how to split preorder too.
+- Precompute value → inorder index to find the root instantly.
+brute: Search inorder for each root and slice lists: O(n²).
+brutecx: O(n²)
+signal: Rebuild a tree from traversals → **root first in preorder; inorder splits left from right**.
+optimal:
+- idx = {v: i}; p = 0 (next preorder index).
+- build(lo, hi): lo > hi → None; root = preorder[p]; p += 1; mid = idx[root]; left = build(lo, mid − 1); right = build(mid + 1, hi).
+cx: O(n) time · O(n) space
+code:
+def build_tree_from(preorder, inorder):
+    idx = {v: i for i, v in enumerate(inorder)}
+    p = 0
+
+    def build(lo, hi):
+        nonlocal p
+        if lo > hi:
+            return None
+        root = TreeNode(preorder[p])
+        p += 1
+        mid = idx[root.val]
+        root.left = build(lo, mid - 1)
+        root.right = build(mid + 1, hi)
+        return root
+
+    return build(0, len(inorder) - 1)
+test:
+check(tree_to_array(build_tree_from([3, 9, 20, 15, 7], [9, 3, 15, 20, 7])), [3, 9, 20, None, None, 15, 7])
+check(tree_to_array(build_tree_from([-1], [-1])), [-1])
+mistakes:
+- Building the right subtree before the left (preorder lists left first).
+hinglish:
+## Sawaal
+Preorder aur inorder traversal se tree wapas banao.
+## Analogy
+Preorder ek family introduction hai jo hamesha pehle family head ka naam leta hai. Inorder ek seating line hai jisme head apni left family aur right family ke beech baitha hai. Head ki seat batati hai kaun kis side ka hai.
+## Kaise sochein
+- Preorder ka pehla = root.
+- Inorder mein root ke left = left subtree, right = right subtree.
+- value → inorder index ka dict banao, root turant milega.
+## Pattern pehchano
+Traversals se tree → preorder root deta hai, inorder split karta hai.
+## Best approach
+O(n).
+## Galtiyan
+Right subtree pehle banana.
+
+### binary-tree-maximum-path-sum
+title: Binary Tree Maximum Path Sum
+lc: 124 binary-tree-maximum-path-sum
+diff: Hard
+pattern: DFS returns the best one-sided gain, updates a global best
+problem: A path is any chain of connected nodes (each used once). Return the maximum path sum. Values can be negative.
+example: [-10, 9, 20, None, None, 15, 7] → 42 (15 → 20 → 7)
+analogy: Planning the most profitable road trip through connected towns (some towns cost money). At each town, a trip can bend here using the best road on each side; but if you continue to a parent town, you can only bring ONE side with you.
+hints:
+- Like Diameter: every path bends at a highest node.
+- At a node: best path bending here = val + best left gain + best right gain.
+- A negative gain should be ignored: max(0, gain).
+- The parent can extend only ONE side: return val + max(left, right).
+brute: Try every pair of endpoints.
+brutecx: O(n²) or worse
+signal: "Best path anywhere" → **return the one-sided best, update the two-sided best globally**.
+optimal:
+- best = −inf; gain(n): None → 0; l = max(0, gain(left)); r = max(0, gain(right)); best = max(best, val + l + r); return val + max(l, r).
+cx: O(n) time · O(h) space
+code:
+def max_path_sum(root):
+    best = float("-inf")
+
+    def gain(node):
+        nonlocal best
+        if node is None:
+            return 0
+        l = max(0, gain(node.left))
+        r = max(0, gain(node.right))
+        best = max(best, node.val + l + r)
+        return node.val + max(l, r)
+
+    gain(root)
+    return best
+test:
+check(max_path_sum(build_tree([1, 2, 3])), 6)
+check(max_path_sum(build_tree([-10, 9, 20, None, None, 15, 7])), 42)
+check(max_path_sum(build_tree([-3])), -3)
+trace:
+node | left gain | right gain | bend here | returns
+9 | 0 | 0 | 9 | 9
+15 | 0 | 0 | 15 | 15
+7 | 0 | 0 | 7 | 7
+20 | 15 | 7 | 42 ← best | 35
+−10 | 9 | 35 | 34 | 25
+mistakes:
+- Starting best at 0 (wrong for an all-negative tree).
+hinglish:
+## Sawaal
+Tree mein kisi bhi path ka maximum sum (values negative bhi ho sakti hain).
+## Analogy
+Jude hue towns mein sabse faydemand road trip (kuch towns mein kharcha hai). Har town pe trip yahan mud sakti hai aur dono taraf ki best road le sakti hai; lekin agar parent town tak aage badhna hai, toh sirf EK side saath le ja sakte ho.
+## Kaise sochein
+- Diameter jaisa: har path kisi sabse oonche node pe mudta hai.
+- Yahan mudne wala best = val + left gain + right gain.
+- Negative gain chhod do: max(0, gain).
+- Parent ko sirf ek side: val + max(l, r).
+## Pattern pehchano
+"Kahin bhi best path" → one-sided return + global two-sided best.
+## Best approach
+O(n).
+## Galtiyan
+best ko 0 se shuru karna.
+
+### serialize-and-deserialize-binary-tree
+title: Serialize and Deserialize Binary Tree
+lc: 297 serialize-and-deserialize-binary-tree
+diff: Hard
+pattern: Preorder with null markers
+problem: Convert a tree to a string and back so the rebuilt tree is identical.
+example: [1, 2, 3, None, None, 4, 5] → "1,2,N,N,3,4,N,N,5,N,N" → the same tree
+analogy: Packing flat-pack furniture: the instruction sheet must mention the empty slots too ("no shelf here"), otherwise the builder can't know the shape.
+hints:
+- A traversal alone loses the shape; recording the Nones fixes it.
+- Preorder with "N" for None fully describes the tree.
+- Decode by reading tokens in the same preorder: value, then build left, then right.
+brute: Level order with nulls also works; preorder is shorter.
+brutecx: O(n)
+signal: Save and restore a structure → **traversal + explicit null markers**.
+optimal:
+- serialize: dfs appends val or "N". deserialize: iterator over tokens; build(): tok = next; "N" → None; node; left = build(); right = build().
+cx: O(n) time · O(n) space
+code:
+def serialize(root):
+    out = []
+
+    def dfs(node):
+        if node is None:
+            out.append("N")
+            return
+        out.append(str(node.val))
+        dfs(node.left)
+        dfs(node.right)
+
+    dfs(root)
+    return ",".join(out)
+
+def deserialize(data):
+    tokens = iter(data.split(","))
+
+    def build():
+        tok = next(tokens)
+        if tok == "N":
+            return None
+        node = TreeNode(int(tok))
+        node.left = build()
+        node.right = build()
+        return node
+
+    return build()
+test:
+t = build_tree([1, 2, 3, None, None, 4, 5])
+check(serialize(t), "1,2,N,N,3,4,N,N,5,N,N")
+check(tree_to_array(deserialize(serialize(t))), [1, 2, 3, None, None, 4, 5])
+check(tree_to_array(deserialize(serialize(None))), [])
+mistakes:
+- Leaving out the null markers (different trees give the same string).
+hinglish:
+## Sawaal
+Tree ko string mein badlo aur wapas bilkul wahi tree banao.
+## Analogy
+Flat-pack furniture pack karna: instruction sheet mein khaali jagah bhi likhni padti hai ("yahan shelf nahi hai"), warna banane wala shape nahi samjhega.
+## Kaise sochein
+- Sirf traversal se shape kho jaata hai; None bhi record karo.
+- Preorder + "N" poora tree describe karta hai.
+- Decode: tokens usi preorder mein padho: value, phir left banao, phir right.
+## Pattern pehchano
+Structure save/restore → traversal + null markers.
+## Best approach
+O(n).
+
+## topic: tries | Tries
+
+### implement-trie-prefix-tree
+title: Implement Trie (Prefix Tree)
+lc: 208 implement-trie-prefix-tree
+diff: Medium
+pattern: Trie node = children dict + end flag
+problem: Build a Trie with insert(word), search(word) and startsWith(prefix).
+example: insert "apple"; search "apple" → True; search "app" → False; startsWith "app" → True
+analogy: Your phone's autocomplete: after typing "ca", it already knows "cat", "car", "cart" because all those words share the path c → a.
+hints:
+- Each node is one letter; paths from the root spell words.
+- A node has children (letter → node) and an `end` flag: "a word finishes here".
+- insert: walk down creating missing children, mark end. search: walk and check end. startsWith: only check the path exists.
+brute: Store words in a list and scan it per query.
+brutecx: O(n·L) per query
+signal: Lots of **prefix** queries → **Trie**.
+optimal:
+- TrieNode: children = {}, end = False. _find(s) walks down or returns None.
+cx: O(L) per operation · O(total characters) space
+code:
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.end = False
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        cur = self.root
+        for ch in word:
+            cur = cur.children.setdefault(ch, TrieNode())
+        cur.end = True
+
+    def _find(self, s):
+        cur = self.root
+        for ch in s:
+            if ch not in cur.children:
+                return None
+            cur = cur.children[ch]
+        return cur
+
+    def search(self, word):
+        node = self._find(word)
+        return node is not None and node.end
+
+    def startsWith(self, prefix):
+        return self._find(prefix) is not None
+test:
+t = Trie()
+t.insert("apple")
+check(t.search("apple"), True)
+check(t.search("app"), False)
+check(t.startsWith("app"), True)
+t.insert("app")
+check(t.search("app"), True)
+mistakes:
+- Forgetting the end flag (every prefix would count as a word).
+hinglish:
+## Sawaal
+Trie banao: insert, search (poora word hai?) aur startsWith (prefix hai?).
+## Analogy
+Phone ka autocomplete: "ca" type karte hi usse pata hai "cat", "car", "cart", kyunki sab words c → a ka raasta share karte hain.
+## Kaise sochein
+- Har node ek letter; root se raaste words banate hain.
+- Node mein children (letter → node) aur `end` flag.
+- insert: neeche jao, missing bachche banao, end mark. search: raasta + end. startsWith: sirf raasta.
+## Pattern pehchano
+Bahut saare prefix queries → Trie.
+## Best approach
+Har operation O(length).
+## Galtiyan
+end flag bhoolna.
+
+### design-add-and-search-words-data-structure
+title: Design Add and Search Words
+lc: 211 design-add-and-search-words-data-structure
+diff: Medium
+pattern: Trie + DFS for wildcards
+problem: addWord(word) and search(pattern) where "." matches any single letter.
+example: add bad, dad, mad; search "pad" → False; ".ad" → True; "b.." → True
+analogy: A crossword helper: "_ad" means "try every letter in the blank". In the trie, a dot means "try every child path".
+hints:
+- Without dots it's plain Trie search.
+- A dot can be ANY child: try all of them → recursion.
+- dfs(node, i): i == len → node.end; '.' → any child succeeds; else follow one child.
+brute: Compare the pattern with every stored word.
+brutecx: O(n·L) per search
+signal: Prefix structure + wildcard → **Trie + DFS that branches on '.'**.
+optimal:
+- Standard insert; search = dfs(root, 0).
+cx: add O(L); search O(L) without dots, up to O(26^dots · L)
+code:
+class WordDictionary:
+    def __init__(self):
+        self.root = {}
+
+    def addWord(self, word):
+        cur = self.root
+        for ch in word:
+            cur = cur.setdefault(ch, {})
+        cur["$"] = True
+
+    def search(self, word):
+        def dfs(node, i):
+            if i == len(word):
+                return "$" in node
+            ch = word[i]
+            if ch == ".":
+                return any(dfs(child, i + 1) for key, child in node.items() if key != "$")
+            return ch in node and dfs(node[ch], i + 1)
+        return dfs(self.root, 0)
+test:
+d = WordDictionary()
+for w in ["bad", "dad", "mad"]:
+    d.addWord(w)
+check(d.search("pad"), False)
+check(d.search("bad"), True)
+check(d.search(".ad"), True)
+check(d.search("b.."), True)
+check(d.search("b."), False)
+mistakes:
+- Returning the first child's result for '.' instead of trying the others when it fails.
+hinglish:
+## Sawaal
+addWord aur search jisme "." kisi bhi ek letter se match karta hai.
+## Analogy
+Crossword helper: "_ad" matlab "blank mein har letter try karo". Trie mein dot matlab "har child path try karo".
+## Kaise sochein
+- Dot ke bina normal trie search.
+- Dot kisi bhi child ke barabar → sab try karo → recursion.
+## Pattern pehchano
+Prefix structure + wildcard → Trie + DFS.
+## Best approach
+Bina dots O(L).
+## Galtiyan
+'.' pe pehle child ka hi result lautana.
+
+### word-search-ii
+title: Word Search II
+lc: 212 word-search-ii
+diff: Hard
+pattern: Trie of words + grid DFS backtracking
+problem: Return every word from a list that can be traced through adjacent grid cells (up/down/left/right), each cell used at most once per word.
+example: grid [[o,a,a,n],[e,t,a,e],[i,h,k,r],[i,f,l,v]], words [oath, pea, eat, rain] → [oath, eat]
+analogy: Instead of hunting for each word separately in a word-search puzzle, you carry a combined "dictionary tree" of all the words, and while tracing the grid you stop the moment no word starts with the letters so far.
+hints:
+- Word Search I (one word) = DFS from every cell. Doing it per word repeats work.
+- Put ALL words in a Trie; one DFS walks the grid and the Trie together.
+- If the current path isn't a prefix of any word (no child), stop immediately.
+- Mark cells visited on the path; restore when backtracking.
+brute: Run single-word search for every word.
+brutecx: O(W·m·n·4^L)
+signal: Many words + prefix pruning → **Trie**; paths in a grid → **backtracking**.
+optimal:
+- Build the trie storing the full word at its end node.
+- dfs(r, c, node): letter not a child → return; if child has a word → record and clear it; mark '#', explore 4 directions, restore.
+cx: O(m·n·4^L) worst case, much faster with pruning
+code:
+def find_words(board, words):
+    root = {}
+    for w in words:
+        node = root
+        for ch in w:
+            node = node.setdefault(ch, {})
+        node["$"] = w
+    rows, cols = len(board), len(board[0])
+    res = []
+
+    def dfs(r, c, node):
+        ch = board[r][c]
+        nxt = node.get(ch)
+        if not nxt:
+            return
+        if "$" in nxt:
+            res.append(nxt.pop("$"))
+        board[r][c] = "#"
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and board[nr][nc] != "#":
+                dfs(nr, nc, nxt)
+        board[r][c] = ch
+
+    for r in range(rows):
+        for c in range(cols):
+            dfs(r, c, root)
+    return res
+test:
+b = [list("oaan"), list("etae"), list("ihkr"), list("iflv")]
+check_u(find_words(b, ["oath", "pea", "eat", "rain"]), ["oath", "eat"])
+check_u(find_words([list("ab"), list("cd")], ["abcb"]), [])
+mistakes:
+- Not restoring the cell after exploring.
+hinglish:
+## Sawaal
+Words ki list mein se jo words grid mein adjacent cells se ban sakte hain (ek cell ek word mein ek baar), unhe return karo.
+## Analogy
+Word-search puzzle mein har word alag dhoondhne ki jagah, saare words ka ek combined "dictionary tree" saath rakho, aur grid trace karte waqt jaise hi koi word un letters se shuru nahi hota, ruk jao.
+## Kaise sochein
+- Ek word ke liye har cell se DFS. Har word ke liye alag karna repeated kaam.
+- Saare words ek Trie mein; ek DFS grid aur Trie saath chalata hai.
+- Path kisi word ka prefix nahi → turant ruko.
+- Cell visited mark karo, wapas aate waqt restore.
+## Pattern pehchano
+Bahut words + prefix pruning → Trie; grid paths → backtracking.
+## Best approach
+Pruning ke saath kaafi fast.
+## Galtiyan
+Cell restore na karna.
+
+## topic: heap | Heap / Priority Queue
+
+### kth-largest-element-in-a-stream
+title: Kth Largest Element in a Stream
+lc: 703 kth-largest-element-in-a-stream
+diff: Easy
+pattern: Min-heap of size k
+problem: After each add(val), return the kth largest element seen so far.
+example: k = 3, start [4, 5, 8, 2]; add 3 → 4; add 5 → 5; add 10 → 5; add 9 → 8
+analogy: A "top 3" leaderboard: only 3 spots exist. The lowest score still on the board is exactly the 3rd best, and a newcomer only gets on by beating it.
+hints:
+- Only the k largest values matter; forget the rest.
+- Keep them in a MIN-heap: the smallest of the top k is on top, and it IS the kth largest.
+- On add: push; if size > k, pop the smallest.
+brute: Keep everything sorted: O(n) per add.
+brutecx: O(n) per add
+signal: "kth largest" with updates → **min-heap of size k**.
+optimal:
+- heapq list; add: heappush; if len > k: heappop; return heap[0].
+cx: O(log k) per add · O(k) space
+code:
+import heapq
+
+class KthLargest:
+    def __init__(self, k, nums):
+        self.k = k
+        self.heap = []
+        for x in nums:
+            self.add(x)
+
+    def add(self, val):
+        heapq.heappush(self.heap, val)
+        if len(self.heap) > self.k:
+            heapq.heappop(self.heap)
+        return self.heap[0]
+test:
+s = KthLargest(3, [4, 5, 8, 2])
+check(s.add(3), 4)
+check(s.add(5), 5)
+check(s.add(10), 5)
+check(s.add(9), 8)
+check(s.add(4), 8)
+trace:
+add | heap (top 3) | answer
+3 | {4, 5, 8} | 4
+5 | {5, 5, 8} | 5
+10 | {5, 8, 10} | 5
+9 | {8, 9, 10} | 8
+mistakes:
+- Using a max-heap (you'd have to pop k − 1 items to read the answer).
+hinglish:
+## Sawaal
+Har add(val) ke baad ab tak ka k-va sabse bada element.
+## Analogy
+"Top 3" leaderboard: sirf 3 jagah hain. Board pe bacha sabse kam score hi exactly 3rd best hai, aur naya aadmi tabhi aata hai jab usse zyada score kare.
+## Kaise sochein
+- Sirf k sabse bade matter karte hain.
+- Unhe MIN-heap mein rakho: top pe top-k mein sabse chhota = k-va sabse bada.
+- push; size > k → pop.
+## Pattern pehchano
+"k-va sabse bada" + updates → size k ka min-heap.
+## Best approach
+O(log k) per add.
+
+### last-stone-weight
+title: Last Stone Weight
+lc: 1046 last-stone-weight
+diff: Easy
+pattern: Max-heap simulation
+problem: Repeatedly smash the two heaviest stones: equal → both destroyed; else the lighter is destroyed and the heavier becomes the difference. Return the last stone's weight, or 0.
+example: [2, 7, 4, 1, 8, 1] → 1
+analogy: A wrestling tournament where the two strongest wrestlers always fight next. A heap is the organiser who always knows the two strongest in O(log n).
+hints:
+- Every round needs the two LARGEST stones; sorting every round is wasteful.
+- Python's heapq is a min-heap: push negatives to get a max-heap.
+- Pop two; if they differ, push the difference back.
+brute: Sort every round.
+brutecx: O(n² log n)
+signal: "Repeatedly take the largest/smallest" → **heap**.
+optimal:
+- h = [−s for s in stones]; heapify; while len > 1: y = −pop, x = −pop; if y != x: push −(y − x).
+cx: O(n log n) time · O(n) space
+code:
+import heapq
+
+def last_stone_weight(stones):
+    h = [-s for s in stones]
+    heapq.heapify(h)
+    while len(h) > 1:
+        y = -heapq.heappop(h)
+        x = -heapq.heappop(h)
+        if y != x:
+            heapq.heappush(h, -(y - x))
+    return -h[0] if h else 0
+test:
+check(last_stone_weight([2, 7, 4, 1, 8, 1]), 1)
+check(last_stone_weight([1]), 1)
+check(last_stone_weight([2, 2]), 0)
+trace:
+smash | result | heap after
+8, 7 | 1 | 4, 2, 1, 1, 1
+4, 2 | 2 | 2, 1, 1, 1
+2, 1 | 1 | 1, 1, 1
+1, 1 | 0 | 1
+mistakes:
+- Forgetting to negate back when popping from the "max-heap".
+hinglish:
+## Sawaal
+Har baar do sabse bhaari pattharon ko takrao; aakhri patthar ka weight (ya 0).
+## Analogy
+Kushti tournament jisme hamesha do sabse strong pehelwan agle ladte hain. Heap wo organiser hai jo O(log n) mein do sabse strong bata deta hai.
+## Kaise sochein
+- Har round do sabse BADE chahiye; har baar sort karna bekaar.
+- heapq min-heap hai → negative push karke max-heap.
+- Do pop, alag hon toh farak wapas push.
+## Pattern pehchano
+"Baar-baar sabse bada/chhota nikaalo" → heap.
+## Best approach
+O(n log n).
+
+### k-closest-points-to-origin
+title: K Closest Points to Origin
+lc: 973 k-closest-points-to-origin
+diff: Medium
+pattern: Max-heap of size k (keep the k best)
+problem: Return the k points closest to (0, 0).
+example: [[1, 3], [-2, 2]], k = 1 → [[-2, 2]]
+analogy: Choosing the k nearest delivery boys to a restaurant: keep a shortlist of k; whenever someone closer shows up, drop the farthest person on the shortlist.
+hints:
+- Distance² = x² + y² (no square root needed to compare).
+- Sorting everything is O(n log n); a heap keeps only k.
+- Keep a MAX-heap of the k closest: if a new point is closer than the top (the farthest kept), replace it.
+brute: Sort by distance and take the first k.
+brutecx: O(n log n)
+signal: "k smallest" → **max-heap of size k** (negate in heapq).
+optimal:
+- For each point: push (−dist, x, y); if size > k: pop.
+cx: O(n log k) time · O(k) space
+code:
+import heapq
+
+def k_closest(points, k):
+    heap = []
+    for x, y in points:
+        heapq.heappush(heap, (-(x * x + y * y), x, y))
+        if len(heap) > k:
+            heapq.heappop(heap)
+    return [[x, y] for _, x, y in heap]
+test:
+check_u(k_closest([[1, 3], [-2, 2]], 1), [[-2, 2]], False)
+check_u(k_closest([[3, 3], [5, -1], [-2, 4]], 2), [[3, 3], [-2, 4]], False)
+mistakes:
+- A min-heap of all points and k pops: correct but O(n) space.
+hinglish:
+## Sawaal
+(0, 0) ke sabse paas k points.
+## Analogy
+Restaurant ke sabse paas k delivery boys chunna: k logon ki shortlist rakho; koi zyada paas wala aaye toh shortlist ka sabse door wala hatao.
+## Kaise sochein
+- Distance² = x² + y² kaafi hai.
+- Heap mein sirf k rakho.
+- k sabse paas walon ka MAX-heap (heapq mein negative): naya point top se paas ho toh replace.
+## Pattern pehchano
+"k sabse chhote" → size k ka max-heap.
+## Best approach
+O(n log k).
+
+### kth-largest-element-in-an-array
+title: Kth Largest Element in an Array
+lc: 215 kth-largest-element-in-an-array
+diff: Medium
+pattern: Min-heap of size k (or Quickselect)
+problem: Return the kth largest element (in sorted order, duplicates count).
+example: [3, 2, 1, 5, 6, 4], k = 2 → 5
+analogy: A talent contest that only has k medals: keep the current k best in a group; the weakest medal-holder is the kth best.
+hints:
+- Sorting: O(n log n).
+- A min-heap of the k largest values has the kth largest on top.
+- (Advanced: Quickselect partitions like quicksort and recurses into one side: O(n) average.)
+brute: `sorted(nums, reverse=True)[k − 1]`.
+brutecx: O(n log n)
+signal: **kth largest** → min-heap of size k.
+optimal:
+- For x: push; if size > k: pop. Return heap[0].
+cx: O(n log k) time · O(k) space
+code:
+import heapq
+
+def find_kth_largest(nums, k):
+    heap = []
+    for x in nums:
+        heapq.heappush(heap, x)
+        if len(heap) > k:
+            heapq.heappop(heap)
+    return heap[0]
+test:
+check(find_kth_largest([3, 2, 1, 5, 6, 4], 2), 5)
+check(find_kth_largest([3, 2, 3, 1, 2, 4, 5, 5, 6], 4), 4)
+mistakes:
+- Removing duplicates first (duplicates count).
+hinglish:
+## Sawaal
+List ka k-va sabse bada element (duplicates bhi gine jaate hain).
+## Analogy
+Talent contest mein sirf k medals: ab tak ke k best ek group mein rakho; sabse kamzor medal-holder k-va best hai.
+## Kaise sochein
+- Sort: O(n log n).
+- k sabse bade ka min-heap; top = k-va sabse bada.
+## Pattern pehchano
+k-va sabse bada → size k min-heap.
+## Best approach
+O(n log k).
+
+### task-scheduler
+title: Task Scheduler
+lc: 621 task-scheduler
+diff: Medium
+pattern: Greedy maths on the most frequent task
+problem: Tasks are letters; identical tasks must be at least n time units apart. Return the minimum total time (idle allowed).
+example: [A, A, A, B, B, B], n = 2 → 8 (A B idle A B idle A B)
+analogy: A washing machine that needs a cool-down after each wash of the same type of load. The most frequent load type sets the skeleton; other loads fill the gaps.
+hints:
+- The most frequent task sets the frame: A _ _ A _ _ A → (max_count − 1) gaps of length n.
+- Frame = (max_count − 1) × (n + 1) + (number of tasks tied at max_count).
+- If there are more tasks than slots, no idle time: the answer is len(tasks).
+- Answer = max(len(tasks), frame).
+brute: Simulate with a max-heap and a cooldown queue (also common).
+brutecx: O(total time · log 26)
+signal: "Schedule with cooldowns" → **arrange around the most frequent item**.
+optimal:
+- counts = Counter(tasks).values(); m = max; ties = count of m; return max(len, (m − 1)(n + 1) + ties).
+cx: O(n) time · O(26) space
+code:
+from collections import Counter
+
+def least_interval(tasks, n):
+    counts = Counter(tasks).values()
+    m = max(counts)
+    ties = sum(1 for c in counts if c == m)
+    return max(len(tasks), (m - 1) * (n + 1) + ties)
+test:
+check(least_interval(["A", "A", "A", "B", "B", "B"], 2), 8)
+check(least_interval(["A", "C", "A", "B", "D", "B"], 1), 6)
+check(least_interval(["A", "A", "A", "B", "B", "B"], 3), 10)
+trace:
+step | value
+counts | A: 3, B: 3
+max count | 3
+ties | 2
+frame | (3 − 1) × (2 + 1) + 2 = 8
+answer | max(6, 8) = 8
+mistakes:
+- Forgetting the ties (the last row holds every task tied at the max).
+hinglish:
+## Sawaal
+Same tasks ke beech kam se kam n units ka gap. Minimum total time?
+## Analogy
+Washing machine jise same type ke load ke baad cool-down chahiye. Sabse zyada baar aane wala load skeleton banata hai; baaki loads gaps bharte hain.
+## Kaise sochein
+- Sabse frequent task frame banata hai: (max − 1) gaps, har gap n ka.
+- Frame = (max − 1) × (n + 1) + max count wale tasks ki ginti.
+- Tasks slots se zyada → idle nahi: answer = len(tasks).
+## Pattern pehchano
+Cooldown scheduling → sabse frequent ke around arrange.
+## Best approach
+O(n).
+## Galtiyan
+Ties bhoolna.
+
+### design-twitter
+title: Design Twitter
+lc: 355 design-twitter
+diff: Medium
+pattern: Merge k sorted feeds with a heap
+problem: postTweet(user, id), getNewsFeed(user) (10 most recent tweets from the user and followees), follow, unfollow.
+example: post(1, 5); feed(1) → [5]; follow(1, 2); post(2, 6); feed(1) → [6, 5]; unfollow(1, 2); feed(1) → [5]
+analogy: Your feed is like merging several friends' diaries that are each written in time order: keep a finger on the latest entry of each diary and repeatedly read the newest one among them.
+hints:
+- Store each user's tweets as (time, id) with a global counter for time.
+- Each followee's list is already sorted by time: the feed = merge k sorted lists, take 10.
+- A max-heap seeded with each followee's newest tweet (like Merge K Lists).
+brute: Collect every tweet of every followee, sort, take 10.
+brutecx: O(T log T) per feed
+signal: "Top 10 across several sorted lists" → **heap k-way merge**.
+optimal:
+- For each person with tweets push (−time, id, person, index). Pop up to 10; after each pop push that person's previous tweet.
+cx: O(k log k + 10 log k) per feed
+code:
+import heapq
+from collections import defaultdict
+
+class Twitter:
+    def __init__(self):
+        self.time = 0
+        self.tweets = defaultdict(list)
+        self.follows = defaultdict(set)
+
+    def postTweet(self, user, tweet_id):
+        self.tweets[user].append((self.time, tweet_id))
+        self.time += 1
+
+    def getNewsFeed(self, user):
+        heap = []
+        for p in self.follows[user] | {user}:
+            if self.tweets[p]:
+                i = len(self.tweets[p]) - 1
+                t, tid = self.tweets[p][i]
+                heap.append((-t, tid, p, i))
+        heapq.heapify(heap)
+        feed = []
+        while heap and len(feed) < 10:
+            _, tid, p, i = heapq.heappop(heap)
+            feed.append(tid)
+            if i > 0:
+                t, nid = self.tweets[p][i - 1]
+                heapq.heappush(heap, (-t, nid, p, i - 1))
+        return feed
+
+    def follow(self, a, b):
+        if a != b:
+            self.follows[a].add(b)
+
+    def unfollow(self, a, b):
+        self.follows[a].discard(b)
+test:
+tw = Twitter()
+tw.postTweet(1, 5)
+check(tw.getNewsFeed(1), [5])
+tw.follow(1, 2)
+tw.postTweet(2, 6)
+check(tw.getNewsFeed(1), [6, 5])
+tw.unfollow(1, 2)
+check(tw.getNewsFeed(1), [5])
+mistakes:
+- Forgetting that users see their own tweets.
+hinglish:
+## Sawaal
+Chhota Twitter: post, follow, unfollow, aur news feed (10 sabse naye tweets, apne + follow kiye logon ke).
+## Analogy
+Feed kai doston ki diaries merge karne jaisa hai jo har ek time order mein likhi hain: har diary ki latest entry pe ungli rakho aur baar-baar unme se sabse nayi padho.
+## Kaise sochein
+- Har user ke tweets (time, id) ke saath; global counter se time.
+- Har followee ki list time se sorted → feed = k sorted lists merge, 10 lo.
+- Har followee ka newest tweet max-heap mein (Merge K Lists jaisa).
+## Pattern pehchano
+"Kai sorted lists mein top 10" → heap k-way merge.
+## Best approach
+Feed ~O(k log k).
+## Galtiyan
+User ko apne hi tweets na dikhana.
+
+### find-median-from-data-stream
+title: Find Median from Data Stream
+lc: 295 find-median-from-data-stream
+diff: Hard
+pattern: Two heaps (lower half max-heap, upper half min-heap)
+problem: addNum(x) and findMedian() efficiently while numbers keep arriving.
+example: add 1, add 2 → 1.5; add 3 → 2.0
+analogy: Students entering a hall are split into a "shorter half" room and a "taller half" room of equal size. The tallest of the short room and the shortest of the tall room stand at the door, and the median is right there.
+hints:
+- The median needs only the middle: split into a LOWER half and an UPPER half.
+- Lower half: max-heap (top = biggest small number). Upper half: min-heap.
+- Keep sizes equal, or the lower half one bigger.
+- Median = lower top (odd) or the average of both tops (even).
+brute: Insert into a sorted list: O(n) per add.
+brutecx: O(n) per add
+signal: Running median → **two heaps**.
+optimal:
+- add: push −x to lo; move lo's top to hi; if hi bigger, move hi's top back to lo.
+- median: len(lo) > len(hi) → −lo[0]; else (−lo[0] + hi[0]) / 2.
+cx: O(log n) add · O(1) median
+code:
+import heapq
+
+class MedianFinder:
+    def __init__(self):
+        self.lo = []
+        self.hi = []
+
+    def addNum(self, x):
+        heapq.heappush(self.lo, -x)
+        heapq.heappush(self.hi, -heapq.heappop(self.lo))
+        if len(self.hi) > len(self.lo):
+            heapq.heappush(self.lo, -heapq.heappop(self.hi))
+
+    def findMedian(self):
+        if len(self.lo) > len(self.hi):
+            return float(-self.lo[0])
+        return (-self.lo[0] + self.hi[0]) / 2
+test:
+m = MedianFinder()
+m.addNum(1); m.addNum(2)
+check(m.findMedian(), 1.5)
+m.addNum(3)
+check(m.findMedian(), 2.0)
+trace:
+add | lower half | upper half | median
+1 | [1] | [] | 1
+2 | [1] | [2] | 1.5
+3 | [2, 1] | [3] | 2
+mistakes:
+- Pushing into one heap by comparison without rebalancing.
+hinglish:
+## Sawaal
+Numbers aate rahenge; addNum aur findMedian efficient banao.
+## Analogy
+Hall mein aane wale students do barabar kamron mein bante hain: "chhota half" aur "lamba half". Chhote kamre ka sabse lamba aur lambe kamre ka sabse chhota darwaze pe khade hain, median wahi hai.
+## Kaise sochein
+- Median ko sirf beech chahiye: LOWER half aur UPPER half.
+- Lower: max-heap (heapq mein negative), Upper: min-heap.
+- Size barabar ya lower ek zyada.
+- Median = lower top (odd) ya dono tops ka average (even).
+## Pattern pehchano
+Running median → do heaps.
+## Best approach
+add O(log n), median O(1).

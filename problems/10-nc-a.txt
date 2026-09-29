@@ -1,0 +1,1262 @@
+## topic: arrays-hashing | Arrays & Hashing
+
+### contains-duplicate
+title: Contains Duplicate
+lc: 217 contains-duplicate
+diff: Easy
+pattern: Hash Set
+problem: Return True if any value appears at least twice in the list, otherwise False.
+example: [1, 2, 3, 1] → True;   [1, 2, 3, 4] → False
+analogy: A bouncer at a party with a guest register: before letting someone in, he checks the register. If the name is already there, that's a duplicate.
+ask:
+- Empty list? → False.
+- May I reorder the list? Yes (that allows the sorting idea).
+hints:
+- Brute force: compare every pair (i, j > i): the handshake loop from Video 1.
+- If you sort, duplicates sit next to each other; compare neighbours.
+- Best: walk once and remember what you've seen. Which structure answers "seen before?" in O(1)? A set.
+brute: Nested loops comparing nums[i] with nums[j] for every pair.
+brutecx: O(n²) time · O(1) space
+signal: "Seen this before?" / "any duplicate?" → **hash set**.
+optimal:
+- seen = set().
+- For x: if x in seen → True; else add x.
+- Loop ends → False.
+cx: O(n) time · O(n) space
+code:
+def contains_duplicate(nums):
+    seen = set()
+    for x in nums:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False
+test:
+check(contains_duplicate([1, 2, 3, 1]), True)
+check(contains_duplicate([1, 2, 3, 4]), False)
+check(contains_duplicate([]), False)
+trace:
+x | seen before? | seen after
+1 | no | {1}
+2 | no | {1, 2}
+3 | no | {1, 2, 3}
+1 | YES | return True
+mistakes:
+- Using a list for `seen`: `x in list` is O(n), so the whole thing becomes O(n²).
+hinglish:
+## Sawaal
+List mein koi value do baar aayi hai kya? Haan → True.
+## Analogy
+Party ka bouncer guest register ke saath: kisi ko andar jaane se pehle register check karta hai. Naam pehle se likha hai → duplicate.
+## Kaise sochein
+- Brute force: har pair compare (handshake loop) → O(n²).
+- Sort karo toh duplicates pados mein aa jaate hain → O(n log n).
+- Best: ek baar chalo aur jo dekha uska record rakho. "Pehle dekha?" O(1) mein kaun batata hai? **Set**.
+## Pattern pehchano
+"Seen before / duplicate" → hash set.
+## Best approach
+`seen` set; har x: pehle se hai → True, warna add. O(n) time, O(n) space.
+## Galtiyan
+`seen` ko list banana (lookup O(n) ho jaata hai).
+
+### valid-anagram
+title: Valid Anagram
+lc: 242 valid-anagram
+diff: Easy
+pattern: Counting (Counter / 26-slot list)
+problem: Return True if t uses exactly the same letters as s, the same number of times.
+example: s = "anagram", t = "nagaram" → True;   s = "rat", t = "car" → False
+analogy: Two bags of Scrabble tiles: they're anagrams if, after counting tiles letter by letter, both bags have identical counts.
+ask:
+- Different lengths → immediately False.
+hints:
+- Sorting both gives the same string if they're anagrams: O(n log n).
+- Count letters instead: +1 for s, −1 for t.
+- All counts zero at the end → anagram.
+brute: `sorted(s) == sorted(t)`.
+brutecx: O(n log n)
+signal: "Same characters, different order" → **frequency count**.
+optimal:
+- If lengths differ → False.
+- count[26]: count[s[i]] += 1, count[t[i]] −= 1.
+- All zero → True. (Or `Counter(s) == Counter(t)`.)
+cx: O(n) time · O(1) space
+code:
+def is_anagram(s, t):
+    if len(s) != len(t):
+        return False
+    count = [0] * 26
+    for a, b in zip(s, t):
+        count[ord(a) - ord("a")] += 1
+        count[ord(b) - ord("a")] -= 1
+    return all(c == 0 for c in count)
+test:
+check(is_anagram("anagram", "nagaram"), True)
+check(is_anagram("rat", "car"), False)
+check(is_anagram("ab", "a"), False)
+mistakes:
+- Only checking that every letter of s is somewhere in t.
+hinglish:
+## Sawaal
+t mein bilkul wahi letters, utni hi baar, jitne s mein hain?
+## Analogy
+Scrabble tiles ke do thaile: letter-by-letter ginti karke dono ke counts bilkul same hon toh anagram.
+## Kaise sochein
+- Length alag → False.
+- Sort karke compare: O(n log n).
+- Better: s ke letter pe +1, t ke letter pe −1; end mein sab 0?
+## Pattern pehchano
+"Same letters, alag order" → counting.
+## Best approach
+26 slots ki list ya `Counter(s) == Counter(t)`. O(n).
+
+### two-sum
+title: Two Sum
+lc: 1 two-sum
+diff: Easy
+pattern: Hash Map (complement lookup)
+problem: Return the indexes of the two numbers that add up to target. Exactly one answer exists; you can't use the same element twice.
+example: nums = [2, 7, 11, 15], target = 9 → [0, 1]
+analogy: You have ₹9 to spend on exactly two items. Walking through the shop, for each item you ask: "have I already seen an item that costs exactly what's left?" A notebook of prices you've seen answers instantly.
+ask:
+- Sorted? No (if it were, two pointers work: Two Sum II).
+- Return values or indexes? Indexes.
+hints:
+- Brute force: try every pair.
+- For a number x you need exactly one partner: target − x. Call it `need`.
+- The question becomes "have I seen `need` already?" → a dict lookup.
+- Store value → index, because the answer wants positions.
+brute: Nested loops over all pairs i < j.
+brutecx: O(n²) time · O(1) space
+signal: "Two items that combine to a target" + unsorted → **dict of seen values**.
+optimal:
+- seen = {} (value → index).
+- For i, x: need = target − x; if need in seen → [seen[need], i].
+- Else seen[x] = i.
+cx: O(n) time · O(n) space
+code:
+def two_sum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        need = target - x
+        if need in seen:
+            return [seen[need], i]
+        seen[x] = i
+    return []
+test:
+check(two_sum([2, 7, 11, 15], 9), [0, 1])
+check(two_sum([3, 2, 4], 6), [1, 2])
+check(two_sum([3, 3], 6), [0, 1])
+trace:
+i | x | need | seen | action
+0 | 3 | 3 | {} | store 3→0
+1 | 2 | 4 | {3:0} | store 2→1
+2 | 4 | 2 | {3:0, 2:1} | 2 found → [1, 2]
+mistakes:
+- Storing everything first, then looking up: with [3, 3] you might pair 3 with itself. Check first, store after.
+hinglish:
+## Sawaal
+Do numbers ke index do jinka jod target ho. Ek hi answer hai, same element do baar nahi.
+## Analogy
+Tumhare paas ₹9 hain aur exactly do cheezein leni hain. Dukaan mein chalte hue har item pe socho: "kya maine pehle koi aisa item dekha jiska price bilkul baaki bache paise jitna ho?" Dekhe hue prices ki notebook turant batati hai.
+## Kaise sochein
+- Brute force: har pair try karo, O(n²).
+- Har x ko bas ek partner chahiye: `need = target − x`.
+- Sawaal ban gaya: "`need` pehle dekha?" → dict lookup.
+- Index chahiye, isliye value → index store karo.
+## Pattern pehchano
+"Do cheezein jo milke target banayein" + unsorted → dict of seen values.
+## Best approach
+Ek pass: pehle `need` check, phir current store. O(n).
+## Galtiyan
+Pehle sab store karke phir dhoondhna ([3, 3] mein 3 khud se pair ho sakta hai).
+
+### group-anagrams
+title: Group Anagrams
+lc: 49 group-anagrams
+diff: Medium
+pattern: Dict with a computed key
+problem: Group words that are anagrams of each other.
+example: ["eat","tea","tan","ate","nat","bat"] → [["eat","tea","ate"], ["tan","nat"], ["bat"]]
+analogy: Sorting letters into post-office boxes by PIN code. Every anagram has the same "PIN code": its letters in sorted order. Words with the same code go in the same box.
+hints:
+- Anagrams share a "signature". What could it be?
+- Sorted letters: "eat" → "aet", "tea" → "aet". Same key!
+- dict key → list of words. Every word goes into its key's bucket.
+- Faster key: a tuple of the 26 letter counts.
+brute: For each word, compare it with every existing group using an anagram check.
+brutecx: O(n²·k)
+signal: "Group equivalent things" → **dict from a canonical key to a list**.
+optimal:
+- groups = defaultdict(list).
+- For w: groups["".join(sorted(w))].append(w).
+- Return list(groups.values()).
+cx: O(n·k log k) (k = word length) · O(n·k) space
+code:
+from collections import defaultdict
+
+def group_anagrams(words):
+    groups = defaultdict(list)
+    for w in words:
+        groups["".join(sorted(w))].append(w)
+    return list(groups.values())
+test:
+check_u(group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"]), [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]])
+check_u(group_anagrams([""]), [[""]])
+trace:
+word | key | groups
+eat | aet | {aet: [eat]}
+tea | aet | {aet: [eat, tea]}
+tan | ant | {…, ant: [tan]}
+ate | aet | {aet: [eat, tea, ate], …}
+nat | ant | {ant: [tan, nat]}
+bat | abt | {…, abt: [bat]}
+mistakes:
+- Using a list as a dict key: lists aren't hashable. Use a string or a tuple.
+hinglish:
+## Sawaal
+Jo words ek doosre ke anagram hain unhe ek group mein rakho.
+## Analogy
+Post office mein letters ko PIN code ke hisaab se boxes mein daalna. Har anagram ka "PIN code" same hai: uske letters sorted order mein. Same code → same box.
+## Kaise sochein
+- Anagrams ka ek common "signature" hota hai. Kya?
+- Sorted letters: "eat" → "aet", "tea" → "aet".
+- Dict: key → words ki list.
+## Pattern pehchano
+"Equivalent cheezein group karo" → canonical key wala dict.
+## Best approach
+`defaultdict(list)`, key = `"".join(sorted(w))`. O(n·k log k).
+## Galtiyan
+List ko dict key banana (hashable nahi hai).
+
+### top-k-frequent-elements
+title: Top K Frequent Elements
+lc: 347 top-k-frequent-elements
+diff: Medium
+pattern: Counting + bucket sort
+problem: Return the k most frequent values (the answer is unique; any order).
+example: nums = [1, 1, 1, 2, 2, 3], k = 2 → [1, 2]
+analogy: Election results: first count the votes, then line the candidates up in rows by vote count (row 3 votes, row 2 votes…), and read from the busiest row down until you have k winners.
+hints:
+- Step 1 is clear: count with a dict/Counter.
+- Then you need the k largest counts. Sorting is O(n log n).
+- A count is at most n. Buckets 0..n where bucket[c] holds values with count c.
+- Walk buckets from high to low until you have k values.
+brute: Count, sort by count descending, take k (`Counter.most_common(k)`).
+brutecx: O(n log n)
+signal: "Top k by frequency" → count, then **bucket by frequency** (O(n)) or a heap (O(n log k)).
+optimal:
+- count = Counter(nums). buckets = [[] for _ in range(n + 1)].
+- For value, c: buckets[c].append(value).
+- From c = n down to 1: collect until k values.
+cx: O(n) time · O(n) space
+code:
+from collections import Counter
+
+def top_k_frequent(nums, k):
+    count = Counter(nums)
+    buckets = [[] for _ in range(len(nums) + 1)]
+    for value, c in count.items():
+        buckets[c].append(value)
+    result = []
+    for c in range(len(nums), 0, -1):
+        for v in buckets[c]:
+            result.append(v)
+            if len(result) == k:
+                return result
+    return result
+test:
+check_u(top_k_frequent([1, 1, 1, 2, 2, 3], 2), [1, 2])
+check_u(top_k_frequent([1], 1), [1])
+trace:
+step | state
+count | {1: 3, 2: 2, 3: 1}
+buckets | [[], [3], [2], [1], [], [], []]
+c = 3 | take 1
+c = 2 | take 2 → done
+mistakes:
+- Making n buckets instead of n + 1 (a value can appear n times).
+hinglish:
+## Sawaal
+Sabse zyada baar aane wale k values do.
+## Analogy
+Election result: pehle votes gino, phir candidates ko vote-count ki rows mein khada karo (3 vote wali row, 2 vote wali…), aur sabse bhari row se neeche padhte jao jab tak k winners na mil jaayein.
+## Kaise sochein
+- Pehle Counter se ginti.
+- Top k counts chahiye; sort karna O(n log n).
+- Count max n ho sakta hai → buckets 0..n, `bucket[c]` mein count c wale values.
+- Upar se neeche buckets padho.
+## Pattern pehchano
+"Top k by frequency" → bucket sort (O(n)) ya heap.
+## Best approach
+Counter + buckets, O(n).
+
+### encode-and-decode-strings
+title: Encode and Decode Strings
+lc: 271 encode-and-decode-strings
+nc: string-encode-and-decode
+diff: Medium
+pattern: Length-prefix encoding
+problem: Design encode(list of strings) → one string, and decode(string) → the original list. The strings can contain ANY character.
+example: ["good", "code", "love", "you"] → "4#good4#code4#love3#you" → back to the list
+analogy: Packing parcels into one truck: on each parcel you write its weight on the outside. The receiver reads the label, unloads exactly that much, and never has to open a parcel to know where it ends.
+ask:
+- Can strings contain "#" or ","? Yes, anything, so a plain separator breaks.
+hints:
+- Joining with "," fails when a word contains ",".
+- Put the LENGTH in front of each word, then a marker: "4#good".
+- To decode: read digits up to "#", then take exactly that many characters. You never look inside the content.
+brute: Join with a special delimiter: breaks when the delimiter appears in the data.
+brutecx: O(n) but incorrect in general
+signal: Serialising data that can contain anything → **length prefix**.
+optimal:
+- encode: "".join(f"{len(s)}#{s}" for s in strs).
+- decode: i = 0; j = i; move j to '#'; length = int(s[i:j]); word = s[j + 1 : j + 1 + length]; i = j + 1 + length.
+cx: O(total characters) time and space
+code:
+def encode(strs):
+    return "".join(f"{len(s)}#{s}" for s in strs)
+
+def decode(s):
+    out, i = [], 0
+    while i < len(s):
+        j = i
+        while s[j] != "#":
+            j += 1
+        length = int(s[i:j])
+        out.append(s[j + 1 : j + 1 + length])
+        i = j + 1 + length
+    return out
+test:
+check(decode(encode(["good", "code", "love", "you"])), ["good", "code", "love", "you"])
+check(decode(encode(["a#b", "", "12#"])), ["a#b", "", "12#"])
+check(decode(encode([])), [])
+trace:
+i | j at '#' | length | word
+0 | 1 | 4 | good
+6 | 7 | 4 | code
+12 | 13 | 4 | love
+18 | 19 | 3 | you
+mistakes:
+- Searching for '#' from the start of the whole string instead of from i.
+hinglish:
+## Sawaal
+Strings ki list ko ek string mein encode karo aur wapas decode karo. Strings mein koi bhi character ho sakta hai.
+## Analogy
+Ek truck mein parcels bharna: har parcel ke bahar uska weight likh do. Receiver label padhta hai, bilkul utna hi utaarta hai, parcel kholne ki zaroorat nahi padti.
+## Kaise sochein
+- "," se jodna fail hoga agar word mein "," ho.
+- Har word ke aage uski LENGTH aur "#": "4#good".
+- Decode: "#" tak digits padho, phir exactly utne characters lo. Andar ka content kabhi check nahi karna padta.
+## Pattern pehchano
+Kuch bhi contain kar sakne wala data serialize karna → length prefix.
+## Best approach
+O(total characters).
+
+### product-of-array-except-self
+title: Product of Array Except Self
+lc: 238 product-of-array-except-self
+diff: Medium
+pattern: Prefix & suffix products
+problem: Return a list where answer[i] is the product of all numbers except nums[i], without division, in O(n).
+example: [1, 2, 3, 4] → [24, 12, 8, 6]
+analogy: A relay team photo where each runner wants to know the combined "strength" of everyone else: multiply everyone standing to their left, then everyone to their right.
+ask:
+- Why no division? Zeros would break it, and it's forbidden.
+hints:
+- Brute force: for each i, multiply all the others: O(n²).
+- answer[i] = (product of everything LEFT of i) × (product of everything RIGHT of i).
+- Left products build in one pass from the left; right products in one pass from the right, like prefix sums.
+- Store left products in the answer, then multiply in right products with one running variable.
+brute: For each i, loop over all j != i.
+brutecx: O(n²)
+signal: "Combine everything except myself" → **prefix and suffix** passes.
+optimal:
+- ans[0] = 1; ans[i] = ans[i − 1] × nums[i − 1].
+- right = 1; for i from n − 1 down: ans[i] *= right; right *= nums[i].
+cx: O(n) time · O(1) extra space
+code:
+def product_except_self(nums):
+    n = len(nums)
+    ans = [1] * n
+    for i in range(1, n):
+        ans[i] = ans[i - 1] * nums[i - 1]
+    right = 1
+    for i in range(n - 1, -1, -1):
+        ans[i] *= right
+        right *= nums[i]
+    return ans
+test:
+check(product_except_self([1, 2, 3, 4]), [24, 12, 8, 6])
+check(product_except_self([-1, 1, 0, -3, 3]), [0, 0, 9, 0, 0])
+trace:
+i | left product | right product | answer
+0 | 1 | 24 | 24
+1 | 1 | 12 | 12
+2 | 2 | 4 | 8
+3 | 6 | 1 | 6
+mistakes:
+- Updating `right *= nums[i]` before `ans[i] *= right` (includes nums[i] itself).
+hinglish:
+## Sawaal
+Har position ke liye baaki sab numbers ka product, bina division ke, O(n) mein.
+## Analogy
+Relay team ki photo mein har runner jaanna chahta hai baaki sabki combined "strength": uske left wale sab ka product × right wale sab ka product.
+## Kaise sochein
+- Brute force har i ke liye baaki sab multiply: O(n²).
+- answer[i] = (left ka product) × (right ka product).
+- Left products ek pass mein, right products ulte pass mein (prefix sums jaisa).
+## Pattern pehchano
+"Mere alawa sab" → prefix + suffix.
+## Best approach
+Answer list mein left products, phir ek `right` variable se right products multiply. O(n), O(1) extra.
+## Galtiyan
+`right *= nums[i]` pehle kar dena.
+
+### valid-sudoku
+title: Valid Sudoku
+lc: 36 valid-sudoku
+diff: Medium
+pattern: Sets per row / column / box
+problem: Check whether a partly filled 9×9 board breaks any Sudoku rule: no repeated digit in any row, column or 3×3 box. Empty cells are ".".
+example: A board with two 8s in the top-left box → False
+analogy: Three kinds of hostel registers (one per floor, one per wing, one per block). Before a student checks into a room, all three registers are checked for their name.
+hints:
+- You need 27 "seen" sets: 9 rows, 9 columns, 9 boxes.
+- For cell (r, c), which box? (r // 3, c // 3), or the number (r // 3) * 3 + c // 3.
+- One pass over the 81 cells; a digit already seen in its row, column or box → False.
+brute: Check each row, each column and each box separately. Also fine: O(81).
+brutecx: O(81) = O(1)
+signal: "No repeats within groups" → **one set per group**; compute the group index with //.
+optimal:
+- rows, cols, boxes = defaultdict(set) each.
+- For each filled cell: if d in rows[r] or cols[c] or boxes[(r//3, c//3)] → False; else add.
+cx: O(81) time and space
+code:
+from collections import defaultdict
+
+def is_valid_sudoku(board):
+    rows, cols, boxes = defaultdict(set), defaultdict(set), defaultdict(set)
+    for r in range(9):
+        for c in range(9):
+            d = board[r][c]
+            if d == ".":
+                continue
+            b = (r // 3, c // 3)
+            if d in rows[r] or d in cols[c] or d in boxes[b]:
+                return False
+            rows[r].add(d)
+            cols[c].add(d)
+            boxes[b].add(d)
+    return True
+test:
+board = [list(r) for r in ["53..7....", "6..195...", ".98....6.", "8...6...3", "4..8.3..1", "7...2...6", ".6....28.", "...419..5", "....8..79"]]
+check(is_valid_sudoku(board), True)
+board[0][0] = "8"
+check(is_valid_sudoku(board), False)
+mistakes:
+- Getting the box formula wrong: test it on (4, 7) → (1, 2).
+hinglish:
+## Sawaal
+Aadhe bhare Sudoku board mein koi rule toot raha hai? Row, column ya 3×3 box mein koi digit repeat nahi hona chahiye.
+## Analogy
+Hostel ke teen tarah ke register (har floor, har wing, har block ka). Student ke room lene se pehle teeno registers mein naam check hota hai.
+## Kaise sochein
+- 27 sets: 9 rows, 9 columns, 9 boxes.
+- Cell (r, c) ka box: `(r // 3, c // 3)`.
+- Ek pass mein har digit check karo, pehle dekha hua mile → False.
+## Pattern pehchano
+"Groups ke andar repeat nahi" → har group ka set.
+## Best approach
+O(81) = constant.
+
+### longest-consecutive-sequence
+title: Longest Consecutive Sequence
+lc: 128 longest-consecutive-sequence
+diff: Medium
+pattern: Set + "start of a run"
+problem: Return the length of the longest run of consecutive integers that can be formed from an unsorted list, in O(n).
+example: [100, 4, 200, 1, 3, 2] → 4   (1, 2, 3, 4)
+analogy: Finding the longest chain of consecutive house numbers on a street: only start counting from a house whose previous number doesn't exist (the start of a block), then walk forward.
+hints:
+- Sorting then counting runs is O(n log n); we need O(n).
+- Put everything in a set so "is x + 1 here?" is O(1).
+- Start counting only from numbers that begin a run: x − 1 is NOT in the set.
+- From each start, count up while x + 1, x + 2 … exist. Each number is visited at most twice.
+brute: Sort, then walk counting consecutive steps (skipping duplicates).
+brutecx: O(n log n)
+signal: "Consecutive values in unsorted data, O(n)" → **set + only expand from a run's start**.
+optimal:
+- s = set(nums); best = 0.
+- For x in s: if x − 1 not in s: length = 1; while x + length in s: length += 1; best = max(best, length).
+cx: O(n) time · O(n) space
+code:
+def longest_consecutive(nums):
+    s = set(nums)
+    best = 0
+    for x in s:
+        if x - 1 not in s:
+            length = 1
+            while x + length in s:
+                length += 1
+            best = max(best, length)
+    return best
+test:
+check(longest_consecutive([100, 4, 200, 1, 3, 2]), 4)
+check(longest_consecutive([0, 3, 7, 2, 5, 8, 4, 6, 0, 1]), 9)
+check(longest_consecutive([]), 0)
+trace:
+x | x−1 in set? | start? | run length
+100 | no | yes | 1
+4 | yes | no | —
+200 | no | yes | 1
+1 | no | yes | 1→2→3→4
+3 | yes | no | —
+2 | yes | no | —
+mistakes:
+- Expanding from every number (not just starts), which becomes O(n²).
+hinglish:
+## Sawaal
+Unsorted list se banne wali lagatar integers ki sabse lambi chain ki length, O(n) mein.
+## Analogy
+Gali mein lagatar house numbers ki sabse lambi chain: ginti sirf us ghar se shuru karo jiska pichhla number exist nahi karta (block ki shuruaat), phir aage chalo.
+## Kaise sochein
+- Sort karke O(n log n); humein O(n) chahiye.
+- Sab ko set mein daalo: "x + 1 hai?" O(1).
+- Ginti sirf wahan se jahan `x − 1` set mein NAHI hai.
+## Pattern pehchano
+Unsorted mein consecutive values → set + run ki shuruaat se expand.
+## Best approach
+O(n), har number max do baar dekha jaata hai.
+## Galtiyan
+Har number se expand karna (O(n²) ho jaata hai).
+
+## topic: two-pointers | Two Pointers
+
+### valid-palindrome
+title: Valid Palindrome
+lc: 125 valid-palindrome
+diff: Easy
+pattern: Two pointers (skip non-alphanumeric)
+problem: After lowercasing and removing every non-letter/non-digit character, does the string read the same both ways?
+example: "A man, a plan, a canal: Panama" → True;   "race a car" → False
+analogy: Two proof-readers start at opposite ends of a sentence, skip commas and spaces, and compare letters as they walk towards each other.
+hints:
+- Easy: build a cleaned string, compare with its reverse (extra space).
+- Two pointers on the original string: l from the left, r from the right.
+- Skip characters that aren't letters/digits, then compare lowercase versions.
+brute: `t = "".join(ch.lower() for ch in s if ch.isalnum()); return t == t[::-1]`.
+brutecx: O(n) time · O(n) space
+signal: Palindrome + noise → **two pointers that skip**.
+optimal:
+- l, r = 0, n − 1; while l < r: skip junk on both sides; compare; move.
+cx: O(n) time · O(1) space
+code:
+def is_palindrome(s):
+    l, r = 0, len(s) - 1
+    while l < r:
+        while l < r and not s[l].isalnum():
+            l += 1
+        while l < r and not s[r].isalnum():
+            r -= 1
+        if s[l].lower() != s[r].lower():
+            return False
+        l += 1
+        r -= 1
+    return True
+test:
+check(is_palindrome("A man, a plan, a canal: Panama"), True)
+check(is_palindrome("race a car"), False)
+check(is_palindrome(" "), True)
+mistakes:
+- Forgetting `l < r` in the inner skip loops (runs off the end on "!!!").
+hinglish:
+## Sawaal
+Letters/digits ke alawa sab hatao, lowercase karo: kya string palindrome hai?
+## Analogy
+Do proof-readers sentence ke dono ends se shuru karte hain, comma aur space skip karte hain, aur ek doosre ki taraf chalte hue letters compare karte hain.
+## Kaise sochein
+- Saaf string bana ke reverse se compare (extra space).
+- Better: original pe do pointers, junk skip karo, lowercase compare.
+## Pattern pehchano
+Palindrome + noise → skip karne wale two pointers.
+## Best approach
+O(n) time, O(1) space.
+
+### two-sum-ii
+title: Two Sum II (Sorted Input)
+lc: 167 two-sum-ii-input-array-is-sorted
+diff: Medium
+pattern: Two pointers on sorted data
+problem: The list is sorted ascending. Return the 1-based positions of the two numbers that add to target, using O(1) extra space.
+example: [2, 7, 11, 15], target 9 → [1, 2]
+analogy: Balancing a see-saw with two kids from a line sorted by weight: too heavy? replace the heavy kid with a lighter one (move right pointer left). Too light? replace the light kid with a heavier one.
+hints:
+- A dict works but uses O(n) space. Use the sorting.
+- Start with the smallest (left) and the largest (right).
+- Sum too big → the only way to shrink it is to move right leftwards. Too small → move left rightwards.
+- Each step throws away one number that can never be in the answer.
+brute: Try all pairs.
+brutecx: O(n²)
+signal: **Sorted** + pair with a target sum → two pointers from both ends.
+optimal:
+- l, r = 0, n − 1; s = a[l] + a[r]; equal → [l + 1, r + 1]; bigger → r −= 1; smaller → l += 1.
+cx: O(n) time · O(1) space
+code:
+def two_sum_sorted(nums, target):
+    l, r = 0, len(nums) - 1
+    while l < r:
+        s = nums[l] + nums[r]
+        if s == target:
+            return [l + 1, r + 1]
+        if s > target:
+            r -= 1
+        else:
+            l += 1
+    return []
+test:
+check(two_sum_sorted([2, 7, 11, 15], 9), [1, 2])
+check(two_sum_sorted([2, 3, 4], 6), [1, 3])
+check(two_sum_sorted([-1, 0], -1), [1, 2])
+trace:
+l | r | sum | action
+0 | 3 | 2 + 15 = 17 | too big → r −= 1
+0 | 2 | 2 + 11 = 13 | too big → r −= 1
+0 | 1 | 2 + 7 = 9 | found → [1, 2]
+mistakes:
+- Returning 0-based indexes.
+hinglish:
+## Sawaal
+Sorted list mein do numbers ki 1-based positions jinka jod target ho, O(1) extra space mein.
+## Analogy
+Weight se sorted line ke do bachchon se see-saw balance karna: zyada bhari? bhaari bachche ko halke se badlo (right pointer left). Zyada halka? halke ko bhaari se badlo.
+## Kaise sochein
+- Dict chalega par O(n) space. Sorting ka fayda uthao.
+- Sabse chhota (left) + sabse bada (right).
+- Sum bada → r ghatao. Chhota → l badhao. Har step ek aisa number hataata hai jo answer ho hi nahi sakta.
+## Pattern pehchano
+Sorted + pair sum → dono ends se two pointers.
+## Best approach
+O(n) time, O(1) space.
+
+### three-sum
+title: 3Sum
+lc: 15 3sum
+diff: Medium
+pattern: Sort + fix one + two pointers
+problem: Return all unique triplets [a, b, c] with a + b + c = 0.
+example: [-1, 0, 1, 2, -1, -4] → [[-1, -1, 2], [-1, 0, 1]]
+analogy: Forming three-person teams whose ratings add to zero: pick a captain (fix one number), then find the two teammates with the see-saw method from Two Sum II.
+hints:
+- Brute force: three loops, O(n³), plus removing duplicates.
+- Fix the first number a. Now you need two numbers summing to −a: Two Sum II!
+- Sort first, so two pointers work and duplicates are neighbours.
+- Skip a duplicate a; after finding a triplet, skip duplicate l values too.
+brute: Three nested loops, adding sorted triplets to a set.
+brutecx: O(n³)
+signal: "k numbers summing to a target" → sort, fix k − 2, **two pointers** for the last two.
+optimal:
+- Sort. For i: skip if nums[i] == nums[i − 1].
+- l = i + 1, r = n − 1; move by comparing the sum with 0; on a hit record, move l and skip duplicates.
+cx: O(n²) time · O(1) extra (besides sorting and output)
+code:
+def three_sum(nums):
+    nums = sorted(nums)
+    res = []
+    for i in range(len(nums)):
+        if nums[i] > 0:
+            break
+        if i > 0 and nums[i] == nums[i - 1]:
+            continue
+        l, r = i + 1, len(nums) - 1
+        while l < r:
+            s = nums[i] + nums[l] + nums[r]
+            if s > 0:
+                r -= 1
+            elif s < 0:
+                l += 1
+            else:
+                res.append([nums[i], nums[l], nums[r]])
+                l += 1
+                r -= 1
+                while l < r and nums[l] == nums[l - 1]:
+                    l += 1
+    return res
+test:
+check_u(three_sum([-1, 0, 1, 2, -1, -4]), [[-1, -1, 2], [-1, 0, 1]])
+check_u(three_sum([0, 1, 1]), [])
+check_u(three_sum([0, 0, 0, 0]), [[0, 0, 0]])
+trace:
+i (value) | l | r | sum | action
+0 (−4) | 1 | 5 | −3 | l moves… never reaches 0
+1 (−1) | 2 | 5 | 0 | record [−1, −1, 2]
+1 (−1) | 3 | 4 | 0 | record [−1, 0, 1]
+2 (−1) | — | — | — | duplicate → skip
+mistakes:
+- Not skipping duplicates, which returns [−1, 0, 1] twice.
+hinglish:
+## Sawaal
+Saare unique triplets jinka sum 0 ho.
+## Analogy
+Teen logon ki teams jinki ratings ka jod zero ho: ek captain chuno (ek number fix), phir baaki do teammates Two Sum II wale see-saw method se dhoondho.
+## Kaise sochein
+- Teen loops O(n³).
+- Ek number `a` fix karo → ab do numbers chahiye jinka sum −a → Two Sum II!
+- Pehle sort karo taaki two pointers chalein aur duplicates pados mein aa jaayein.
+- Duplicate `a` aur duplicate `l` skip karo.
+## Pattern pehchano
+"k numbers ka sum target" → sort + fix + two pointers.
+## Best approach
+O(n²).
+## Galtiyan
+Duplicates skip na karna.
+
+### container-with-most-water
+title: Container With Most Water
+lc: 11 container-with-most-water
+diff: Medium
+pattern: Two pointers (move the shorter side)
+problem: Each value is the height of a vertical line. Pick two lines that hold the most water: width × the shorter height.
+example: [1, 8, 6, 2, 5, 4, 8, 3, 7] → 49
+analogy: A water tank is only as good as its shorter wall. If you want more water, replacing the taller wall is pointless; only a taller replacement for the SHORT wall can help.
+hints:
+- Brute force: every pair.
+- Start widest: l = 0, r = n − 1.
+- Area is limited by the shorter line; moving the taller one can only make things worse (narrower, same limit).
+- Always move the shorter line.
+brute: Every pair (i, j): max of (j − i) × min(h[i], h[j]).
+brutecx: O(n²)
+signal: "Best pair" where one side is clearly the bottleneck → **move the limiting side**.
+optimal:
+- l, r, best; area = (r − l) × min(h[l], h[r]); move the shorter side.
+cx: O(n) time · O(1) space
+code:
+def max_area(h):
+    l, r, best = 0, len(h) - 1, 0
+    while l < r:
+        best = max(best, (r - l) * min(h[l], h[r]))
+        if h[l] < h[r]:
+            l += 1
+        else:
+            r -= 1
+    return best
+test:
+check(max_area([1, 8, 6, 2, 5, 4, 8, 3, 7]), 49)
+check(max_area([1, 1]), 1)
+trace:
+l | r | heights | area | move
+0 | 8 | 1, 7 | 8 | l (shorter)
+1 | 8 | 8, 7 | 49 | r
+1 | 7 | 8, 3 | 18 | r
+1 | 6 | 8, 8 | 40 | r
+mistakes:
+- Moving the taller side, or both.
+hinglish:
+## Sawaal
+Do lines chuno jo sabse zyada paani rakh sakein: width × chhoti height.
+## Analogy
+Paani ki tank utni hi achhi hai jitni uski chhoti deewar. Zyada paani chahiye toh lambi deewar badalna bekaar hai; sirf CHHOTI deewar ki jagah lambi deewar laane se fayda hoga.
+## Kaise sochein
+- Sabse chaudi se shuru: l = 0, r = n − 1.
+- Area chhoti line se limited hai; lambi line hilaane se sirf width ghategi.
+- Hamesha chhoti line hilao.
+## Pattern pehchano
+Bottleneck wali side hilao.
+## Best approach
+O(n).
+
+### trapping-rain-water
+title: Trapping Rain Water
+lc: 42 trapping-rain-water
+diff: Hard
+pattern: Two pointers with running maxima
+problem: Bars of width 1 have the given heights. How much rainwater is trapped between them?
+example: [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1] → 6
+analogy: Water above any spot of ground rises to the lower of the two tallest walls around it (the tallest to its left and the tallest to its right), minus the ground's own height.
+hints:
+- For one position i: water = min(tallest left, tallest right) − height[i] (if positive).
+- Brute force finds those maxima by scanning: O(n²).
+- Precompute left_max[] and right_max[]: O(n) time and space.
+- Two-pointer trick: if left_max < right_max, the left side is the bottleneck for position l, so its water is known now. Move l. Otherwise handle r.
+brute: For each i, scan left and right for the maxima.
+brutecx: O(n²)
+signal: Water at i depends on the max to the left and right → **prefix/suffix max**, then two pointers for O(1) space.
+optimal:
+- l, r, left_max, right_max, water.
+- If h[l] < h[r]: left_max = max(left_max, h[l]); water += left_max − h[l]; l += 1. Else mirror on r.
+cx: O(n) time · O(1) space
+code:
+def trap(h):
+    l, r = 0, len(h) - 1
+    left_max = right_max = water = 0
+    while l < r:
+        if h[l] < h[r]:
+            left_max = max(left_max, h[l])
+            water += left_max - h[l]
+            l += 1
+        else:
+            right_max = max(right_max, h[r])
+            water += right_max - h[r]
+            r -= 1
+    return water
+test:
+check(trap([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]), 6)
+check(trap([4, 2, 0, 3, 2, 5]), 9)
+check(trap([]), 0)
+trace:
+position | left max | right max | water here
+2 (h=0) | 1 | ≥ 3 | 1
+4 (h=1) | 2 | ≥ 3 | 1
+5 (h=0) | 2 | ≥ 3 | 2
+6 (h=1) | 2 | ≥ 3 | 1
+9 (h=1) | — | 2 | 1
+total | | | 6
+mistakes:
+- Adding water before updating the max (negative water).
+hinglish:
+## Sawaal
+Bars ke beech kitna baarish ka paani rukega?
+## Analogy
+Kisi bhi jagah ke upar paani utna hi bharega jitni uske aas-paas ki do sabse oonchi deewaron (left ki sabse oonchi, right ki sabse oonchi) mein se chhoti deewar, minus zameen ki apni height.
+## Kaise sochein
+- Ek position i: paani = min(left max, right max) − height[i].
+- Har i ke liye scan karna O(n²). left_max[], right_max[] arrays O(n) space.
+- Two pointer trick: jis side ka max chhota hai, wahi bottleneck hai, uska paani abhi pata hai.
+## Pattern pehchano
+Left aur right max pe depend → prefix/suffix max → two pointers.
+## Best approach
+O(n) time, O(1) space.
+
+## topic: stack | Stack
+
+### valid-parentheses
+title: Valid Parentheses
+lc: 20 valid-parentheses
+diff: Easy
+pattern: Stack (match the most recent opener)
+problem: A string has only ()[]{}. Return True if every bracket is closed by the same type in the correct order.
+example: "([]{})" → True;   "(]" → False;   "([)]" → False
+analogy: Nested lunch boxes: the last box you opened must be the first one you close. A stack of plates works the same way: last in, first out.
+hints:
+- A closer must match the MOST RECENT unmatched opener.
+- Most recent = last in, first out = stack.
+- Push openers; on a closer, the stack's top must be its partner: pop it.
+- At the end, the stack must be empty.
+brute: Repeatedly delete "()", "[]", "{}" until nothing changes.
+brutecx: O(n²)
+signal: Nested structure / matching the most recent → **stack**.
+optimal:
+- pair = {')': '(', ']': '[', '}': '{'}.
+- For ch: closer → stack non-empty and pop() == pair[ch], else False. Opener → push.
+- Return not stack.
+cx: O(n) time · O(n) space
+code:
+def is_valid(s):
+    pair = {")": "(", "]": "[", "}": "{"}
+    stack = []
+    for ch in s:
+        if ch in pair:
+            if not stack or stack.pop() != pair[ch]:
+                return False
+        else:
+            stack.append(ch)
+    return not stack
+test:
+check(is_valid("([]{})"), True)
+check(is_valid("(]"), False)
+check(is_valid("([)]"), False)
+check(is_valid("(("), False)
+trace:
+ch | action | stack
+( | push | (
+[ | push | ( [
+] | pop [ ✓ | (
+{ | push | ( {
+} | pop { ✓ | (
+) | pop ( ✓ | empty → True
+mistakes:
+- Popping from an empty stack on input like "]".
+- Returning True without checking the stack is empty.
+hinglish:
+## Sawaal
+Brackets sahi order mein band hue hain?
+## Analogy
+Ek ke andar ek tiffin boxes: jo box sabse aakhir mein khola, wahi sabse pehle band hoga. Plates ka dher bhi aisa hi hai: last in, first out.
+## Kaise sochein
+- Closer hamesha SABSE HAAL ke unmatched opener se match hona chahiye.
+- Sabse haal ka = stack ka top.
+- Opener push, closer pe top pop karke match check.
+- End mein stack khaali.
+## Pattern pehchano
+Nested / "most recent" → stack.
+## Best approach
+O(n).
+## Galtiyan
+Khaali stack se pop karna; end mein stack khaali hai ya nahi check na karna.
+
+### min-stack
+title: Min Stack
+lc: 155 min-stack
+diff: Medium
+pattern: Stack of (value, min so far)
+problem: Design a stack with push, pop, top and getMin, all O(1).
+example: push -2, push 0, push -3 → getMin -3; pop → top 0, getMin -2
+analogy: A stack of books where every book has a sticky note saying "the thinnest book at or below me". Remove the top book, and the note on the new top book is still correct.
+hints:
+- Scanning for the minimum is O(n).
+- The minimum only changes on push/pop. Remember, at each level, what the min was at that moment.
+- A second stack where each entry is the min of everything at or below it.
+brute: Scan the stack on each getMin.
+brutecx: O(n) per getMin
+signal: O(1) min/max on a stack → **store the running min with each element**.
+optimal:
+- push(x): vals.append(x); mins.append(min(x, mins[-1]) if mins else x).
+- pop: pop both. top: vals[-1]. getMin: mins[-1].
+cx: O(1) per operation · O(n) space
+code:
+class MinStack:
+    def __init__(self):
+        self.vals = []
+        self.mins = []
+
+    def push(self, x):
+        self.vals.append(x)
+        self.mins.append(min(x, self.mins[-1]) if self.mins else x)
+
+    def pop(self):
+        self.vals.pop()
+        self.mins.pop()
+
+    def top(self):
+        return self.vals[-1]
+
+    def getMin(self):
+        return self.mins[-1]
+test:
+s = MinStack()
+s.push(-2); s.push(0); s.push(-3)
+check(s.getMin(), -3)
+s.pop()
+check(s.top(), 0)
+check(s.getMin(), -2)
+trace:
+operation | vals | mins
+push −2 | [−2] | [−2]
+push 0 | [−2, 0] | [−2, −2]
+push −3 | [−2, 0, −3] | [−2, −2, −3]
+pop | [−2, 0] | [−2, −2]
+mistakes:
+- One `min_value` variable: after popping the min, you can't know the previous one.
+hinglish:
+## Sawaal
+Aisa stack banao jisme push, pop, top aur getMin sab O(1) hon.
+## Analogy
+Books ka dher jisme har book pe sticky note hai: "mere aur mere neeche sabse patli book kaunsi hai". Upar ki book hatao, nayi top book ka note phir bhi sahi hai.
+## Kaise sochein
+- Har baar scan karna O(n).
+- Min sirf push/pop pe badalta hai; har level pe us waqt ka min yaad rakho.
+- Doosra stack `mins`.
+## Best approach
+Har operation O(1).
+## Galtiyan
+Sirf ek `min` variable rakhna.
+
+### evaluate-reverse-polish-notation
+title: Evaluate Reverse Polish Notation
+lc: 150 evaluate-reverse-polish-notation
+diff: Medium
+pattern: Stack of operands
+problem: Evaluate a postfix expression (operator after its two operands). Division truncates toward zero.
+example: ["2", "1", "+", "3", "*"] → (2 + 1) × 3 = 9
+analogy: A calculator with a tray: numbers wait on the tray; when an operator button is pressed, it takes the two most recent numbers off the tray, combines them, and puts the result back.
+hints:
+- Numbers wait until an operator arrives: on a stack.
+- On an operator: pop two, apply, push the result.
+- Order matters: the FIRST pop is the right operand.
+- Python's `//` floors towards −∞; the problem wants truncation: `int(a / b)`.
+brute: The stack approach is the natural solution.
+brutecx: O(n)
+signal: Postfix / "apply to the last two things" → **stack**.
+optimal:
+- For each token: operator → b = pop, a = pop, push a op b; else push int(token).
+cx: O(n) time · O(n) space
+code:
+def eval_rpn(tokens):
+    st = []
+    for t in tokens:
+        if t in ("+", "-", "*", "/"):
+            b = st.pop()
+            a = st.pop()
+            if t == "+":
+                st.append(a + b)
+            elif t == "-":
+                st.append(a - b)
+            elif t == "*":
+                st.append(a * b)
+            else:
+                st.append(int(a / b))
+        else:
+            st.append(int(t))
+    return st[-1]
+test:
+check(eval_rpn(["2", "1", "+", "3", "*"]), 9)
+check(eval_rpn(["4", "13", "5", "/", "+"]), 6)
+check(eval_rpn(["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]), 22)
+trace:
+token | stack
+2 | [2]
+1 | [2, 1]
++ | [3]
+3 | [3, 3]
+* | [9]
+mistakes:
+- Using `a // b` for negatives: −7 // 2 = −4, but the problem wants −3.
+- Treating "-11" as the minus operator.
+hinglish:
+## Sawaal
+Postfix expression evaluate karo (operator apne do operands ke baad aata hai).
+## Analogy
+Tray wala calculator: numbers tray pe wait karte hain; operator button dabaya toh tray se sabse haal ke do numbers uthake jodta/ghatata hai aur result wapas rakh deta hai.
+## Kaise sochein
+- Numbers stack pe wait karte hain.
+- Operator aaye → do pop, apply, result push.
+- Pehla pop RIGHT operand hai.
+- Division zero ki taraf truncate: `int(a / b)`, `//` nahi.
+## Pattern pehchano
+Postfix → stack.
+## Best approach
+O(n).
+
+### generate-parentheses
+title: Generate Parentheses
+lc: 22 generate-parentheses
+diff: Medium
+pattern: Backtracking with counters
+problem: Return every valid string of n pairs of parentheses.
+example: n = 3 → ["((()))", "(()())", "(())()", "()(())", "()()()"]
+analogy: Building a tower of lunch boxes: you may open a new box while you still have boxes left, and you may close a box only if one is currently open.
+hints:
+- Build the string one character at a time.
+- Add "(" while opens < n.
+- Add ")" only while closes < opens.
+- Length 2n → record.
+brute: Generate all 2^(2n) strings and keep the valid ones.
+brutecx: O(2^(2n)·n)
+signal: "Generate all valid …" → **backtracking with rules** that prune early.
+optimal:
+- go(open, close, cur): len == 2n → record; open < n → go(open + 1, …, cur + "("); close < open → go(…, close + 1, cur + ")").
+cx: O(4ⁿ/√n) results · O(n) depth
+code:
+def generate_parenthesis(n):
+    res = []
+
+    def go(open_, close, cur):
+        if len(cur) == 2 * n:
+            res.append(cur)
+            return
+        if open_ < n:
+            go(open_ + 1, close, cur + "(")
+        if close < open_:
+            go(open_, close + 1, cur + ")")
+
+    go(0, 0, "")
+    return res
+test:
+check_u(generate_parenthesis(3), ["((()))", "(()())", "(())()", "()(())", "()()()"], False)
+check(generate_parenthesis(1), ["()"])
+mistakes:
+- Allowing ")" whenever close < n (produces ")(").
+hinglish:
+## Sawaal
+n pairs brackets ki saari valid strings banao.
+## Analogy
+Tiffin boxes ka tower: naya box tab khol sakte ho jab boxes bache hon, aur box tabhi band kar sakte ho jab koi khula ho.
+## Kaise sochein
+- Ek-ek character jodo.
+- "(" tab tak jab tak open < n.
+- ")" sirf tab jab close < open.
+- Length 2n → record.
+## Pattern pehchano
+"Saari valid cheezein generate karo" → rules wala backtracking.
+## Best approach
+Backtracking, invalid branches shuru mein hi kaat do.
+
+### daily-temperatures
+title: Daily Temperatures
+lc: 739 daily-temperatures
+diff: Medium
+pattern: Monotonic stack (next greater element)
+problem: For each day, how many days until a warmer temperature? 0 if none.
+example: [73, 74, 75, 71, 69, 72, 76, 73] → [1, 1, 4, 2, 1, 1, 0, 0]
+analogy: People in a queue waiting for a taller person to arrive. Each newcomer "answers" every shorter person standing at the back of the queue; those people leave happy.
+hints:
+- Brute force: for each day scan forward: O(n²).
+- Days waiting for an answer sit on a stack.
+- A warmer day answers every colder day on top of the stack: pop them and record the distance.
+- The stack stays in decreasing order: a monotonic stack.
+brute: Nested loops.
+brutecx: O(n²)
+signal: "Next greater / next smaller" → **monotonic stack of indexes still waiting**.
+optimal:
+- ans = [0] * n; stack = [].
+- For i, t: while stack and t > temps[stack[-1]]: j = pop; ans[j] = i − j. Push i.
+cx: O(n) time · O(n) space
+code:
+def daily_temperatures(temps):
+    ans = [0] * len(temps)
+    stack = []
+    for i, t in enumerate(temps):
+        while stack and t > temps[stack[-1]]:
+            j = stack.pop()
+            ans[j] = i - j
+        stack.append(i)
+    return ans
+test:
+check(daily_temperatures([73, 74, 75, 71, 69, 72, 76, 73]), [1, 1, 4, 2, 1, 1, 0, 0])
+check(daily_temperatures([30, 60, 90]), [1, 1, 0])
+trace:
+i (temp) | answers given | stack (temps)
+0 (73) | — | [73]
+1 (74) | 73 → 1 | [74]
+2 (75) | 74 → 1 | [75]
+3 (71) | — | [75, 71]
+4 (69) | — | [75, 71, 69]
+5 (72) | 69 → 1, 71 → 2 | [75, 72]
+6 (76) | 72 → 1, 75 → 4 | [76]
+7 (73) | — | [76, 73]
+mistakes:
+- Pushing temperatures instead of indexes (you need the index for the distance).
+hinglish:
+## Sawaal
+Har din ke liye: kitne din baad zyada garam din aayega? Na aaye toh 0.
+## Analogy
+Line mein log kisi lambe insaan ke aane ka wait kar rahe hain. Har naya aane wala peeche khade saare chhote logon ko "answer" de deta hai, wo khush hoke line chhod dete hain.
+## Kaise sochein
+- Har din se aage scan karna O(n²).
+- Jin dinon ka answer nahi mila wo stack pe wait karte hain.
+- Garam din aaya → stack ke top ke saare thande din pop, distance likho.
+- Stack decreasing rehta hai: monotonic stack.
+## Pattern pehchano
+"Next greater / smaller" → monotonic stack.
+## Best approach
+O(n): har index ek baar push, ek baar pop.
+## Galtiyan
+Stack mein temperature daalna (index chahiye).
+
+### car-fleet
+title: Car Fleet
+lc: 853 car-fleet
+diff: Medium
+pattern: Sort by position + stack of arrival times
+problem: Cars drive to target on a one-lane road. A faster car that catches up joins the slower car ahead as one fleet. How many fleets arrive?
+example: target 12, position [10, 8, 0, 5, 3], speed [2, 4, 1, 1, 3] → 3
+analogy: A single-lane mountain road: a fast car behind a slow truck can't overtake, so it arrives together with the truck. Count the groups by looking at cars from the front.
+hints:
+- Only the order matters: sort by position, closest to the target first.
+- Each car's solo arrival time = (target − pos) / speed.
+- From front to back: a car whose time ≤ the fleet ahead's time catches up (merges).
+- A slower car (bigger time) becomes a new fleet.
+brute: Simulate time step by step.
+brutecx: much slower, fiddly
+signal: Things moving one way and merging → **sort by position, compare arrival times**.
+optimal:
+- cars = sorted(zip(position, speed), reverse=True).
+- fleets = []; for pos, sp: t = (target − pos) / sp; if not fleets or t > fleets[-1]: fleets.append(t).
+- Return len(fleets).
+cx: O(n log n) time · O(n) space
+code:
+def car_fleet(target, position, speed):
+    fleets = []
+    for pos, sp in sorted(zip(position, speed), reverse=True):
+        t = (target - pos) / sp
+        if not fleets or t > fleets[-1]:
+            fleets.append(t)
+    return len(fleets)
+test:
+check(car_fleet(12, [10, 8, 0, 5, 3], [2, 4, 1, 1, 3]), 3)
+check(car_fleet(10, [3], [3]), 1)
+check(car_fleet(100, [0, 2, 4], [4, 2, 1]), 1)
+trace:
+car (pos) | time | fleet ahead | result
+10 | 1.0 | — | new fleet
+8 | 1.0 | 1.0 | merges
+5 | 7.0 | 1.0 | new fleet
+3 | 3.0 | 7.0 | merges
+0 | 12.0 | 7.0 | new fleet → 3
+mistakes:
+- Processing from the back of the road.
+- Using `//` for the time (times are fractions).
+hinglish:
+## Sawaal
+Ek lane wali sadak pe gaadiyan target tak jaati hain; tez gaadi aage wali dheemi gaadi ko pakad le toh dono ek fleet ban jaati hain. Kitni fleets pahunchengi?
+## Analogy
+Pahaadi ek-lane sadak: dheemi truck ke peeche tez gaadi overtake nahi kar sakti, truck ke saath hi pahunchti hai. Aage se gaadiyan dekh ke groups gino.
+## Kaise sochein
+- Sirf order matter karta hai: position se sort, target ke sabse paas wali pehle.
+- Har gaadi ka akele pahunchne ka time = (target − pos) / speed.
+- Aage se peeche: time ≤ aage wali fleet ka time → merge. Zyada time → nayi fleet.
+## Pattern pehchano
+Ek direction mein chalte merge hone wale objects → position se sort, arrival time compare.
+## Best approach
+O(n log n).
+
+### largest-rectangle-in-histogram
+title: Largest Rectangle in Histogram
+lc: 84 largest-rectangle-in-histogram
+diff: Hard
+pattern: Monotonic stack (how far each bar extends)
+problem: Bars of width 1 have the given heights. Return the area of the largest rectangle inside the histogram.
+example: [2, 1, 5, 6, 2, 3] → 10
+analogy: Each bar is a building. A banner of that building's height can stretch sideways over neighbours until it hits a shorter building on each side. The best banner is the answer.
+hints:
+- For each bar as the height: how far can it stretch? Until a shorter bar on each side.
+- Brute force finds those limits by scanning: O(n²).
+- Keep a stack of bars with increasing heights. When a shorter bar arrives, taller bars on the stack can't extend past it: pop them and compute their areas.
+- A popped bar's left limit is the bar now on top of the stack.
+brute: For each bar, expand left and right while bars are ≥ its height.
+brutecx: O(n²)
+signal: "For each element, how far until something smaller?" → **monotonic increasing stack**.
+optimal:
+- For i in 0..n (treat i == n as height 0): while stack and h[stack[-1]] ≥ cur: height = h[pop]; left = stack[-1] if stack else −1; best = max(best, height × (i − left − 1)). Push i.
+cx: O(n) time · O(n) space
+code:
+def largest_rectangle_area(h):
+    stack, best = [], 0
+    for i in range(len(h) + 1):
+        cur = h[i] if i < len(h) else 0
+        while stack and h[stack[-1]] >= cur:
+            height = h[stack.pop()]
+            left = stack[-1] if stack else -1
+            best = max(best, height * (i - left - 1))
+        stack.append(i)
+    return best
+test:
+check(largest_rectangle_area([2, 1, 5, 6, 2, 3]), 10)
+check(largest_rectangle_area([2, 4]), 4)
+check(largest_rectangle_area([1]), 1)
+trace:
+i (h) | popped (height × width) | stack (heights)
+0 (2) | — | [2]
+1 (1) | 2 × 1 = 2 | [1]
+2 (5) | — | [1, 5]
+3 (6) | — | [1, 5, 6]
+4 (2) | 6 × 1 = 6, 5 × 2 = 10 | [1, 2]
+5 (3) | — | [1, 2, 3]
+6 (end) | 3 × 1, 2 × 4 = 8, 1 × 6 = 6 | []
+mistakes:
+- Forgetting the final flush (the i == n step with height 0).
+hinglish:
+## Sawaal
+Histogram ke andar sabse bade rectangle ka area.
+## Analogy
+Har bar ek building hai. Us building ki height ka banner side mein padosiyon ke upar tab tak khinch sakta hai jab tak dono taraf koi chhoti building na aa jaaye. Sabse bada banner hi answer hai.
+## Kaise sochein
+- Har bar ko height maano: kitna phail sakta hai? Dono taraf chhoti bar tak.
+- Scan karke dhoondhna O(n²).
+- Increasing heights ka stack: chhoti bar aayi → stack ki lambi bars ab aage nahi badh sakti → pop karke area nikalo. Left limit = stack ka naya top.
+## Pattern pehchano
+"Har element ke liye kitni door tak koi chhota nahi" → monotonic increasing stack.
+## Best approach
+O(n).
+## Galtiyan
+End mein height 0 wala flush bhoolna.

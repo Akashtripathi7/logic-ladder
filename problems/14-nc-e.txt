@@ -1,0 +1,1158 @@
+## topic: dp-1d | 1-D Dynamic Programming
+
+### climbing-stairs
+title: Climbing Stairs
+lc: 70 climbing-stairs
+diff: Easy
+pattern: DP: ways(n) = ways(n − 1) + ways(n − 2)
+problem: Climb 1 or 2 steps at a time. How many distinct ways to reach step n?
+example: n = 3 → 3 (1+1+1, 1+2, 2+1)
+analogy: To stand on step 10 your last move was either a small step from step 9 or a big step from step 8. So the ways to reach 10 = ways to reach 9 + ways to reach 8.
+hints:
+- Think about the LAST move.
+- ways(n) = ways(n − 1) + ways(n − 2): Fibonacci!
+- Plain recursion repeats work; build answers from the bottom up.
+- Only the last two values are needed.
+brute: Recursion without memo.
+brutecx: O(2ⁿ)
+signal: "Count the ways" where each step depends on a few previous → **1-D DP** (look at the last move).
+optimal:
+- a, b = 1, 1 (step 0, step 1); repeat n − 1 times: a, b = b, a + b; return b.
+cx: O(n) time · O(1) space
+code:
+def climb_stairs(n):
+    a, b = 1, 1
+    for _ in range(n - 1):
+        a, b = b, a + b
+    return b
+test:
+check(climb_stairs(2), 2)
+check(climb_stairs(3), 3)
+check(climb_stairs(5), 8)
+check(climb_stairs(1), 1)
+trace:
+step | ways
+0 | 1
+1 | 1
+2 | 2
+3 | 3
+4 | 5
+5 | 8
+mistakes:
+- Base cases off by one (there's 1 way to stand on step 0: do nothing).
+hinglish:
+## Sawaal
+1 ya 2 seedhi ek baar mein. Step n tak kitne tareeke?
+## Analogy
+Step 10 pe khade ho toh aakhri kadam ya toh step 9 se chhota kadam tha ya step 8 se bada. Toh 10 tak ke tareeke = 9 tak ke + 8 tak ke.
+## Kaise sochein
+- AAKHRI kadam ke baare mein socho.
+- ways(n) = ways(n − 1) + ways(n − 2): Fibonacci.
+- Seedha recursion repeat karta hai; neeche se upar banao, sirf pichhle do values chahiye.
+## Pattern pehchano
+"Kitne tareeke" + pichhle kuch pe depend → 1-D DP.
+## Best approach
+O(n) time, O(1) space.
+
+### min-cost-climbing-stairs
+title: Min Cost Climbing Stairs
+lc: 746 min-cost-climbing-stairs
+diff: Easy
+pattern: DP with min
+problem: cost[i] is paid when stepping on stair i. Start at 0 or 1, climb 1 or 2. Minimum cost to reach the top (past the last stair).
+example: [10, 15, 20] → 15
+analogy: Toll booths on stairs: to stand on stair i you pay its toll plus the cheaper of the two stairs you could have come from.
+hints:
+- dp[i] = cheapest total to stand on stair i (paying cost[i]).
+- dp[i] = cost[i] + min(dp[i − 1], dp[i − 2]).
+- The top is reachable from either of the last two stairs.
+brute: Recursion trying both moves.
+brutecx: O(2ⁿ)
+signal: "Minimum cost" with 1-or-2 step choices → **1-D DP with min**.
+optimal:
+- a, b = cost[0], cost[1]; for i ≥ 2: a, b = b, cost[i] + min(a, b); return min(a, b).
+cx: O(n) time · O(1) space
+code:
+def min_cost_climbing_stairs(cost):
+    a, b = cost[0], cost[1]
+    for i in range(2, len(cost)):
+        a, b = b, cost[i] + min(a, b)
+    return min(a, b)
+test:
+check(min_cost_climbing_stairs([10, 15, 20]), 15)
+check(min_cost_climbing_stairs([1, 100, 1, 1, 1, 100, 1, 1, 100, 1]), 6)
+mistakes:
+- Returning only dp[n − 1] (you can also jump from n − 2).
+hinglish:
+## Sawaal
+Har seedhi pe cost; 0 ya 1 se shuru, 1 ya 2 chadho. Top tak minimum cost?
+## Analogy
+Seedhiyon pe toll booth: seedhi i pe khade hone ke liye uska toll + jin do seedhiyon se aa sakte the unme se sasti wali.
+## Kaise sochein
+- dp[i] = seedhi i tak sabse sasta total.
+- dp[i] = cost[i] + min(dp[i − 1], dp[i − 2]).
+- Top aakhri do mein se kisi se bhi.
+## Pattern pehchano
+Choices ke saath minimum cost → DP with min.
+
+### house-robber
+title: House Robber
+lc: 198 house-robber
+diff: Medium
+pattern: DP: take or skip
+problem: You can't rob two adjacent houses. Return the maximum money.
+example: [2, 7, 9, 3, 1] → 12 (2 + 9 + 1)
+analogy: Picking mangoes from trees in a row where picking from two neighbouring trees wakes the guard. At each tree: pick it (and skip the previous one) or skip it (and keep your best so far).
+hints:
+- At each house: rob it or skip it.
+- Rob → nums[i] + best up to i − 2. Skip → best up to i − 1.
+- best(i) = max(best(i − 1), nums[i] + best(i − 2)).
+- "Take every other house" fails: try [2, 1, 1, 2].
+brute: Recursion on both choices.
+brutecx: O(2ⁿ)
+signal: "Choose items, no two adjacent, maximise" → **take/skip DP**.
+optimal:
+- prev2 = prev1 = 0; for x: prev2, prev1 = prev1, max(prev1, prev2 + x).
+cx: O(n) time · O(1) space
+code:
+def rob(nums):
+    prev2 = prev1 = 0
+    for x in nums:
+        prev2, prev1 = prev1, max(prev1, prev2 + x)
+    return prev1
+test:
+check(rob([1, 2, 3, 1]), 4)
+check(rob([2, 7, 9, 3, 1]), 12)
+check(rob([2, 1, 1, 2]), 4)
+trace:
+house | rob it | skip it | best
+2 | 0 + 2 = 2 | 0 | 2
+7 | 0 + 7 = 7 | 2 | 7
+9 | 2 + 9 = 11 | 7 | 11
+3 | 7 + 3 = 10 | 11 | 11
+1 | 11 + 1 = 12 | 11 | 12
+mistakes:
+- Picking all even or all odd positions.
+hinglish:
+## Sawaal
+Pados wale do ghar nahi loot sakte. Maximum paisa?
+## Analogy
+Ek line mein aam ke ped, do pados wale pedon se aam todo toh chowkidar jaag jaata hai. Har ped pe: todo (aur pichhla chhodo) ya chhodo (ab tak ka best rakho).
+## Kaise sochein
+- Har ghar: looto ya chhodo.
+- Looto → nums[i] + best(i − 2). Chhodo → best(i − 1).
+- "Har doosra ghar" fail hota hai: [2, 1, 1, 2].
+## Pattern pehchano
+"Pados nahi, maximise" → take/skip DP.
+## Best approach
+O(n), O(1).
+
+### house-robber-ii
+title: House Robber II
+lc: 213 house-robber-ii
+diff: Medium
+pattern: Break the circle into two lines
+problem: Same as House Robber, but houses form a circle: the first and last are neighbours.
+example: [2, 3, 2] → 3
+analogy: Houses around a round park: because the first and last touch, you solve it twice: once pretending the first house doesn't exist, once pretending the last doesn't.
+hints:
+- The only new rule: not both the first and the last.
+- So skip the first (houses 1..n−1) or skip the last (0..n−2). Solve both with House Robber I.
+- Handle a single house separately.
+brute: Try all valid subsets.
+brutecx: O(2ⁿ)
+signal: Circular constraint → **split into linear cases**.
+optimal:
+- n == 1 → nums[0]; else max(rob(nums[1:]), rob(nums[:-1])).
+cx: O(n)
+code:
+def rob_line(nums):
+    prev2 = prev1 = 0
+    for x in nums:
+        prev2, prev1 = prev1, max(prev1, prev2 + x)
+    return prev1
+
+def rob_circle(nums):
+    if len(nums) == 1:
+        return nums[0]
+    return max(rob_line(nums[1:]), rob_line(nums[:-1]))
+test:
+check(rob_circle([2, 3, 2]), 3)
+check(rob_circle([1, 2, 3, 1]), 4)
+check(rob_circle([5]), 5)
+mistakes:
+- Forgetting the single-house case.
+hinglish:
+## Sawaal
+House Robber, lekin ghar gol ghere mein (pehla aur aakhri padosi).
+## Analogy
+Gol park ke chaaron taraf ghar: pehla aur aakhri chhoote hain, isliye do baar solve karo: ek baar maano pehla ghar hai hi nahi, ek baar maano aakhri nahi hai.
+## Kaise sochein
+- Naya rule: pehla aur aakhri dono nahi.
+- Pehla chhodo ya aakhri chhodo, dono ka House Robber I.
+- Ek ghar alag se.
+## Pattern pehchano
+Circle → linear cases mein todo.
+
+### longest-palindromic-substring
+title: Longest Palindromic Substring
+lc: 5 longest-palindromic-substring
+diff: Medium
+pattern: Expand around every centre
+problem: Return the longest palindromic substring.
+example: "babad" → "bab";   "cbbd" → "bb"
+analogy: Dropping a pebble at every point of a mirror-lake: ripples spread equally left and right as long as both sides match. Try each point (and each gap between points) as the centre.
+hints:
+- Checking every substring is O(n³).
+- A palindrome mirrors around its centre: grow outwards while the ends match.
+- 2n − 1 centres: each character (odd length) and each gap (even length).
+brute: Check every substring with two pointers.
+brutecx: O(n³)
+signal: Palindromic substrings → **expand around centres** (O(n²), O(1) space).
+optimal:
+- For i: expand(i, i) and expand(i, i + 1); keep the longest.
+cx: O(n²) time · O(1) space
+code:
+def longest_palindrome(s):
+    best = ""
+
+    def expand(l, r):
+        while l >= 0 and r < len(s) and s[l] == s[r]:
+            l -= 1
+            r += 1
+        return s[l + 1:r]
+
+    for i in range(len(s)):
+        for cand in (expand(i, i), expand(i, i + 1)):
+            if len(cand) > len(best):
+                best = cand
+    return best
+test:
+check(longest_palindrome("babad"), "bab")
+check(longest_palindrome("cbbd"), "bb")
+check(longest_palindrome("a"), "a")
+mistakes:
+- Only odd centres (misses "bb").
+hinglish:
+## Sawaal
+Sabse lambi palindromic substring.
+## Analogy
+Sheeshe jaisi jheel ke har point pe kankad daalo: lehrein left-right barabar phailti hain jab tak dono taraf match karein. Har point (aur har do points ke beech ka gap) centre ki tarah try karo.
+## Kaise sochein
+- Har substring check O(n³).
+- Palindrome apne centre ke around mirror hai: dono ends match karein tab tak phailao.
+- 2n − 1 centres: har character aur har gap.
+## Pattern pehchano
+Palindromic substrings → centres se expand.
+## Galtiyan
+Sirf odd centres.
+
+### palindromic-substrings
+title: Palindromic Substrings
+lc: 647 palindromic-substrings
+diff: Medium
+pattern: Expand around centres, counting
+problem: Count substrings that are palindromes (positions count separately).
+example: "aaa" → 6
+analogy: Same pebble-and-ripple idea, but now you count every ripple ring that forms, not just the biggest.
+hints:
+- Same expansion as the previous problem.
+- Each successful expansion step is one more palindrome: count them.
+brute: Check every substring.
+brutecx: O(n³)
+signal: Count palindromic substrings → **expand around each centre, count each step**.
+optimal:
+- For each centre (i, i) and (i, i + 1): while matching: count += 1; expand.
+cx: O(n²) time · O(1) space
+code:
+def count_substrings(s):
+    count = 0
+    for i in range(len(s)):
+        for l, r in ((i, i), (i, i + 1)):
+            while l >= 0 and r < len(s) and s[l] == s[r]:
+                count += 1
+                l -= 1
+                r += 1
+    return count
+test:
+check(count_substrings("abc"), 3)
+check(count_substrings("aaa"), 6)
+mistakes:
+- Counting distinct palindromes (positions matter here).
+hinglish:
+## Sawaal
+Kitni substrings palindrome hain (alag positions alag ginti)?
+## Analogy
+Wahi kankad-lehar idea, bas ab sabse badi nahi, har bani lehar ka ghera gino.
+## Kaise sochein
+- Pichhle problem wala expansion.
+- Har successful expansion step = ek aur palindrome.
+## Best approach
+O(n²).
+
+### decode-ways
+title: Decode Ways
+lc: 91 decode-ways
+diff: Medium
+pattern: DP over the string: take 1 or 2 digits
+problem: A=1 … Z=26. Count the ways to decode a digit string.
+example: "12" → 2 (AB or L);   "226" → 3;   "06" → 0
+analogy: Climbing Stairs with rules: each step you may eat one digit (if it isn't 0) or two digits (if they form 10–26).
+hints:
+- At each position take ONE digit or TWO digits.
+- One digit valid if not '0'; two digits valid if 10–26.
+- dp[i] = ways to decode the first i characters.
+- dp[i] = (dp[i − 1] if one valid) + (dp[i − 2] if two valid).
+brute: Recursion trying 1 and 2 digits.
+brutecx: O(2ⁿ)
+signal: "Ways to split a sequence into valid pieces of length 1 or 2" → **climbing-stairs DP**.
+optimal:
+- a (dp[i − 2]) = 1, b (dp[i − 1]) = 0 if s[0] == '0' else 1; for i in 2..n: c = (b if s[i − 1] != '0') + (a if 10 ≤ int(s[i − 2:i]) ≤ 26); shift.
+cx: O(n) time · O(1) space
+code:
+def num_decodings(s):
+    if not s:
+        return 0
+    a, b = 1, 0 if s[0] == "0" else 1
+    for i in range(2, len(s) + 1):
+        c = 0
+        if s[i - 1] != "0":
+            c += b
+        if 10 <= int(s[i - 2:i]) <= 26:
+            c += a
+        a, b = b, c
+    return b
+test:
+check(num_decodings("12"), 2)
+check(num_decodings("226"), 3)
+check(num_decodings("06"), 0)
+check(num_decodings("11106"), 2)
+trace:
+i | one digit | two digits | ways
+0 | — | — | 1
+1 ('2') | valid | — | 1
+2 ('2') | valid (+1) | 22 valid (+1) | 2
+3 ('6') | valid (+2) | 26 valid (+1) | 3
+mistakes:
+- Treating "06" as a valid two-digit code.
+hinglish:
+## Sawaal
+A=1 … Z=26. Digit string ko decode karne ke kitne tareeke?
+## Analogy
+Rules wali Climbing Stairs: har step ek digit kha sakte ho (agar 0 nahi) ya do digits (agar 10–26 ban rahe hon).
+## Kaise sochein
+- Har position pe EK ya DO digits.
+- Ek valid agar '0' nahi; do valid agar 10–26.
+- dp[i] = pehle i characters ke tareeke.
+## Pattern pehchano
+1 ya 2 length ke valid tukdon mein todne ke tareeke → climbing stairs DP.
+## Galtiyan
+"06" ko valid maan lena.
+
+### coin-change
+title: Coin Change
+lc: 322 coin-change
+diff: Medium
+pattern: Unbounded knapsack DP (minimum count)
+problem: Fewest coins to make amount (unlimited coins), or −1.
+example: coins [1, 2, 5], amount 11 → 3 (5 + 5 + 1)
+analogy: A shopkeeper building a cheat sheet: "fewest coins for ₹1, ₹2, ₹3 … up to ₹11". Each entry is 1 coin plus the best entry for what remains.
+hints:
+- Greedy (biggest coin first) fails: coins [1, 3, 4], amount 6 → greedy 4+1+1, best 3+3.
+- dp[x] = fewest coins for x = 1 + min(dp[x − c]) over coins c ≤ x.
+- dp[0] = 0; unreachable stays "infinity".
+brute: Recursion trying every coin.
+brutecx: O(k^amount)
+signal: "Minimum items to reach a total, items reusable" → **DP over the amount**.
+optimal:
+- dp = [0] + [inf] * amount; for x in 1..amount: for c: if c ≤ x: dp[x] = min(dp[x], dp[x − c] + 1).
+cx: O(amount · coins) time · O(amount) space
+code:
+def coin_change(coins, amount):
+    dp = [0] + [float("inf")] * amount
+    for x in range(1, amount + 1):
+        for c in coins:
+            if c <= x and dp[x - c] + 1 < dp[x]:
+                dp[x] = dp[x - c] + 1
+    return -1 if dp[amount] == float("inf") else dp[amount]
+test:
+check(coin_change([1, 2, 5], 11), 3)
+check(coin_change([2], 3), -1)
+check(coin_change([1], 0), 0)
+check(coin_change([1, 3, 4], 6), 2)
+trace:
+x | dp[x] | from
+0 | 0 | —
+1 | 1 | 1
+2 | 1 | 2
+3 | 2 | 2 + 1
+4 | 2 | 2 + 2
+5 | 1 | 5
+6 | 2 | 5 + 1
+11 | 3 | 5 + 5 + 1
+mistakes:
+- Trusting greedy.
+hinglish:
+## Sawaal
+Amount banane ke liye sabse kam coins (unlimited), ya −1.
+## Analogy
+Dukaandaar ek cheat sheet banata hai: "₹1, ₹2, ₹3 … ₹11 ke liye sabse kam coins". Har entry = 1 coin + bache hue amount ki best entry.
+## Kaise sochein
+- Greedy fail: coins [1, 3, 4], amount 6 → greedy 4+1+1, best 3+3.
+- dp[x] = 1 + min(dp[x − c]).
+- dp[0] = 0.
+## Pattern pehchano
+"Minimum items, reusable, total banao" → amount pe DP.
+## Galtiyan
+Greedy pe bharosa.
+
+### maximum-product-subarray
+title: Maximum Product Subarray
+lc: 152 maximum-product-subarray
+diff: Medium
+pattern: Track both the max and the min ending here
+problem: Largest product of a contiguous subarray.
+example: [2, 3, -2, 4] → 6;   [-2, 3, -4] → 24
+analogy: A share price that multiplies each day: a big loss today (negative) turns into a big gain tomorrow if multiplied by another negative. So you watch both your best and your worst position.
+hints:
+- Unlike sums, a negative flips the biggest into the smallest.
+- Track BOTH the max and the min product ending at each position.
+- new max = max(x, x·old_max, x·old_min); similarly the min.
+brute: Every subarray's product.
+brutecx: O(n²)
+signal: Products with negatives → **keep the max AND min running values**.
+optimal:
+- cur_max = cur_min = best = nums[0]; for x: compute both from the OLD values; best = max(best, cur_max).
+cx: O(n) time · O(1) space
+code:
+def max_product(nums):
+    cur_max = cur_min = best = nums[0]
+    for x in nums[1:]:
+        cands = (x, x * cur_max, x * cur_min)
+        cur_max, cur_min = max(cands), min(cands)
+        best = max(best, cur_max)
+    return best
+test:
+check(max_product([2, 3, -2, 4]), 6)
+check(max_product([-2, 0, -1]), 0)
+check(max_product([-2, 3, -4]), 24)
+trace:
+x | cur_max | cur_min | best
+−2 | −2 | −2 | −2
+3 | 3 | −6 | 3
+−4 | 24 | −12 | 24
+mistakes:
+- Updating cur_max first, then using the NEW value for cur_min.
+hinglish:
+## Sawaal
+Lagatar subarray ka sabse bada product.
+## Analogy
+Share price jo roz guna hota hai: aaj ka bada nuksaan (negative) kal kisi aur negative se guna hoke bada fayda ban jaata hai. Isliye best aur worst dono position dekho.
+## Kaise sochein
+- Sum se alag: negative sabse bade ko sabse chhota bana deta hai.
+- Har position pe max AUR min dono track.
+## Pattern pehchano
+Negatives wale products → max aur min dono.
+## Galtiyan
+Naye cur_max se cur_min nikaalna.
+
+### word-break
+title: Word Break
+lc: 139 word-break
+diff: Medium
+pattern: DP over prefixes
+problem: Can s be split into a sequence of dictionary words (reuse allowed)?
+example: "leetcode", ["leet", "code"] → True;   "catsandog", [...] → False
+analogy: Crossing a river on stepping stones where each stone is a dictionary word: position i is "reachable" if some earlier reachable position j is followed by a word s[j:i].
+hints:
+- ok[i] = can the first i characters be split?
+- ok[0] = True (empty prefix).
+- ok[i] is True if some j has ok[j] and s[j:i] in the word set.
+brute: Recursion trying every prefix word, without memo.
+brutecx: O(2ⁿ)
+signal: "Can a string be segmented?" → **DP over prefix lengths**.
+optimal:
+- words = set(...); ok = [True] + [False] * n; for i: ok[i] = any(ok[j] and s[j:i] in words for j in range(i)).
+cx: O(n²·L)
+code:
+def word_break(s, word_dict):
+    words = set(word_dict)
+    ok = [True] + [False] * len(s)
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if ok[j] and s[j:i] in words:
+                ok[i] = True
+                break
+    return ok[len(s)]
+test:
+check(word_break("leetcode", ["leet", "code"]), True)
+check(word_break("applepenapple", ["apple", "pen"]), True)
+check(word_break("catsandog", ["cats", "dog", "sand", "and", "cat"]), False)
+trace:
+i | prefix | ok?
+0 | "" | True
+4 | leet | True (ok[0] + "leet")
+8 | leetcode | True (ok[4] + "code")
+mistakes:
+- Greedily taking the first matching word ("cat|sand|og" vs "cats|and|og").
+hinglish:
+## Sawaal
+Kya string ko dictionary words ki sequence mein toda ja sakta hai?
+## Analogy
+Nadi paar karne ke pathar jahan har pathar ek dictionary word hai: position i "pahunchne layak" hai agar koi pichhli pahunchne layak position j ho aur s[j:i] ek word ho.
+## Kaise sochein
+- ok[i] = pehle i characters tod sakte hain?
+- ok[0] = True.
+- Koi j jahan ok[j] aur s[j:i] word ho → ok[i] = True.
+## Pattern pehchano
+"String segment ho sakti hai?" → prefix lengths pe DP.
+## Galtiyan
+Pehla matching word greedy le lena.
+
+### longest-increasing-subsequence
+title: Longest Increasing Subsequence
+lc: 300 longest-increasing-subsequence
+diff: Medium
+pattern: DP O(n²) or tails + binary search O(n log n)
+problem: Length of the longest strictly increasing subsequence (not necessarily contiguous).
+example: [10, 9, 2, 5, 3, 7, 101, 18] → 4 (2, 3, 7, 18)
+analogy: Patience solitaire: deal cards into piles where each card goes on the leftmost pile whose top card is ≥ it (or starts a new pile). The number of piles is the LIS length.
+hints:
+- dp[i] = LIS ending at i = 1 + max(dp[j]) for j < i with nums[j] < nums[i]: O(n²).
+- Faster: tails[k] = smallest possible tail of an increasing subsequence of length k + 1.
+- For each x: binary search the first tail ≥ x and replace it (or append).
+brute: All 2ⁿ subsequences.
+brutecx: O(2ⁿ·n)
+signal: "Longest increasing subsequence" → **dp by end index** or **tails + binary search**.
+optimal:
+- tails = []; for x: i = bisect_left(tails, x); append or replace. Return len(tails).
+cx: O(n log n) time · O(n) space
+code:
+import bisect
+
+def length_of_lis(nums):
+    tails = []
+    for x in nums:
+        i = bisect.bisect_left(tails, x)
+        if i == len(tails):
+            tails.append(x)
+        else:
+            tails[i] = x
+    return len(tails)
+test:
+check(length_of_lis([10, 9, 2, 5, 3, 7, 101, 18]), 4)
+check(length_of_lis([0, 1, 0, 3, 2, 3]), 4)
+check(length_of_lis([7, 7, 7, 7]), 1)
+trace:
+x | tails
+10 | [10]
+9 | [9]
+2 | [2]
+5 | [2, 5]
+3 | [2, 3]
+7 | [2, 3, 7]
+101 | [2, 3, 7, 101]
+18 | [2, 3, 7, 18] → length 4
+mistakes:
+- Thinking `tails` IS the subsequence (only its length matters).
+hinglish:
+## Sawaal
+Sabse lambi strictly badhne wali subsequence ki length (lagatar hona zaroori nahi).
+## Analogy
+Patience solitaire: patte dheron mein baanto, har patta sabse left wale dher pe jaata hai jiska top patta usse bada ya barabar ho (warna naya dher). Dheron ki ginti = LIS length.
+## Kaise sochein
+- dp[i] = i pe khatam hone wali LIS: O(n²).
+- Tez: tails[k] = length k + 1 wali subsequence ka sabse chhota possible end.
+- Har x: binary search se pehla tail ≥ x, replace ya append.
+## Pattern pehchano
+LIS → DP ya tails + binary search.
+## Galtiyan
+tails ko hi subsequence samajhna.
+
+### partition-equal-subset-sum
+title: Partition Equal Subset Sum
+lc: 416 partition-equal-subset-sum
+diff: Medium
+pattern: 0/1 knapsack (reachable sums)
+problem: Can the list be split into two groups with equal sums?
+example: [1, 5, 11, 5] → True ([1, 5, 5] and [11])
+analogy: Splitting a pile of chocolates between two siblings fairly: the total must be even, and you need to find some chocolates that add up to exactly half.
+hints:
+- Odd total → impossible; target = total // 2.
+- The question becomes: is there a subset summing to target?
+- Keep a set of reachable sums; each number x adds s + x for every reachable s.
+brute: Try all subsets.
+brutecx: O(2ⁿ)
+signal: "Pick a subset hitting an exact sum" → **0/1 knapsack over sums**.
+optimal:
+- reach = {0}; for x: reach |= {s + x for s in reach if s + x ≤ target}. Return target in reach.
+cx: O(n · target) time · O(target) space
+code:
+def can_partition(nums):
+    total = sum(nums)
+    if total % 2:
+        return False
+    target = total // 2
+    reach = {0}
+    for x in nums:
+        reach |= {s + x for s in reach if s + x <= target}
+    return target in reach
+test:
+check(can_partition([1, 5, 11, 5]), True)
+check(can_partition([1, 2, 3, 5]), False)
+mistakes:
+- Updating the set while iterating over it (build the new sums first, as above).
+hinglish:
+## Sawaal
+Kya list ko do barabar sum wale groups mein baant sakte hain?
+## Analogy
+Chocolates ka dher do bhai-behen mein barabar baantna: total even hona chahiye, aur kuch chocolates dhoondhni hain jinka sum exactly aadha ho.
+## Kaise sochein
+- Total odd → nahi ho sakta. target = total // 2.
+- Sawaal: koi subset target bana sakta hai?
+- Pahunchne layak sums ka set; har x har s ke liye s + x jodta hai.
+## Pattern pehchano
+"Exact sum wala subset" → 0/1 knapsack.
+
+## topic: dp-2d | 2-D Dynamic Programming
+
+### unique-paths
+title: Unique Paths
+lc: 62 unique-paths
+diff: Medium
+pattern: Grid DP: from above + from the left
+problem: A robot at the top-left of an m×n grid moves only right or down. How many paths reach the bottom-right?
+example: m = 3, n = 7 → 28
+analogy: City blocks where you may only walk east or south: the number of routes to any crossing = routes to the crossing above it + routes to the crossing to its left.
+hints:
+- You enter a cell from above or from the left.
+- paths(r, c) = paths(r − 1, c) + paths(r, c − 1).
+- The first row and column have 1 path each.
+- One row of memory is enough: row[c] += row[c − 1].
+brute: Recursion on both moves.
+brutecx: O(2^(m+n))
+signal: Counting grid paths with right/down moves → **2-D DP**.
+optimal:
+- row = [1] * n; repeat m − 1 times: for c in 1..n−1: row[c] += row[c − 1].
+cx: O(m·n) time · O(n) space
+code:
+def unique_paths(m, n):
+    row = [1] * n
+    for _ in range(m - 1):
+        for c in range(1, n):
+            row[c] += row[c - 1]
+    return row[-1]
+test:
+check(unique_paths(3, 7), 28)
+check(unique_paths(3, 2), 3)
+trace:
+row | values
+0 | 1 1 1 1 1 1 1
+1 | 1 2 3 4 5 6 7
+2 | 1 3 6 10 15 21 28
+mistakes:
+- Starting the inner loop at c = 0 (row[−1] reads the last cell in Python!).
+hinglish:
+## Sawaal
+m×n grid mein robot sirf right ya down. Bottom-right tak kitne raaste?
+## Analogy
+Shehar ke blocks jahan sirf east ya south chal sakte ho: kisi chauraahe tak raaste = upar wale chauraahe tak ke + left wale tak ke.
+## Kaise sochein
+- Cell mein upar se ya left se aate ho.
+- paths(r, c) = upar + left.
+- Pehli row aur column: 1.
+## Pattern pehchano
+Grid paths right/down → 2-D DP.
+## Galtiyan
+c = 0 se loop (Python mein row[−1] aakhri cell padh leta hai!).
+
+### longest-common-subsequence
+title: Longest Common Subsequence
+lc: 1143 longest-common-subsequence
+diff: Medium
+pattern: 2-D DP on two strings
+problem: Length of the longest sequence appearing in order (not necessarily adjacent) in both strings.
+example: "abcde", "ace" → 3
+analogy: Two friends' travel diaries: find the longest list of cities both visited in the same order. Compare the last cities: if they match, it's part of the answer; if not, drop the last city from one diary or the other and take the better.
+hints:
+- Compare the last characters of the two prefixes.
+- Match → dp[i − 1][j − 1] + 1.
+- No match → max(dp[i − 1][j], dp[i][j − 1]).
+- dp[i][j] = LCS of the first i chars of a and first j chars of b; row/col 0 are 0.
+brute: All subsequences of one checked against the other.
+brutecx: O(2ⁿ·m)
+signal: Two sequences, "longest common…" / "edit…" → **2-D table over prefixes**.
+optimal:
+- dp = (n + 1) × (m + 1) zeros; fill with the rule; return dp[n][m].
+cx: O(n·m) time and space
+code:
+def longest_common_subsequence(a, b):
+    n, m = len(a), len(b)
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if a[i - 1] == b[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp[n][m]
+test:
+check(longest_common_subsequence("abcde", "ace"), 3)
+check(longest_common_subsequence("abc", "def"), 0)
+mistakes:
+- Indexing a[i] instead of a[i − 1] (the table is shifted by one).
+hinglish:
+## Sawaal
+Dono strings mein order mein aane wali sabse lambi sequence ki length.
+## Analogy
+Do doston ki travel diary: sabse lambi shehron ki list jo dono ne same order mein ghoome. Aakhri shehar compare karo: match → answer ka hissa; nahi → kisi ek diary ka aakhri shehar hatao aur behtar lo.
+## Kaise sochein
+- Match → dp[i − 1][j − 1] + 1.
+- Nahi → max(upar, left).
+- dp[i][j] = a ke pehle i aur b ke pehle j ka LCS.
+## Pattern pehchano
+Do sequences, "longest common / edit" → prefixes pe 2-D table.
+## Galtiyan
+Index shift bhoolna.
+
+### best-time-to-buy-and-sell-stock-with-cooldown
+title: Buy and Sell Stock with Cooldown
+lc: 309 best-time-to-buy-and-sell-stock-with-cooldown
+diff: Medium
+pattern: State machine DP (hold / sold / rest)
+problem: Unlimited transactions, but after selling you must wait one day before buying. Maximise profit.
+example: [1, 2, 3, 0, 2] → 3
+analogy: A trader who is always in one of three moods: holding a share, just sold (must rest tomorrow), or free to buy. Each day you update the best money for each mood.
+hints:
+- Three states each day: hold, sold (today), rest (free).
+- hold = max(hold, rest − price).
+- sold = hold + price.
+- rest = max(rest, previous sold).
+brute: Recursion over buy/sell/wait with the cooldown.
+brutecx: O(3ⁿ)
+signal: Rules depending on yesterday's action → **state machine DP**.
+optimal:
+- hold, sold, rest = −inf, 0, 0; each price: compute all three from yesterday's values.
+cx: O(n) time · O(1) space
+code:
+def max_profit_cooldown(prices):
+    hold, sold, rest = float("-inf"), 0, 0
+    for p in prices:
+        hold, sold, rest = max(hold, rest - p), hold + p, max(rest, sold)
+    return max(sold, rest)
+test:
+check(max_profit_cooldown([1, 2, 3, 0, 2]), 3)
+check(max_profit_cooldown([1]), 0)
+trace:
+price | hold | sold | rest
+1 | −1 | −inf | 0
+2 | −1 | 1 | 0
+3 | −1 | 2 | 1
+0 | 1 | −1 | 2
+2 | 1 | 3 | 2 → answer 3
+mistakes:
+- Computing hold from TODAY's rest (Python's tuple assignment uses yesterday's values automatically).
+hinglish:
+## Sawaal
+Unlimited transactions, lekin bechne ke baad ek din rest. Maximum profit?
+## Analogy
+Trader hamesha teen moods mein se ek mein: share pakde hue, aaj becha (kal rest), ya kharidne ke liye free. Har din har mood ka best paisa update karo.
+## Kaise sochein
+- hold = max(hold, rest − price).
+- sold = hold + price.
+- rest = max(rest, kal ka sold).
+## Pattern pehchano
+Kal ke action pe depend rules → state machine DP.
+## Best approach
+O(n), O(1).
+
+### coin-change-ii
+title: Coin Change II
+lc: 518 coin-change-ii
+diff: Medium
+pattern: Unbounded knapsack (count combinations)
+problem: Count coin combinations (unlimited supply) that make amount; order doesn't matter.
+example: amount 5, coins [1, 2, 5] → 4
+analogy: Counting ways to pay ₹5: first decide everything you can pay with only ₹1 coins, then allow ₹2 coins too, then ₹5. Introducing coin types one at a time prevents counting 1+2 and 2+1 separately.
+hints:
+- ways[x] = combinations for x.
+- COINS in the outer loop, amounts in the inner loop → combinations, not orderings.
+- ways[x] += ways[x − c].
+brute: Recursion choosing how many of each coin.
+brutecx: exponential
+signal: "Number of combinations to reach a total" → **coins outer, amounts inner**.
+optimal:
+- ways = [1] + [0] * amount; for c: for x in c..amount: ways[x] += ways[x − c].
+cx: O(amount · coins)
+code:
+def change(amount, coins):
+    ways = [1] + [0] * amount
+    for c in coins:
+        for x in range(c, amount + 1):
+            ways[x] += ways[x - c]
+    return ways[amount]
+test:
+check(change(5, [1, 2, 5]), 4)
+check(change(3, [2]), 0)
+check(change(10, [10]), 1)
+mistakes:
+- Amounts in the outer loop (counts orderings).
+hinglish:
+## Sawaal
+Amount banane ke coin combinations ki ginti (order matter nahi karta).
+## Analogy
+₹5 dene ke tareeke ginna: pehle sirf ₹1 ke coins se, phir ₹2 bhi allow, phir ₹5. Coin types ek-ek karke laane se 1+2 aur 2+1 alag nahi gine jaate.
+## Kaise sochein
+- ways[x] = x ke combinations.
+- COINS bahar wala loop, amounts andar → combinations.
+## Galtiyan
+Amounts bahar wala loop (orderings gin jaate hain).
+
+### target-sum
+title: Target Sum
+lc: 494 target-sum
+diff: Medium
+pattern: DP over reachable sums (dict sum → ways)
+problem: Put + or − before every number. Count the ways to reach target.
+example: [1, 1, 1, 1, 1], target 3 → 5
+analogy: Walking on a number line: each number is a step you take left or right. Keep a tally of how many ways you can be standing on each position after each step.
+hints:
+- Process numbers one by one, tracking every reachable sum and how many ways.
+- Each sum s splits into s + x and s − x.
+- Start with {0: 1}.
+brute: All 2ⁿ sign choices.
+brutecx: O(2ⁿ)
+signal: "Count ways to reach a value with +/− choices" → **dict sum → count**.
+optimal:
+- dp = {0: 1}; for x: nxt = defaultdict(int); for s, c: nxt[s + x] += c; nxt[s − x] += c; dp = nxt.
+cx: O(n · S) (S = range of sums)
+code:
+from collections import defaultdict
+
+def find_target_sum_ways(nums, target):
+    dp = {0: 1}
+    for x in nums:
+        nxt = defaultdict(int)
+        for s, c in dp.items():
+            nxt[s + x] += c
+            nxt[s - x] += c
+        dp = nxt
+    return dp.get(target, 0)
+test:
+check(find_target_sum_ways([1, 1, 1, 1, 1], 3), 5)
+check(find_target_sum_ways([1], 1), 1)
+mistakes:
+- Updating dp while iterating over it.
+hinglish:
+## Sawaal
+Har number ke aage + ya −. Target tak pahunchne ke kitne tareeke?
+## Analogy
+Number line pe chalna: har number ek kadam hai, left ya right. Har kadam ke baad har position pe kitne tareekon se khade ho sakte ho, tally rakho.
+## Kaise sochein
+- Ek-ek number, har pahunchne layak sum aur uske tareeke.
+- s → s + x aur s − x.
+- {0: 1} se shuru.
+## Pattern pehchano
++/− choices se value tak pahunchne ke tareeke → dict DP.
+
+### interleaving-string
+title: Interleaving String
+lc: 97 interleaving-string
+diff: Medium
+pattern: 2-D DP over positions in s1 and s2
+problem: Can s3 be formed by interleaving s1 and s2, keeping each one's order?
+example: "aabcc", "dbbca", "aadbbcbcac" → True
+analogy: Shuffling two decks by riffling: cards from each deck stay in their own order. dp[i][j] asks whether the first i cards of deck 1 and j cards of deck 2 can make the first i + j cards of the shuffled pile.
+hints:
+- Lengths must add up.
+- dp[i][j] = first i of s1 and first j of s2 form the first i + j of s3?
+- The last character came from s1 (s1[i−1] == s3[i+j−1] and dp[i−1][j]) or from s2.
+brute: Recursion choosing s1 or s2 at each step.
+brutecx: O(2^(n+m))
+signal: Two sequences consumed in some order → **dp[i][j] over positions**.
+optimal:
+- dp[0][0] = True; fill all (i, j) with the rule; return dp[n][m].
+cx: O(n·m)
+code:
+def is_interleave(s1, s2, s3):
+    n, m = len(s1), len(s2)
+    if n + m != len(s3):
+        return False
+    dp = [[False] * (m + 1) for _ in range(n + 1)]
+    dp[0][0] = True
+    for i in range(n + 1):
+        for j in range(m + 1):
+            if i and s1[i - 1] == s3[i + j - 1] and dp[i - 1][j]:
+                dp[i][j] = True
+            if j and s2[j - 1] == s3[i + j - 1] and dp[i][j - 1]:
+                dp[i][j] = True
+    return dp[n][m]
+test:
+check(is_interleave("aabcc", "dbbca", "aadbbcbcac"), True)
+check(is_interleave("aabcc", "dbbca", "aadbbbaccc"), False)
+check(is_interleave("", "", ""), True)
+mistakes:
+- Greedy matching (always take from s1 if possible).
+hinglish:
+## Sawaal
+Kya s3, s1 aur s2 ko aapas mein milake (dono ka apna order rakhte hue) ban sakti hai?
+## Analogy
+Do taash ki gaddiyan shuffle karna: har gaddi ke patte apne order mein rehte hain. dp[i][j] poochta hai kya gaddi 1 ke pehle i aur gaddi 2 ke pehle j patte, shuffle wale dher ke pehle i + j patte bana sakte hain.
+## Kaise sochein
+- Lengths ka jod barabar hona chahiye.
+- Aakhri character s1 se aaya ya s2 se.
+## Pattern pehchano
+Do sequences kisi order mein use → positions pe dp[i][j].
+## Galtiyan
+Greedy matching.
+
+### longest-increasing-path-in-a-matrix
+title: Longest Increasing Path in a Matrix
+lc: 329 longest-increasing-path-in-a-matrix
+diff: Hard
+pattern: DFS + memo on grid cells
+problem: Longest strictly increasing path moving up/down/left/right.
+example: [[9,9,4],[6,6,8],[2,1,1]] → 4 (1 → 2 → 6 → 9)
+analogy: Hiking only uphill on a terrain map: the longest hike starting at a spot = 1 + the longest hike starting at the best higher neighbour. Once you've measured a spot, write it on the map.
+hints:
+- longest(cell) = 1 + max longest(bigger neighbour).
+- Strictly increasing → no loops → no visited set needed.
+- Memoise each cell.
+brute: DFS from every cell without memo.
+brutecx: exponential
+signal: Longest path with a strict order (no cycles) → **DFS + memo**.
+optimal:
+- @lru_cache dfs(r, c) = 1 + max over bigger neighbours (or 1). Answer = max over cells.
+cx: O(m·n)
+code:
+from functools import lru_cache
+
+def longest_increasing_path(grid):
+    rows, cols = len(grid), len(grid[0])
+
+    @lru_cache(maxsize=None)
+    def dfs(r, c):
+        best = 1
+        for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nr, nc = r + dr, c + dc
+            if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] > grid[r][c]:
+                best = max(best, 1 + dfs(nr, nc))
+        return best
+
+    return max(dfs(r, c) for r in range(rows) for c in range(cols))
+test:
+check(longest_increasing_path([[9, 9, 4], [6, 6, 8], [2, 1, 1]]), 4)
+check(longest_increasing_path([[3, 4, 5], [3, 2, 6], [2, 2, 1]]), 4)
+mistakes:
+- Allowing equal neighbours.
+hinglish:
+## Sawaal
+Grid mein sabse lamba strictly badhta hua path.
+## Analogy
+Map pe sirf upar ki taraf trek karna: kisi jagah se sabse lamba trek = 1 + sabse acche oonche padosi se sabse lamba trek. Ek baar naap liya toh map pe likh do.
+## Kaise sochein
+- longest(cell) = 1 + max(bade padosi).
+- Strictly increasing → loop nahi → visited nahi chahiye.
+- Har cell memoise.
+## Pattern pehchano
+Strict order wala longest path → DFS + memo.
+
+### distinct-subsequences
+title: Distinct Subsequences
+lc: 115 distinct-subsequences
+diff: Hard
+pattern: 2-D DP counting matches (1-D rolling)
+problem: Count distinct subsequences of s that equal t.
+example: "rabbbit", "rabbit" → 3
+analogy: Spelling a word by picking letters from a long banner, left to right. For each banner letter you choose: skip it, or (if it matches the next needed letter) use it. Count every way to finish.
+hints:
+- dp[i][j] = ways the first i of s form the first j of t.
+- Always can SKIP s[i − 1]: dp[i − 1][j].
+- If s[i − 1] == t[j − 1] you can also USE it: + dp[i − 1][j − 1].
+- dp[i][0] = 1.
+brute: Enumerate subsequences of s.
+brutecx: O(2ⁿ)
+signal: "Count the ways one sequence appears inside another" → **2-D DP, skip or use**.
+optimal:
+- 1-D: dp = [1] + [0] * m; for ch in s: for j from m down to 1: if t[j − 1] == ch: dp[j] += dp[j − 1].
+cx: O(n·m) time · O(m) space
+code:
+def num_distinct(s, t):
+    m = len(t)
+    dp = [1] + [0] * m
+    for ch in s:
+        for j in range(m, 0, -1):
+            if t[j - 1] == ch:
+                dp[j] += dp[j - 1]
+    return dp[m]
+test:
+check(num_distinct("rabbbit", "rabbit"), 3)
+check(num_distinct("babgbag", "bag"), 5)
+mistakes:
+- Looping j forward in the 1-D version (reuses the same character).
+hinglish:
+## Sawaal
+s ki kitni distinct subsequences, t ke barabar hain?
+## Analogy
+Lambe banner se left se right letters chun ke ek word likhna. Har banner letter pe choice: chhodo, ya (agar agla zaroori letter hai) use karo. Poora karne ke har tareeke gino.
+## Kaise sochein
+- s[i − 1] hamesha SKIP ho sakta hai.
+- Match kare toh USE bhi.
+- dp[i][0] = 1.
+## Pattern pehchano
+Ek sequence doosre mein kitni baar → skip ya use DP.
+## Galtiyan
+1-D version mein j aage se loop.
+
+### edit-distance
+title: Edit Distance
+lc: 72 edit-distance
+diff: Medium
+pattern: 2-D DP: insert / delete / replace
+problem: Minimum inserts, deletes or replacements to turn word1 into word2.
+example: "horse" → "ros" = 3
+analogy: Autocorrect deciding how "far" your typo is from a real word: compare letter by letter; if the last letters match, no cost; otherwise try the cheapest of replace, delete or insert.
+hints:
+- dp[i][j] = cost to turn the first i of a into the first j of b.
+- Last characters match → dp[i − 1][j − 1].
+- Else 1 + min(replace dp[i−1][j−1], delete dp[i−1][j], insert dp[i][j−1]).
+- dp[i][0] = i, dp[0][j] = j.
+brute: Recursion over the 3 operations.
+brutecx: O(3^(n+m))
+signal: "Minimum edits between two strings" → **the classic 2-D DP**.
+optimal:
+- Fill the table; return dp[n][m].
+cx: O(n·m)
+code:
+def min_distance(a, b):
+    n, m = len(a), len(b)
+    dp = [[0] * (m + 1) for _ in range(n + 1)]
+    for i in range(n + 1):
+        dp[i][0] = i
+    for j in range(m + 1):
+        dp[0][j] = j
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            if a[i - 1] == b[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1]
+            else:
+                dp[i][j] = 1 + min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1])
+    return dp[n][m]
+test:
+check(min_distance("horse", "ros"), 3)
+check(min_distance("intention", "execution"), 5)
+check(min_distance("", "abc"), 3)
+mistakes:
+- Forgetting the base row and column.
+hinglish:
+## Sawaal
+word1 ko word2 banane ke minimum insert/delete/replace.
+## Analogy
+Autocorrect decide karta hai tumhara typo asli word se kitna "door" hai: letter-by-letter compare; aakhri letters same → koi cost nahi; warna replace, delete, insert mein sabse sasta.
+## Kaise sochein
+- dp[i][j] = a ke pehle i ko b ke pehle j mein badalne ki cost.
+- Match → diagonal. Warna 1 + min(teeno).
+- Base: dp[i][0] = i, dp[0][j] = j.
+## Pattern pehchano
+Do strings ke beech minimum edits → 2-D DP.
+
+### burst-balloons
+title: Burst Balloons
+lc: 312 burst-balloons
+diff: Hard
+pattern: Interval DP (choose the LAST balloon)
+problem: Bursting balloon i earns left × nums[i] × right (its CURRENT neighbours, 1 beyond the edges). Maximise the total.
+example: [3, 1, 5, 8] → 167
+analogy: Planning the demolition of a row of buildings: thinking about which building falls FIRST is messy because neighbours keep changing. Think instead about which building in a section falls LAST: at that moment its neighbours are exactly the section's fixed walls.
+hints:
+- Choosing the first balloon is messy (neighbours change).
+- In an interval (l, r) pick the balloon k that bursts LAST: its neighbours are then exactly l and r.
+- dp[l][r] = max over k of dp[l][k] + a[l]·a[k]·a[r] + dp[k][r].
+- Pad with 1s; solve intervals from short to long.
+brute: Try all n! orders.
+brutecx: O(n!)
+signal: "Best way to reduce a sequence where order changes neighbours" → **interval DP, think about the last action**.
+optimal:
+- a = [1] + nums + [1]; for length 2..n+1: for l: r = l + length: dp[l][r] = max(...).
+cx: O(n³) time · O(n²) space
+code:
+def max_coins(nums):
+    a = [1] + nums + [1]
+    n = len(a)
+    dp = [[0] * n for _ in range(n)]
+    for length in range(2, n):
+        for l in range(0, n - length):
+            r = l + length
+            for k in range(l + 1, r):
+                dp[l][r] = max(dp[l][r], dp[l][k] + a[l] * a[k] * a[r] + dp[k][r])
+    return dp[0][n - 1]
+test:
+check(max_coins([3, 1, 5, 8]), 167)
+check(max_coins([1, 5]), 10)
+mistakes:
+- Thinking about the first balloon to burst (subproblems aren't independent).
+hinglish:
+## Sawaal
+Balloon i phodne pe left × nums[i] × right (abhi ke padosi) milte hain. Maximum total?
+## Analogy
+Buildings ki row giraane ki planning: kaunsi PEHLE giregi ye sochna uljhan bhara hai kyunki padosi badalte rehte hain. Ulta socho: kisi hisse mein AAKHIR mein kaunsi giregi; us waqt uske padosi hisse ki fixed deewarein hi hain.
+## Kaise sochein
+- Interval (l, r) mein AAKHRI balloon k chuno: padosi l aur r.
+- dp[l][r] = max over k (dp[l][k] + a[l]·a[k]·a[r] + dp[k][r]).
+- Dono taraf 1 jodo; chhote intervals pehle.
+## Pattern pehchano
+Order se padosi badlein → interval DP, aakhri action socho.
+
+### regular-expression-matching
+title: Regular Expression Matching
+lc: 10 regular-expression-matching
+diff: Hard
+pattern: 2-D DP over text and pattern positions
+problem: Match the whole string s against pattern p where "." matches any char and "x*" matches zero or more x.
+example: "aab", "c*a*b" → True;   "mississippi", "mis*is*p*." → False
+analogy: A stamp with flexible parts: "a*" is a rubber stamp you can press zero or more times. At each point you decide: skip the stamp entirely, or press it once more if the current letter fits.
+hints:
+- dp[i][j] = does s[i:] match p[j:]? Fill from the ends.
+- first = i < n and p[j] in (s[i], '.').
+- p[j + 1] == '*' → skip "x*" (dp[i][j + 2]) or use it once if first (dp[i + 1][j]).
+- Else first and dp[i + 1][j + 1].
+brute: Plain recursion re-exploring states.
+brutecx: exponential
+signal: Pattern matching with wildcards/stars → **DP over (text index, pattern index)**.
+optimal:
+- dp (n + 1) × (m + 1), dp[n][m] = True; fill i from n down, j from m − 1 down.
+cx: O(n·m)
+code:
+def is_match(s, p):
+    n, m = len(s), len(p)
+    dp = [[False] * (m + 1) for _ in range(n + 1)]
+    dp[n][m] = True
+    for i in range(n, -1, -1):
+        for j in range(m - 1, -1, -1):
+            first = i < n and p[j] in (s[i], ".")
+            if j + 1 < m and p[j + 1] == "*":
+                dp[i][j] = dp[i][j + 2] or (first and dp[i + 1][j])
+            else:
+                dp[i][j] = first and dp[i + 1][j + 1]
+    return dp[0][0]
+test:
+check(is_match("aa", "a"), False)
+check(is_match("aa", "a*"), True)
+check(is_match("ab", ".*"), True)
+check(is_match("aab", "c*a*b"), True)
+check(is_match("mississippi", "mis*is*p*."), False)
+mistakes:
+- Treating '*' as a standalone wildcard (it modifies the character before it).
+hinglish:
+## Sawaal
+Poori string s ko pattern p se match karo: "." koi bhi ek character, "x*" zero ya zyada x.
+## Analogy
+Flexible hisson wala stamp: "a*" ek rubber stamp hai jo zero ya zyada baar daba sakte ho. Har point pe decide: stamp chhodo, ya current letter fit ho toh ek baar aur dabao.
+## Kaise sochein
+- dp[i][j] = s[i:] aur p[j:] match?
+- first = current character match.
+- Agla '*' → "x*" chhodo ya (first ho toh) ek baar use.
+## Pattern pehchano
+Wildcards/stars matching → (text index, pattern index) DP.
+## Galtiyan
+'*' ko akela wildcard samajhna.

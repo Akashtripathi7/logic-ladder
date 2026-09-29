@@ -1,0 +1,933 @@
+## module: g1 | How to think: the recipe
+summary: The 7-step recipe for any problem, how to trace code by hand, and the habit that builds logic fastest.
+=== en
+### Logic is a habit, not a talent
+People who "have logic" are not born with it. They follow a process so often that it becomes automatic. This gym trains that process on small problems until it's second nature.
+
+### The 7-step recipe
+1. **Understand** — say the problem in your own words. What goes in? What comes out? What are the edge cases (empty, one item, negatives, duplicates)?
+2. **Examples by hand** — solve 2–3 tiny cases with pen and paper, slowly. Watch what YOUR hands do: that is the algorithm.
+3. **Brute force** — write the simplest correct idea, even if slow.
+4. **Improve** — find the repeated work; which tool removes it (a set, a dict, sorting, two pointers, a formula)?
+5. **Code** — translate the plain-English steps.
+6. **Trace & test** — run your examples through the code by hand.
+7. **Analyse** — time and space in Big O.
+
+> **Analogy:** A doctor doesn't guess. Symptoms (clues in the problem) → diagnosis (the pattern) → treatment (the code template). Steps 1–2 are the examination, and most beginners skip them.
+
+### Worked example: "count how many numbers in a list are bigger than the number before them"
+1. **Understand:** input a list like `[3, 5, 2, 8, 9]`; output a count. Compare each item with its left neighbour. The first item has no neighbour.
+2. **By hand:** 5 > 3 ✓, 2 > 5 ✗, 8 > 2 ✓, 9 > 8 ✓ → 3. My eyes looked at pairs (previous, current).
+3. **Brute force = the hand method:** loop from index 1, compare `nums[i]` with `nums[i-1]`, count.
+4. Already O(n): nothing to improve.
+5. **Code:**
+```python
+def count_rises(nums):
+    count = 0
+    for i in range(1, len(nums)):
+        if nums[i] > nums[i - 1]:
+            count += 1
+    return count
+```
+6. **Trace:**
+| i | nums[i-1] | nums[i] | rise? | count |
+|---|---|---|---|---|
+| 1 | 3 | 5 | yes | 1 |
+| 2 | 5 | 2 | no | 1 |
+| 3 | 2 | 8 | yes | 2 |
+| 4 | 8 | 9 | yes | 3 |
+7. O(n) time, O(1) space. Edge case `[]` or `[7]`: range(1, 0/1) is empty → 0 ✓.
+
+### How to trace like a computer
+- Draw a column for **every variable** and a row for **every step** (every loop lap).
+- Update values exactly as the code says, not as you *think* it should behave.
+- Write down every `print` output as it happens.
+- When your trace and the real output differ, the first differing row is where your understanding (or the code) is wrong.
+
+### The habit that builds logic fastest
+**Predict, then run.** Before running any code, write down what you think it prints. Then run it. Every surprise is a lesson. The drills in this gym are built around this.
+
+### When stuck
+Shrink the problem (n = 1, 2, 3), draw it, write the brute force, ask "what if it were sorted / what if I had a dict?", and give yourself 20–25 minutes before looking at a hint.
+=== hi
+### Logic aadat hai, talent nahi
+Jinke paas "logic" hota hai, wo paida hote hi aise nahi the. Wo ek process itni baar follow karte hain ki wo automatic ho jaata hai. Ye gym wahi process chhoti problems pe tab tak practise karata hai jab tak wo aadat na ban jaaye.
+
+### 7-step recipe
+1. **Samjho** — problem apne shabdon mein bolo. Input kya? Output kya? Edge cases (khaali, ek item, negative, duplicate)?
+2. **Haath se examples** — 2–3 chhote cases pen-paper pe dheere solve karo. Dekho TUMHARE haath kya karte hain: wahi algorithm hai.
+3. **Brute force** — sabse simple sahi idea, chahe slow ho.
+4. **Improve** — repeated kaam dhoondo; kaunsa tool use hatayega (set, dict, sorting, two pointers, formula)?
+5. **Code** — plain-English steps ko code mein badlo.
+6. **Trace & test** — apne examples code pe haath se chalao.
+7. **Analyse** — time aur space, Big O mein.
+
+> **Analogy:** Doctor guess nahi karta. Lakshan (problem ke clues) → diagnosis (pattern) → ilaaj (code template). Step 1–2 examination hain, aur zyaadatar beginners inhe skip kar dete hain.
+
+### Worked example: "list mein kitne numbers apne pichhle number se bade hain"
+1. **Samjho:** input `[3, 5, 2, 8, 9]`, output ek count. Har item ko uske left wale se compare karna hai; pehle item ka koi left nahi.
+2. **Haath se:** 5 > 3 ✓, 2 > 5 ✗, 8 > 2 ✓, 9 > 8 ✓ → 3. Meri aankhein pairs (pichhla, abhi wala) dekh rahi thi.
+3. **Brute force = haath wala tareeka:** index 1 se loop, `nums[i]` ko `nums[i-1]` se compare, gino.
+4. Already O(n), improve karne ko kuch nahi.
+5. **Code** upar English section mein hai.
+6. **Trace** table bana ke har lap check karo → answer 3.
+7. O(n) time, O(1) space. `[]` ya `[7]` ke liye range khaali → 0 ✓.
+
+### Computer jaisa trace kaise karein
+- Har **variable** ka ek column, har **step** (loop lap) ki ek row.
+- Values waise hi update karo jaise code kehta hai, waise nahi jaise tumhe *lagta* hai.
+- Har `print` ka output jaise hi ho, likh lo.
+- Tumhara trace aur asli output alag aayein, toh pehli alag row hi galti ki jagah hai.
+
+### Logic sabse fast banane wali aadat
+**Pehle predict, phir run.** Koi bhi code chalane se pehle likho ki tumhe kya lagta hai wo print karega. Phir run karo. Har surprise ek lesson hai. Is gym ke drills isi pe bane hain.
+
+### Atak jao toh
+Problem chhoti karo (n = 1, 2, 3), draw karo, brute force likho, poocho "sorted hota toh? dict hota toh?", aur hint dekhne se pehle 20–25 minute do.
+=== drills
+--- d
+q: Predict first, then check. What does this print?
+code:
+nums = [3, 5, 2, 8, 9]
+count = 0
+for i in range(1, len(nums)):
+    if nums[i] > nums[i - 1]:
+        count += 1
+print(count)
+answer:
+3
+en: Pairs (3,5) (5,2) (2,8) (8,9): three rises.
+hi: Pairs (3,5) (5,2) (2,8) (8,9): teen baar badha.
+--- d
+q: Trace the variables. What does this print?
+code:
+a, b = 0, 1
+for _ in range(6):
+    a, b = b, a + b
+print(a, b)
+answer:
+8 13
+en: (0,1) → (1,1) → (1,2) → (2,3) → (3,5) → (5,8) → (8,13). This is Fibonacci.
+hi: (0,1) → (1,1) → (1,2) → (2,3) → (3,5) → (5,8) → (8,13). Ye Fibonacci hai.
+--- d
+kind: write
+q: Use the recipe. Write `count_rises(nums)` from the worked example, then make sure `[]` and `[7]` give 0.
+answer:
+def count_rises(nums):
+    count = 0
+    for i in range(1, len(nums)):
+        if nums[i] > nums[i - 1]:
+            count += 1
+    return count
+test:
+check(count_rises([3, 5, 2, 8, 9]), 3)
+check(count_rises([]), 0)
+check(count_rises([7]), 0)
+check(count_rises([5, 4, 3]), 0)
+en: Starting the loop at 1 handles the "first item has no neighbour" rule and the edge cases for free.
+hi: Loop 1 se shuru karne se "pehle item ka koi pados nahi" wala rule aur edge cases apne aap sambhal jaate hain.
+--- d
+kind: write
+q: Recipe practice: write `all_same(nums)` → True if every value equals the first (True for an empty list).
+answer:
+def all_same(nums):
+    for x in nums:
+        if x != nums[0]:
+            return False
+    return True
+test:
+check(all_same([4, 4, 4]), True)
+check(all_same([4, 5, 4]), False)
+check(all_same([]), True)
+en: By hand you compare each item with the first and stop at the first mismatch: that's the algorithm.
+hi: Haath se tum har item ko pehle wale se compare karte ho aur pehle mismatch pe ruk jaate ho: wahi algorithm hai.
+
+## module: g2 | Loop mastery
+summary: Counting iterations, tracing accumulators, while loops with digits, and choosing the right loop.
+=== en
+### The three questions for every loop
+1. **First value** of the loop variable?
+2. **Last value**?
+3. **What changes** each lap, and what is it at the end?
+Answer these before writing or reading any loop and off-by-one errors disappear.
+
+### Counting laps
+`range(a, b, s)` with positive step runs `ceil((b − a) / s)` times (0 if b ≤ a). Don't memorise the formula; **list the first few values and the last one**.
+
+### Accumulators and counters
+- Sum starts at 0, product at 1, "best max" at the first element or `float("-inf")`, a result list at `[]`, a result string at `""`.
+- Update inside the loop, read the answer after the loop.
+
+### Loop with digits
+`while n > 0: d = n % 10; n //= 10` visits digits from right to left. To visit from left to right, convert to a string, or reverse first.
+
+### Loop with two indexes
+Many problems walk two indexes: `i` over one list and `j` over another (merging), or `l` and `r` towards each other (palindromes). Each lap, decide which one moves.
+
+### Choosing the loop
+| Situation | Loop |
+|---|---|
+| each item of a list/string | `for x in items` |
+| need the index | `for i in range(len(a))` or `enumerate` |
+| unknown number of laps | `while condition` |
+| stop early | `break` (or `return` inside a function) |
+
+> **Tip:** When a loop confuses you, add `print(i, variable)` as the first line of the body and run it. Seeing the laps is the fastest cure.
+=== hi
+### Har loop ke teen sawaal
+1. Loop variable ki **pehli value**?
+2. **Aakhri value**?
+3. Har lap mein **kya badalta** hai, aur end mein kya hota hai?
+Loop likhne ya padhne se pehle ye jawab do, off-by-one errors gayab.
+
+### Laps ginna
+Formula yaad mat karo; **pehli kuch values aur aakhri value likh do**.
+
+### Accumulators aur counters
+Sum 0 se, product 1 se, max pehle element ya `float("-inf")` se, result list `[]` se, result string `""` se. Update loop ke andar, answer loop ke baad padho.
+
+### Digits wala loop
+`while n > 0: d = n % 10; n //= 10` digits ko right se left deta hai. Left se right chahiye toh string mein badlo ya pehle reverse karo.
+
+### Do indexes wala loop
+Kai problems mein do index chalte hain: `i` ek list pe aur `j` doosri pe (merge), ya `l` aur `r` ek doosre ki taraf (palindrome). Har lap decide karo kaun aage badhega.
+
+### Kaunsa loop
+Har item → `for x in items`; index chahiye → `range(len(a))` ya `enumerate`; laps ka pata nahi → `while`; jaldi rukna → `break`.
+
+> **Tip:** Loop confuse kare toh body ki pehli line mein `print(i, variable)` daal ke chalao. Laps dekhna sabse fast ilaaj hai.
+=== drills
+--- d
+q: How many numbers are printed? Predict before running.
+code:
+count = 0
+for i in range(10, 0, -3):
+    count += 1
+print(count, i)
+answer:
+4 1
+en: i takes 10, 7, 4, 1 (−2 would pass 0). After the loop, i keeps its last value, 1.
+hi: i ki values 10, 7, 4, 1 (−2 toh 0 se aage hai). Loop ke baad i apni aakhri value 1 rakhta hai.
+--- d
+q: What does this print?
+code:
+total = 0
+for i in range(1, 11):
+    if i % 2 == 0:
+        total += i
+print(total)
+answer:
+30
+en: 2 + 4 + 6 + 8 + 10 = 30.
+hi: 2 + 4 + 6 + 8 + 10 = 30.
+--- d
+q: What does this print?
+code:
+n = 90817
+first = n
+while first >= 10:
+    first //= 10
+print(first, n % 10, len(str(n)))
+answer:
+9 7 5
+en: Keep chopping the last digit until one digit remains: the first digit.
+hi: Aakhri digit kaat-te raho jab tak ek digit na bache: wahi pehla digit hai.
+--- d
+q: What does this print?
+code:
+s = ""
+for i in range(3):
+    s = str(i) + s
+print(s)
+answer:
+210
+en: Each new digit goes in FRONT, so the order reverses.
+hi: Har naya digit AAGE lagta hai, isliye order ulta ho jata hai.
+--- d
+q: What does this print?
+code:
+a = [1, 4, 7]
+b = [2, 3, 8]
+i = j = 0
+out = []
+while i < len(a) and j < len(b):
+    if a[i] <= b[j]:
+        out.append(a[i]); i += 1
+    else:
+        out.append(b[j]); j += 1
+out += a[i:] + b[j:]
+print(out)
+answer:
+[1, 2, 3, 4, 7, 8]
+en: Two indexes, always take the smaller front item. This is merging two sorted lists.
+hi: Do indexes, hamesha chhota front item lo. Ye do sorted lists ko merge karna hai.
+--- d
+kind: write
+q: Write `sum_of_digits(n)` using a while loop.
+answer:
+def sum_of_digits(n):
+    s = 0
+    while n > 0:
+        s += n % 10
+        n //= 10
+    return s
+test:
+check(sum_of_digits(4729), 22)
+check(sum_of_digits(0), 0)
+check(sum_of_digits(1000), 1)
+en: Peel the last digit, add it, chop it off.
+hi: Aakhri digit nikalo, jodo, hatao.
+--- d
+kind: write
+q: Write `first_multiple(nums, k)` that returns the first value divisible by k, or -1. Stop as soon as you find it.
+answer:
+def first_multiple(nums, k):
+    for x in nums:
+        if x % k == 0:
+            return x
+    return -1
+test:
+check(first_multiple([3, 8, 14, 21], 7), 14)
+check(first_multiple([1, 2], 5), -1)
+en: return inside the loop stops everything immediately, like break.
+hi: Loop ke andar return sab turant rok deta hai, break jaisa.
+--- d
+kind: write
+q: Write `running_sums(nums)` that returns a list where item i is the sum of nums[0..i].
+answer:
+def running_sums(nums):
+    out = []
+    total = 0
+    for x in nums:
+        total += x
+        out.append(total)
+    return out
+test:
+check(running_sums([3, 1, 4, 1, 5]), [3, 4, 8, 9, 14])
+check(running_sums([]), [])
+en: Accumulator + a result list: append the running total every lap.
+hi: Accumulator + result list: har lap running total append karo.
+
+## module: g3 | Pattern printing
+summary: The table method for star and number patterns: rows, what's in each row, find the formula.
+=== en
+### The table method (again, because it works)
+1. Count the rows → the outer loop, usually `for i in range(1, n + 1)`.
+2. Look at one row: how many spaces? how many stars/numbers? what values?
+3. Make a table for rows 1..n.
+4. Find the formula in terms of i and n.
+5. Build each row as a string and print it.
+
+### Formulas you'll meet again and again
+| Shape | spaces | stars |
+|---|---|---|
+| right triangle | 0 | i |
+| inverted triangle | 0 | n − i + 1 |
+| right-aligned triangle | n − i | i |
+| pyramid | n − i | 2i − 1 |
+| inverted pyramid | i − 1 | 2(n − i) + 1 |
+
+> **Tip:** If a column in your table goes up by 2 each row, the formula has `2i`. If it goes down by 1, it has `−i`. Then fix the constant using row 1.
+
+### Numbers instead of stars
+- Row i shows 1..i → `" ".join(str(j) for j in range(1, i + 1))`.
+- Row i shows i, i times → `" ".join([str(i)] * i)`.
+- Floyd's triangle counts continuously 1, 2 3, 4 5 6 → keep a counter **outside** the loops.
+
+### Why patterns matter
+Patterns train exactly the skill DSA needs: turning a picture into a relationship between loop variables. Once you can derive "2i − 1" from a table, you can derive "n − i − 1" for a two-pointer bound.
+=== hi
+### Table method (phir se, kyunki ye kaam karta hai)
+1. Rows gino → outer loop, aksar `for i in range(1, n + 1)`.
+2. Ek row dekho: kitne spaces? kitne stars/numbers? kaunsi values?
+3. Rows 1..n ki table banao.
+4. i aur n ke terms mein formula dhoondo.
+5. Har row string bana ke print karo.
+
+### Baar-baar aane wale formulas
+Right triangle: stars = i. Ulta triangle: stars = n − i + 1. Right-aligned: spaces = n − i, stars = i. Pyramid: spaces = n − i, stars = 2i − 1. Ulta pyramid: spaces = i − 1, stars = 2(n − i) + 1.
+
+> **Tip:** Table ka koi column har row 2 se badhe toh formula mein `2i` hai. 1 se ghate toh `−i`. Phir row 1 se constant theek karo.
+
+### Stars ki jagah numbers
+Row i mein 1..i; row i mein i, i baar; Floyd's triangle mein ginti chalti rehti hai (1, 2 3, 4 5 6) → counter loops ke **bahar** rakho.
+
+### Patterns kyun zaroori hain
+Patterns wahi skill sikhate hain jo DSA ko chahiye: picture ko loop variables ke relation mein badalna. Table se "2i − 1" nikaal liya toh two-pointer ki "n − i − 1" wali bound bhi nikaal loge.
+=== drills
+--- d
+q: What does this print?
+code:
+n = 4
+for i in range(1, n + 1):
+    print(" " * (n - i) + "*" * i)
+answer:
+   *
+  **
+ ***
+****
+en: Right-aligned triangle: spaces n − i, stars i.
+hi: Right-aligned triangle: spaces n − i, stars i.
+--- d
+q: What does this print?
+code:
+n = 3
+for i in range(1, n + 1):
+    print(" " * (i - 1) + "*" * (2 * (n - i) + 1))
+answer:
+*****
+ ***
+  *
+en: Inverted pyramid: spaces i − 1 (0, 1, 2), stars 5, 3, 1.
+hi: Ulta pyramid: spaces i − 1 (0, 1, 2), stars 5, 3, 1.
+--- d
+q: What does this print?
+code:
+k = 1
+for i in range(1, 5):
+    row = []
+    for _ in range(i):
+        row.append(str(k))
+        k += 1
+    print(" ".join(row))
+answer:
+1
+2 3
+4 5 6
+7 8 9 10
+en: Floyd's triangle: the counter k lives outside both loops, so it never restarts.
+hi: Floyd's triangle: counter k dono loops ke bahar hai, isliye kabhi restart nahi hota.
+--- d
+kind: write
+q: Write `pyramid(n)` returning the pyramid as a list of strings WITHOUT trailing spaces. pyramid(3) → ["  *", " ***", "*****"].
+answer:
+def pyramid(n):
+    return [" " * (n - i) + "*" * (2 * i - 1) for i in range(1, n + 1)]
+test:
+check(pyramid(3), ["  *", " ***", "*****"])
+check(pyramid(1), ["*"])
+en: spaces = n − i, stars = 2i − 1, from the table.
+hi: Table se: spaces = n − i, stars = 2i − 1.
+--- d
+kind: write
+q: Write `number_rows(n)` returning ["1", "2 2", "3 3 3", …] up to n.
+answer:
+def number_rows(n):
+    return [" ".join([str(i)] * i) for i in range(1, n + 1)]
+test:
+check(number_rows(3), ["1", "2 2", "3 3 3"])
+en: Row i repeats the text str(i), i times.
+hi: Row i mein text str(i), i baar repeat hota hai.
+--- d
+kind: write
+q: Write `diamond(n)` returning a diamond of height 2n − 1 (a pyramid, then the inverted pyramid without repeating the middle). diamond(2) → [" *", "***", " *"].
+answer:
+def diamond(n):
+    top = [" " * (n - i) + "*" * (2 * i - 1) for i in range(1, n + 1)]
+    return top + top[-2::-1]
+test:
+check(diamond(2), [" *", "***", " *"])
+check(diamond(3), ["  *", " ***", "*****", " ***", "  *"])
+en: The bottom half is the top half reversed, minus the middle row: top[-2::-1].
+hi: Neeche wala hissa upar wale ka ulta hai, beech ki row chhod ke: top[-2::-1].
+
+## module: g4 | List logic
+summary: Walking lists with indexes, neighbours, max/min, counting, building new lists, in-place changes and 2-D grids.
+=== en
+### Thinking in positions
+A list is positions 0..n−1. Most list problems are about **which positions you look at, and in what order**:
+- one by one: `for i in range(n)`
+- with the neighbour: `nums[i]` and `nums[i - 1]` (start i at 1) or `nums[i + 1]` (stop at n − 1)
+- from both ends: `l = 0, r = n − 1`
+- every pair: `for i … for j in range(i + 1, n)` (O(n²), the brute force)
+
+### Build a new list, or change in place?
+- **New list** (easiest, safest): `result = []` then `append`.
+- **In place** (O(1) extra space, often asked): swap elements, or use a **write pointer** that marks where the next kept element goes:
+```python
+def remove_zeros(nums):
+    write = 0
+    for x in nums:
+        if x != 0:
+            nums[write] = x
+            write += 1
+    return nums[:write]
+```
+> **Analogy:** A write pointer is a person at the front of a bus: every time a kept passenger boards, they're seated at the next free seat.
+
+### Max, min and "second best"
+Best-so-far variables, updated in the right order. For the top 2, keep `first` and `second`; a new maximum pushes the old first down.
+
+### Frequencies
+Counting with a dict turns "how many times does x appear?" from O(n) per question into O(1).
+
+### Grids
+`grid[r][c]`, `rows = len(grid)`, `cols = len(grid[0])`. Neighbours: `(r-1,c) (r+1,c) (r,c-1) (r,c+1)`, always check `0 <= nr < rows and 0 <= nc < cols`.
+=== hi
+### Positions mein socho
+List positions 0..n−1 hai. Zyaadatar list problems ye hain ki **kaunsi positions dekhni hain, aur kis order mein**:
+- ek-ek karke: `for i in range(n)`
+- pados ke saath: `nums[i]` aur `nums[i - 1]` (i ko 1 se shuru karo) ya `nums[i + 1]` (n − 1 pe ruko)
+- dono ends se: `l = 0, r = n − 1`
+- har pair: nested loop (O(n²), brute force)
+
+### Nayi list ya wahi pe badlo?
+- **Nayi list** (aasaan, safe): `result = []` phir `append`.
+- **In place** (O(1) extra space, aksar poocha jaata hai): swap karo, ya **write pointer** use karo jo batata hai agla rakha jaane wala element kahan jayega.
+
+> **Analogy:** Write pointer bus ke aage khada ek conductor hai: jab bhi koi rakha jaane wala passenger chadhta hai, use agli khaali seat pe bitha deta hai.
+
+### Max, min aur "second best"
+Best-so-far variables, sahi order mein update. Top 2 ke liye `first` aur `second`; naya maximum purane first ko neeche dhakel deta hai.
+
+### Frequencies
+Dict se counting karo toh "x kitni baar aaya?" O(n) ki jagah O(1) mein.
+
+### Grids
+`grid[r][c]`, `rows = len(grid)`, `cols = len(grid[0])`. Pados: `(r-1,c) (r+1,c) (r,c-1) (r,c+1)`, hamesha `0 <= nr < rows and 0 <= nc < cols` check karo.
+=== drills
+--- d
+q: What does this print?
+code:
+nums = [2, 7, 1, 8, 2, 8]
+print(nums.index(8), nums[::-1].index(8), len(nums) - 1 - nums[::-1].index(8))
+answer:
+3 0 5
+en: The first 8 is at index 3. In the reversed list the first 8 is at 0, which is index 5 in the original.
+hi: Pehla 8 index 3 pe. Ulti list mein pehla 8 index 0 pe hai, jo original mein index 5 hai.
+--- d
+q: What does this print?
+code:
+nums = [0, 1, 0, 3, 12]
+write = 0
+for x in nums:
+    if x != 0:
+        nums[write] = x
+        write += 1
+for i in range(write, len(nums)):
+    nums[i] = 0
+print(nums)
+answer:
+[1, 3, 12, 0, 0]
+en: Non-zeros are packed to the front in order; the rest are filled with zeros.
+hi: Non-zero values order mein aage aa gayi; baaki jagah zero.
+--- d
+q: What does this print?
+code:
+grid = [[1, 2, 3],
+        [4, 5, 6]]
+print(sum(grid[1]), sum(row[2] for row in grid), grid[-1][-1])
+answer:
+15 9 6
+en: Row 1 sums to 15; column 2 is 3 + 6 = 9; grid[-1][-1] is the bottom-right cell.
+hi: Row 1 ka sum 15; column 2 = 3 + 6 = 9; grid[-1][-1] neeche-right wala cell.
+--- d
+kind: write
+q: Write `max_min(nums)` returning [max, min] in ONE pass without max()/min().
+answer:
+def max_min(nums):
+    hi = lo = nums[0]
+    for x in nums:
+        if x > hi:
+            hi = x
+        if x < lo:
+            lo = x
+    return [hi, lo]
+test:
+check(max_min([7, 2, 9, 4, 1]), [9, 1])
+check(max_min([5]), [5, 5])
+en: Two best-so-far variables in the same loop.
+hi: Ek hi loop mein do best-so-far variables.
+--- d
+kind: write
+q: Write `is_sorted(nums)` → True if non-decreasing.
+answer:
+def is_sorted(nums):
+    for i in range(1, len(nums)):
+        if nums[i] < nums[i - 1]:
+            return False
+    return True
+test:
+check(is_sorted([1, 2, 2, 5]), True)
+check(is_sorted([1, 3, 2]), False)
+check(is_sorted([]), True)
+en: Compare each item with its left neighbour; stop at the first drop.
+hi: Har item ko left pados se compare karo; pehli giravat pe ruk jao.
+--- d
+kind: write
+q: Write `rotate_right(nums, k)` returning a NEW list rotated right by k (k may exceed the length).
+answer:
+def rotate_right(nums, k):
+    if not nums:
+        return []
+    k %= len(nums)
+    return nums[-k:] + nums[:-k] if k else nums[:]
+test:
+check(rotate_right([1, 2, 3, 4, 5], 2), [4, 5, 1, 2, 3])
+check(rotate_right([1, 2, 3], 3), [1, 2, 3])
+check(rotate_right([1, 2], 5), [2, 1])
+en: k % n handles big k. The last k items move to the front. (k == 0 needs care because nums[-0:] is the whole list.)
+hi: k % n bade k ko sambhalta hai. Aakhri k items aage aa jaate hain. (k == 0 dhyaan se, kyunki nums[-0:] poori list hai.)
+--- d
+kind: write
+q: Write `pair_sum_exists(nums, target)` → True if two DIFFERENT positions add to target. First with the nested-loop brute force.
+answer:
+def pair_sum_exists(nums, target):
+    n = len(nums)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if nums[i] + nums[j] == target:
+                return True
+    return False
+test:
+check(pair_sum_exists([2, 7, 11, 15], 9), True)
+check(pair_sum_exists([3, 5], 6), False)
+check(pair_sum_exists([3, 3], 6), True)
+en: j starts at i + 1: every pair once, never an item with itself. O(n²). (Two Sum in the DSA 150 improves this with a dict.)
+hi: j, i + 1 se: har pair ek baar, kabhi item khud ke saath nahi. O(n²). (DSA 150 ka Two Sum ise dict se improve karta hai.)
+
+## module: g5 | String logic
+summary: Characters as positions, comparing from both ends, counting characters, building strings, and word-level work.
+=== en
+### Strings are lists you can't change
+Everything from list logic applies (positions, neighbours, both ends), with two differences:
+- You can't assign `s[i] = x`. Build a new string, or work on `list(s)` and `"".join` at the end.
+- Strings have powerful methods (`split`, `join`, `lower`, `isalpha`…). Use them.
+
+### Four string patterns
+1. **Character counting** — `Counter(s)` or a 26-slot list with `ord(ch) - ord('a')`. Anagrams, first unique character, pangrams.
+2. **Two ends** — `l, r = 0, len(s) - 1`, move inward. Palindromes, reversing.
+3. **Runs** — compare `s[i]` with `s[i - 1]` to detect where a group of equal characters starts or ends. Compression, counting words.
+4. **Word level** — `s.split()` first, then work with the list of words. Reversing words, title case, longest word.
+
+> **Analogy:** Treat a sentence like a string of beads (characters) when the problem talks about letters, and like a row of boxes (words) when it talks about words. Choosing the right view is half the solution.
+
+### Case and noise
+Problems often say "ignore case" (use `lower()`) or "ignore non-letters" (use `ch.isalnum()` / `ch.isalpha()`). Clean first, then solve, or skip noise inside two-pointer loops.
+=== hi
+### String ek list hai jise badal nahi sakte
+List logic ki saari baatein lagti hain (positions, pados, dono ends), do farak ke saath:
+- `s[i] = x` nahi kar sakte. Nayi string banao, ya `list(s)` pe kaam karke end mein `"".join`.
+- Strings ke powerful methods hain (`split`, `join`, `lower`, `isalpha`…). Use karo.
+
+### Chaar string patterns
+1. **Character counting** — `Counter(s)` ya `ord(ch) - ord('a')` wali 26 slots ki list. Anagram, pehla unique character, pangram.
+2. **Dono ends** — `l, r = 0, len(s) - 1`, andar aao. Palindrome, reverse.
+3. **Runs** — `s[i]` ko `s[i - 1]` se compare karke pata karo same characters ka group kahan shuru/khatam hota hai. Compression, words ginna.
+4. **Word level** — pehle `s.split()`, phir words ki list pe kaam. Words reverse, title case, sabse lamba word.
+
+> **Analogy:** Problem letters ki baat kare toh sentence ko motiyon ki maala (characters) samjho, words ki baat kare toh dabbon ki row (words). Sahi view chunna aadha solution hai.
+
+### Case aur noise
+"Case ignore karo" → `lower()`. "Non-letters ignore karo" → `ch.isalnum()` / `ch.isalpha()`. Pehle saaf karo phir solve karo, ya two-pointer loop mein noise skip karo.
+=== drills
+--- d
+q: What does this print?
+code:
+s = "Hello, World"
+clean = "".join(ch.lower() for ch in s if ch.isalpha())
+print(clean, clean[::-1], len(clean))
+answer:
+helloworld dlrowolleh 10
+en: Keep only letters, lowercase them, then reverse with [::-1].
+hi: Sirf letters rakho, lowercase karo, phir [::-1] se ulta.
+--- d
+q: What does this print?
+code:
+s = "aaabccdddd"
+out = []
+count = 1
+for i in range(1, len(s) + 1):
+    if i < len(s) and s[i] == s[i - 1]:
+        count += 1
+    else:
+        out.append(s[i - 1] + str(count))
+        count = 1
+print("".join(out))
+answer:
+a3b1c2d4
+en: A run ends when the next character differs (or the string ends): write the character and its count.
+hi: Run tab khatam hota hai jab agla character alag ho (ya string khatam): character aur uska count likho.
+--- d
+q: What does this print?
+code:
+from collections import Counter
+s = "swiss"
+c = Counter(s)
+print(next(ch for ch in s if c[ch] == 1))
+answer:
+w
+en: Count first, then scan in the original order for the first count of 1.
+hi: Pehle count, phir original order mein pehla count 1 wala dhoondo.
+--- d
+kind: write
+q: Write `is_palindrome(s)` with two pointers, ignoring case and non-letters/digits.
+answer:
+def is_palindrome(s):
+    l, r = 0, len(s) - 1
+    while l < r:
+        while l < r and not s[l].isalnum():
+            l += 1
+        while l < r and not s[r].isalnum():
+            r -= 1
+        if s[l].lower() != s[r].lower():
+            return False
+        l += 1
+        r -= 1
+    return True
+test:
+check(is_palindrome("A man, a plan, a canal: Panama"), True)
+check(is_palindrome("race a car"), False)
+check(is_palindrome(""), True)
+en: Skip the noise on both sides, compare, move inward.
+hi: Dono taraf noise skip karo, compare karo, andar aao.
+--- d
+kind: write
+q: Write `is_anagram(a, b)` without Counter, using a 26-slot list (lowercase letters only).
+answer:
+def is_anagram(a, b):
+    if len(a) != len(b):
+        return False
+    count = [0] * 26
+    for x, y in zip(a, b):
+        count[ord(x) - ord("a")] += 1
+        count[ord(y) - ord("a")] -= 1
+    return all(c == 0 for c in count)
+test:
+check(is_anagram("listen", "silent"), True)
+check(is_anagram("rat", "car"), False)
+check(is_anagram("a", "ab"), False)
+en: +1 for each letter of a, −1 for each letter of b; anagrams end at all zeros.
+hi: a ke har letter pe +1, b ke har letter pe −1; anagram mein end mein sab zero.
+--- d
+kind: write
+q: Write `longest_word(sentence)` returning the longest word (the first one if tied).
+answer:
+def longest_word(sentence):
+    best = ""
+    for w in sentence.split():
+        if len(w) > len(best):
+            best = w
+    return best
+test:
+check(longest_word("I love solving puzzles daily"), "solving")
+check(longest_word("a bb cc"), "bb")
+en: Word-level view plus best-so-far. Strict > keeps the first of equal lengths.
+hi: Word-level view + best-so-far. Strict > barabar lengths mein pehla rakhta hai.
+--- d
+kind: write
+q: Write `reverse_words(s)`: "  the sky  is blue " → "blue is sky the".
+answer:
+def reverse_words(s):
+    return " ".join(reversed(s.split()))
+test:
+check(reverse_words("  the sky  is blue "), "blue is sky the")
+check(reverse_words("one"), "one")
+en: split() drops extra spaces; reverse the list of words; join with single spaces.
+hi: split() extra spaces hata deta hai; words ki list ulti karo; single space se jodo.
+
+## module: g6 | Dry runs and debugging
+summary: Find and fix the classic beginner bugs by tracing. Then the checkpoint that tells you you're ready for the Warm-up 50.
+=== en
+### Most bugs are one of ten
+1. Off-by-one in `range` (missing the last item, or going one past the end).
+2. Forgetting to update the loop variable in a `while` → infinite loop.
+3. Wrong starting value for an accumulator (product starting at 0, max starting at 0 with negatives).
+4. `return` inside the loop too early (returns after checking only the first item).
+5. Updating variables in the wrong order (losing an old value).
+6. Using `=` where you meant `==`, or `/` where you meant `//`.
+7. Changing a list while looping over it.
+8. Aliasing: two names for one list, or shared rows in a grid.
+9. Not handling the empty input or a single item.
+10. Mixing up index and value (`for x in nums` gives values, not indexes).
+
+### The debugging drill
+For each broken function below: **read it, predict what it returns for the given example, find the line that's wrong, then fix it.** Do it on paper first. The answer shows the fix.
+
+### Checkpoint: are you ready for the Warm-up 50?
+You're ready when you can, without looking anything up:
+- Predict the output of a loop with `range(a, b, step)` and count its laps.
+- Write the four loop patterns (accumulator, counter, best so far, search & stop).
+- Walk a list with indexes, compare neighbours, and use two pointers from both ends.
+- Slice and reverse strings, count characters with a dict, split and join words.
+- Derive a star pattern from a table.
+- Trace a small function by hand and find an off-by-one bug.
+
+If any of these feels shaky, redo that gym module. Ten more minutes here saves hours later.
+=== hi
+### Zyaadatar bugs in dus mein se ek hote hain
+1. `range` mein off-by-one (aakhri item chhootna, ya end se ek aage chale jaana).
+2. `while` mein loop variable update bhoolna → infinite loop.
+3. Accumulator ki galat starting value (product 0 se, ya negatives ke saath max 0 se).
+4. Loop ke andar jaldi `return` (sirf pehla item check karke return).
+5. Variables galat order mein update karna (purani value kho dena).
+6. `==` ki jagah `=`, ya `//` ki jagah `/`.
+7. Loop chalate hue list badalna.
+8. Aliasing: ek list ke do naam, ya grid mein shared rows.
+9. Khaali input ya ek item handle na karna.
+10. Index aur value mix karna (`for x in nums` values deta hai, index nahi).
+
+### Debugging drill
+Neeche har tootay function ke liye: **padho, diye gaye example pe predict karo kya return karega, galat line dhoondo, phir theek karo.** Pehle paper pe. Answer mein fix hai.
+
+### Checkpoint: kya tum Warm-up 50 ke liye ready ho?
+Ready ho jab bina kuch dekhe kar sako:
+- `range(a, b, step)` wale loop ka output aur laps predict karna.
+- Chaar loop patterns likhna (accumulator, counter, best so far, search & stop).
+- Indexes se list chalana, pados compare karna, dono ends se two pointers.
+- Strings slice aur reverse karna, dict se characters ginna, words split/join karna.
+- Table se star pattern nikaalna.
+- Chhote function ko haath se trace karke off-by-one bug pakadna.
+
+Inme se kuch bhi kachcha lage toh wo gym module dobara karo. Yahan 10 minute aur, aage ghanton ki bachat.
+=== drills
+--- d
+kind: fix
+q: Should return the largest value. For [-5, -2, -9] it returns 0. Fix it.
+code:
+def largest(nums):
+    best = 0
+    for x in nums:
+        if x > best:
+            best = x
+    return best
+answer:
+def largest(nums):
+    best = nums[0]
+    for x in nums:
+        if x > best:
+            best = x
+    return best
+test:
+check(largest([-5, -2, -9]), -2)
+check(largest([3, 8, 1]), 8)
+en: Bug type 3: start best at the first element, not 0.
+hi: Bug type 3: best ko pehle element se shuru karo, 0 se nahi.
+--- d
+kind: fix
+q: Should return True if the target is in the list. For ([4, 7, 9], 9) it returns False. Fix it.
+code:
+def contains(nums, target):
+    for x in nums:
+        if x == target:
+            return True
+        else:
+            return False
+    return False
+answer:
+def contains(nums, target):
+    for x in nums:
+        if x == target:
+            return True
+    return False
+test:
+check(contains([4, 7, 9], 9), True)
+check(contains([4, 7, 9], 5), False)
+check(contains([], 1), False)
+en: Bug type 4: the else returned after checking only the first item. Say "not found" only after the loop.
+hi: Bug type 4: else ne sirf pehla item dekh ke return kar diya. "Nahi mila" sirf loop ke baad bolo.
+--- d
+kind: fix
+q: Should return the product of all numbers. It always returns 0. Fix it.
+code:
+def product(nums):
+    p = 0
+    for x in nums:
+        p *= x
+    return p
+answer:
+def product(nums):
+    p = 1
+    for x in nums:
+        p *= x
+    return p
+test:
+check(product([2, 3, 4]), 24)
+check(product([]), 1)
+en: Bug type 3: the starting value for multiplication is 1.
+hi: Bug type 3: multiplication ki starting value 1 hoti hai.
+--- d
+kind: fix
+q: Should return the sum of 1..n. For n = 5 it returns 10. Fix it.
+code:
+def sum_to(n):
+    total = 0
+    for i in range(1, n):
+        total += i
+    return total
+answer:
+def sum_to(n):
+    total = 0
+    for i in range(1, n + 1):
+        total += i
+    return total
+test:
+check(sum_to(5), 15)
+check(sum_to(1), 1)
+en: Bug type 1: range(1, n) stops at n − 1. Ask "what is i on the last lap?"
+hi: Bug type 1: range(1, n) n − 1 pe ruk jata hai. Poocho "aakhri lap mein i kya hai?"
+--- d
+kind: fix
+q: Should return the indexes of all even numbers. For [3, 4, 6] it returns [4, 6]. Fix it.
+code:
+def even_positions(nums):
+    out = []
+    for x in nums:
+        if x % 2 == 0:
+            out.append(x)
+    return out
+answer:
+def even_positions(nums):
+    out = []
+    for i, x in enumerate(nums):
+        if x % 2 == 0:
+            out.append(i)
+    return out
+test:
+check(even_positions([3, 4, 6]), [1, 2])
+check(even_positions([1]), [])
+en: Bug type 10: it collected values, not indexes. enumerate gives both.
+hi: Bug type 10: values jama ho rahi thi, indexes nahi. enumerate dono deta hai.
+--- d
+kind: fix
+q: Should remove all negative numbers. For [-1, -2, 3] it returns [-2, 3]. Fix it.
+code:
+def remove_negatives(nums):
+    for x in nums:
+        if x < 0:
+            nums.remove(x)
+    return nums
+answer:
+def remove_negatives(nums):
+    return [x for x in nums if x >= 0]
+test:
+check(remove_negatives([-1, -2, 3]), [3])
+check(remove_negatives([1, -1, -1, 2]), [1, 2])
+en: Bug type 7: removing while looping skips the item that slides into the removed spot. Build a new list.
+hi: Bug type 7: loop chalate hue remove karne se jo item khisak ke aata hai wo skip ho jata hai. Nayi list banao.
+--- d
+kind: fix
+q: Should count digits of n (0 has 1 digit). It hangs forever for n = 25. Fix it.
+code:
+def count_digits(n):
+    if n == 0:
+        return 1
+    count = 0
+    while n > 0:
+        count += 1
+    return count
+answer:
+def count_digits(n):
+    if n == 0:
+        return 1
+    count = 0
+    while n > 0:
+        count += 1
+        n //= 10
+    return count
+test:
+check(count_digits(25), 2)
+check(count_digits(0), 1)
+check(count_digits(90817), 5)
+en: Bug type 2: n never changed, so the condition never became false.
+hi: Bug type 2: n kabhi badla hi nahi, isliye condition kabhi False nahi hui.

@@ -1,0 +1,1016 @@
+## module: py06 | for loops and range()
+summary: Repeating work with for, every form of range(), tracing a loop by hand, and the four loop patterns.
+=== en
+### Why loops?
+Printing 1 to 5 takes five `print` lines. Printing 1 to 1,000,000 would take a million. A loop says: **repeat this block, changing a little something each time.**
+
+> **Analogy:** Running laps on a track. The track (the loop body) is the same every lap; only the lap counter changes. When the counter reaches the target, you stop.
+
+### The for loop
+```python
+for i in range(1, 6):
+    print(i)
+```
+Output: 1 2 3 4 5 (each on its own line). `i` is the **loop variable**. Each lap, Python gives it the next value from `range(1, 6)` and runs the indented body.
+
+### range() in full detail
+`range` produces a sequence of integers. The **stop value is never included** (a half-open range, like in Video 1).
+| Call | Values | Count |
+|---|---|---|
+| `range(5)` | 0, 1, 2, 3, 4 | 5 |
+| `range(1, 6)` | 1, 2, 3, 4, 5 | 5 |
+| `range(0, 10, 2)` | 0, 2, 4, 6, 8 | 5 |
+| `range(5, 0, -1)` | 5, 4, 3, 2, 1 | 5 |
+| `range(10, 0, -3)` | 10, 7, 4, 1 | 4 |
+| `range(3, 3)` | (nothing) | 0 |
+
+The number of values in `range(a, b)` is `b - a`. `range(n)` runs **exactly n times**, with i from 0 to n − 1, which matches list positions 0 to n − 1. That is why `for i in range(len(nums))` is everywhere in DSA.
+
+> **Mistake:** Wanting 1..n but writing `range(1, n)` gives 1..n−1. Ask yourself two questions before every loop: *what is i on the first lap? what is i on the last lap?*
+
+### Tracing a loop: the most important skill
+Let's trace:
+```python
+total = 0
+for i in range(1, 4):
+    total += i
+print(total)
+```
+| lap | i | total before | total after |
+|---|---|---|---|
+| 1 | 1 | 0 | 1 |
+| 2 | 2 | 1 | 3 |
+| 3 | 3 | 3 | 6 |
+After the loop, `print` shows 6. Do this with pen and paper for every new loop you meet. It feels slow, but it is exactly how you build logic.
+
+### Looping over things directly
+A `for` loop can walk over any sequence, not just numbers:
+```python
+for ch in "cat":
+    print(ch)          # c, a, t
+for fruit in ["apple", "mango"]:
+    print(fruit)
+```
+Need both the position and the value? Use `enumerate`:
+```python
+for i, fruit in enumerate(["apple", "mango"]):
+    print(i, fruit)    # 0 apple / 1 mango
+```
+
+### The four loop patterns (memorise these)
+**1. Accumulator** — keep a running total (or product).
+```python
+total = 0                 # start at the "do nothing" value: 0 for +, 1 for *
+for x in nums:
+    total += x
+```
+**2. Counter** — count how many items pass a test.
+```python
+count = 0
+for x in nums:
+    if x % 3 == 0:
+        count += 1
+```
+**3. Best so far** — track the max or min.
+```python
+best = nums[0]
+for x in nums[1:]:
+    if x > best:
+        best = x
+```
+**4. Search and stop** — stop as soon as you find it.
+```python
+found = -1
+for i in range(len(nums)):
+    if nums[i] == target:
+        found = i
+        break
+```
+Most loop problems are one of these, or a mix.
+
+### How to think when writing a loop
+1. What do I need to **remember** between laps? → that becomes a variable.
+2. What does it **start** as? (0, 1, the first element, an empty list…)
+3. What **changes** each lap?
+4. When does the loop **stop**, and where is the **answer** at the end?
+
+### Don't change a list while looping over it
+Removing items from a list inside `for x in nums` skips elements. Build a new list instead:
+```python
+evens = [x for x in nums if x % 2 == 0]
+```
+=== hi
+### Loop kyun?
+1 se 5 print karne ke liye 5 `print` likhne padenge. 1 se 10 lakh tak likhna ho toh? Loop kehta hai: **ye block baar-baar chalao, har baar thoda sa kuch badal ke.**
+
+> **Analogy:** Track pe laps lagana. Track (loop ka body) har baar same hai, sirf lap counter badalta hai. Counter target pe pahunchte hi ruk jao.
+
+### for loop
+```python
+for i in range(1, 6):
+    print(i)
+```
+Output: 1 2 3 4 5. `i` **loop variable** hai. Har lap mein Python `range(1, 6)` se agli value `i` ko deta hai aur indented body chalata hai.
+
+### range() poori detail mein
+`range` integers ki sequence banata hai. **Stop value kabhi include nahi hoti.**
+| Call | Values | Kitne |
+|---|---|---|
+| `range(5)` | 0, 1, 2, 3, 4 | 5 |
+| `range(1, 6)` | 1, 2, 3, 4, 5 | 5 |
+| `range(0, 10, 2)` | 0, 2, 4, 6, 8 | 5 |
+| `range(5, 0, -1)` | 5, 4, 3, 2, 1 | 5 |
+| `range(3, 3)` | kuch nahi | 0 |
+
+`range(a, b)` mein `b - a` values hoti hain. `range(n)` **exactly n baar** chalta hai, i = 0 se n − 1 tak, bilkul list ki positions jaise. Isliye DSA mein `for i in range(len(nums))` har jagah dikhta hai.
+
+> **Galti:** 1..n chahiye aur likh diya `range(1, n)` → milega 1..n−1. Har loop se pehle do sawaal poocho: *pehle lap mein i kya hai? aakhri lap mein i kya hai?*
+
+### Loop ko trace karna: sabse important skill
+```python
+total = 0
+for i in range(1, 4):
+    total += i
+print(total)
+```
+| lap | i | pehle total | baad mein total |
+|---|---|---|---|
+| 1 | 1 | 0 | 1 |
+| 2 | 2 | 1 | 3 |
+| 3 | 3 | 3 | 6 |
+Har naye loop ko pen-paper pe aise trace karo. Slow lagega, lekin logic isi se banta hai.
+
+### Seedha cheezon pe loop
+`for ch in "cat":` har character deta hai. `for fruit in fruits:` har item deta hai. Position aur value dono chahiye toh `enumerate`: `for i, fruit in enumerate(fruits):`.
+
+### Char loop patterns (yaad kar lo)
+1. **Accumulator** — running total rakho. Start "kuch na karne wali" value se: `+` ke liye 0, `*` ke liye 1.
+2. **Counter** — kitne items condition pass karte hain, gino.
+3. **Best so far** — max ya min track karo. Start pehle element se.
+4. **Search and stop** — mil gaya toh `break`.
+Zyaadatar loop problems inme se ek hoti hain, ya inka mix.
+
+### Loop likhte waqt kaise sochein
+1. Laps ke beech mujhe kya **yaad rakhna** hai? → wo variable banega.
+2. Wo **shuru** mein kya hoga?
+3. Har lap mein kya **badlega**?
+4. Loop kab **rukega**, aur end mein **answer** kahan hoga?
+
+### Loop chalate waqt list mat badlo
+`for x in nums` ke andar list se items remove karoge toh kuch elements skip ho jayenge. Naya list banao: `evens = [x for x in nums if x % 2 == 0]`.
+=== drills
+--- d
+q: What does this print?
+code:
+print(list(range(4)), list(range(2, 9, 3)), list(range(6, 0, -2)))
+answer:
+[0, 1, 2, 3] [2, 5, 8] [6, 4, 2]
+en: The stop value is never included. With step 3 from 2: 2, 5, 8 (11 would pass 9).
+hi: Stop value kabhi include nahi hoti. 2 se step 3: 2, 5, 8 (11 toh 9 se aage hai).
+--- d
+q: How many times does "hi" print?
+code:
+count = 0
+for i in range(3, 20, 4):
+    count += 1
+print(count)
+answer:
+5
+en: i takes 3, 7, 11, 15, 19. List the values, don't guess.
+hi: i ki values: 3, 7, 11, 15, 19. Values likho, guess mat karo.
+--- d
+q: What does this print?
+code:
+product = 1
+for i in range(1, 6):
+    product *= i
+print(product)
+answer:
+120
+en: Accumulator with multiplication must start at 1. This is 5! = 120.
+hi: Multiplication wala accumulator 1 se shuru hota hai. Ye 5! = 120 hai.
+--- d
+kind: write
+q: Write `count_multiples(n, k)` that returns how many numbers from 1 to n are divisible by k, using a loop.
+answer:
+def count_multiples(n, k):
+    count = 0
+    for i in range(1, n + 1):
+        if i % k == 0:
+            count += 1
+    return count
+test:
+check(count_multiples(20, 3), 6)
+check(count_multiples(10, 5), 2)
+check(count_multiples(4, 7), 0)
+en: Counter pattern. range(1, n + 1) makes n inclusive.
+hi: Counter pattern. range(1, n + 1) se n bhi shaamil ho jata hai.
+--- d
+kind: write
+q: Write `find_max(nums)` without using max().
+answer:
+def find_max(nums):
+    best = nums[0]
+    for x in nums:
+        if x > best:
+            best = x
+    return best
+test:
+check(find_max([4, 9, 2, 11, 7]), 11)
+check(find_max([-3, -8, -1]), -1)
+en: Best-so-far pattern. Starting from nums[0] works even when all numbers are negative.
+hi: Best-so-far pattern. nums[0] se shuru karne se negative numbers mein bhi sahi chalega.
+
+## module: py07 | while loops, break, continue
+summary: Loops that run until something happens, digit peeling, infinite loops, break, continue and loop-else.
+=== en
+### while = "keep going while this is true"
+```python
+n = 4729
+digits = 0
+while n > 0:
+    n //= 10
+    digits += 1
+print(digits)    # 4
+```
+`while` checks its condition **before every lap**. If it's true, the body runs; then it checks again.
+
+> **Analogy:** Eating a plate of biryani. You don't count spoonfuls in advance. You keep eating **while** you're still hungry.
+
+### for or while?
+- **for**: you know how many laps, or you visit each item of a collection.
+- **while**: you loop *until something happens*: digits run out, two pointers meet, a search range becomes empty.
+
+Any `for` can be written as `while`:
+```python
+i = 0             # start
+while i < 5:      # check
+    print(i)
+    i += 1        # step
+```
+
+### Infinite loops
+If nothing inside the loop ever makes the condition false, it runs forever:
+```python
+n = 10
+while n > 0:
+    print(n)      # forgot n -= 1  → never ends
+```
+If your program freezes, press **Ctrl + C** and look for the missing update.
+
+### Digit peeling (from Video 1)
+`n % 10` → last digit, `n //= 10` → remove it. With this you can sum digits, count digits, reverse a number, check palindromes:
+```python
+def reverse_number(n):
+    rev = 0
+    while n > 0:
+        rev = rev * 10 + n % 10
+        n //= 10
+    return rev
+```
+| n | n % 10 | rev |
+|---|---|---|
+| 472 | 2 | 2 |
+| 47 | 7 | 27 |
+| 4 | 4 | 274 |
+| 0 | — | stop |
+
+### break and continue
+- `break` → leave the loop **right now**.
+- `continue` → skip the rest of **this lap**, go to the next one.
+```python
+for x in [3, 8, 14, 21]:
+    if x % 7 == 0:
+        print("found", x)
+        break              # 21 is never checked
+
+for i in range(1, 7):
+    if i % 2 == 0:
+        continue           # skip evens
+    print(i)               # 1 3 5
+```
+
+### Loop-else (Python special)
+The `else` of a loop runs **only if the loop finished without break**. Handy for "search, and report if not found":
+```python
+for x in nums:
+    if x == target:
+        print("found")
+        break
+else:
+    print("not found")
+```
+
+### The "do it at least once" loop
+Python has no `do…while`. Use:
+```python
+while True:
+    guess = int(input("Guess: "))
+    if guess == 7:
+        break
+```
+
+> **Tip:** Every while loop needs three things: a variable set up **before** it, a condition that uses it, and an update **inside** it that moves towards stopping.
+=== hi
+### while = "jab tak ye sach hai, chalte raho"
+`while` har lap se **pehle** condition check karta hai. True hai toh body chalti hai, phir se check.
+
+> **Analogy:** Biryani ki plate. Tum pehle se chammach nahi ginte. **Jab tak** bhookh hai, khate raho.
+
+### for ya while?
+- **for**: kitne laps pata hai, ya collection ke har item pe jaana hai.
+- **while**: *jab tak kuch ho na jaaye* tab tak: digits khatam ho jaayein, do pointers mil jaayein, search range khaali ho jaaye.
+
+Har `for` ko `while` mein likh sakte ho: start (`i = 0`), check (`while i < 5`), step (`i += 1` andar).
+
+### Infinite loop
+Agar loop ke andar kuch bhi condition ko False nahi banata, toh loop hamesha chalta rahega. Program atak jaaye toh **Ctrl + C** dabao aur missing update dhoondo (jaise `n -= 1` bhool gaye).
+
+### Digit peeling (Video 1 se)
+`n % 10` → aakhri digit, `n //= 10` → use hata do. Isse digits ka sum, digits ginna, number reverse karna, palindrome check — sab ho jata hai. Reverse ka rule: `rev = rev * 10 + digit`.
+
+### break aur continue
+- `break` → loop se **abhi** bahar.
+- `continue` → **is lap** ka baaki hissa chhodo, agle lap pe jao.
+
+### Loop ka else (Python special)
+Loop ka `else` **sirf tab** chalta hai jab loop bina `break` ke poora khatam hua ho. "Dhoondo, aur na mile toh batao" ke liye useful.
+
+### Kam se kam ek baar chalne wala loop
+Python mein `do…while` nahi hai. `while True:` likho aur andar condition pe `break` karo.
+
+> **Tip:** Har while loop ko teen cheezein chahiye: loop se **pehle** variable set, us variable ko use karne wali condition, aur **andar** ek update jo rukne ki taraf le jaaye.
+=== drills
+--- d
+q: What does this print?
+code:
+n = 4729
+s = 0
+while n > 0:
+    s += n % 10
+    n //= 10
+print(s)
+answer:
+22
+en: 9 + 2 + 7 + 4 = 22 (digits are peeled from the right).
+hi: 9 + 2 + 7 + 4 = 22 (digits right se nikalte hain).
+--- d
+q: What does this print?
+code:
+for i in range(1, 10):
+    if i == 7:
+        break
+    if i % 2 == 0:
+        continue
+    print(i, end=" ")
+print()
+answer:
+1 3 5
+en: Evens are skipped by continue, and the loop stops at 7 before printing it.
+hi: Even numbers continue se skip, aur 7 pe loop print se pehle hi ruk jata hai.
+--- d
+q: What does this print?
+code:
+for x in [4, 6, 8]:
+    if x % 2 == 1:
+        print("odd found")
+        break
+else:
+    print("all even")
+answer:
+all even
+en: The loop never hit break, so the loop's else runs.
+hi: Loop mein kabhi break nahi hua, isliye loop ka else chala.
+--- d
+q: What does this print?
+code:
+i = 10
+steps = 0
+while i != 1:
+    if i % 2 == 0:
+        i //= 2
+    else:
+        i = 3 * i + 1
+    steps += 1
+print(steps)
+answer:
+6
+en: 10 → 5 → 16 → 8 → 4 → 2 → 1 is 6 steps.
+hi: 10 → 5 → 16 → 8 → 4 → 2 → 1, total 6 steps.
+--- d
+kind: write
+q: Write `reverse_number(n)` that reverses the digits of a non-negative integer (1200 → 21).
+answer:
+def reverse_number(n):
+    rev = 0
+    while n > 0:
+        rev = rev * 10 + n % 10
+        n //= 10
+    return rev
+test:
+check(reverse_number(472), 274)
+check(reverse_number(1200), 21)
+check(reverse_number(0), 0)
+en: Digit peeling + building a number with rev * 10 + digit.
+hi: Digit peeling + rev * 10 + digit se naya number banana.
+
+## module: py08 | Nested loops and patterns
+summary: A loop inside a loop, the row/column way of thinking, and star patterns derived from a table.
+=== en
+### A loop inside a loop
+```python
+for i in range(1, 4):
+    for j in range(1, 5):
+        print(f"({i},{j})", end=" ")
+    print()
+```
+Output:
+```
+(1,1) (1,2) (1,3) (1,4)
+(2,1) (2,2) (2,3) (2,4)
+(3,1) (3,2) (3,3) (3,4)
+```
+For **each** value of i, j runs its **whole** range from the start. The inner body runs 3 × 4 = 12 times.
+
+> **Analogy:** A clock. The minute hand goes all the way round (60 steps) for every single step of the hour hand. Outer loop = hour hand, inner loop = minute hand.
+
+### The pattern method (table first, code second)
+Star patterns are the gym for nested loops. Never guess the code. Use this method:
+1. **Rows** → outer loop.
+2. What's **in each row**? → inner loop(s).
+3. Make a **table**: row number → how many spaces, how many stars.
+4. Find the **formula**.
+5. Code it, then trace one row.
+
+### Right triangle
+```
+*
+**
+***
+****
+```
+| row i | stars |
+|---|---|
+| 1 | 1 |
+| 2 | 2 |
+| 3 | 3 |
+Stars = i, so:
+```python
+n = 4
+for i in range(1, n + 1):
+    print("*" * i)
+```
+In Python, `"*" * i` repeats a string, so one loop is enough. To practise real nesting, write it with two loops too:
+```python
+for i in range(1, n + 1):
+    for j in range(i):
+        print("*", end="")
+    print()
+```
+
+### Inverted triangle
+| row i | stars | i + stars |
+|---|---|---|
+| 1 | 4 | 5 |
+| 2 | 3 | 5 |
+| 3 | 2 | 5 |
+| 4 | 1 | 5 |
+`i + stars` is always n + 1, so **stars = n − i + 1**.
+
+### Pyramid
+```
+   *
+  ***
+ *****
+*******
+```
+| row i | spaces | stars |
+|---|---|---|
+| 1 | 3 | 1 |
+| 2 | 2 | 3 |
+| 3 | 1 | 5 |
+| 4 | 0 | 7 |
+spaces = **n − i**, stars = **2i − 1** (odd numbers).
+```python
+for i in range(1, n + 1):
+    print(" " * (n - i) + "*" * (2 * i - 1))
+```
+
+### Number patterns
+Replace the star with a value that depends on i or j:
+```python
+for i in range(1, 5):
+    print(" ".join(str(j) for j in range(1, i + 1)))
+# 1 / 1 2 / 1 2 3 / 1 2 3 4
+```
+
+### Nested loops over data
+The pattern `for i in range(n): for j in range(i + 1, n):` visits every **pair** exactly once (the handshake problem). It's the brute force for many problems like Two Sum, and it costs **O(n²)**.
+
+> **Tip:** When a pattern shrinks or grows, look for something that stays **constant** in the table (like i + stars = n + 1). Tables turn guessing into seeing.
+=== hi
+### Loop ke andar loop
+Outer loop ki **har** value ke liye inner loop apni **poori** range shuru se chalata hai. 3 × 4 = 12 baar inner body chalti hai.
+
+> **Analogy:** Ghadi. Ghante ki sui ke har ek step pe minute ki sui poora chakkar (60 steps) lagati hai. Outer loop = ghante ki sui, inner loop = minute ki sui.
+
+### Pattern method (pehle table, phir code)
+Star patterns nested loops ka gym hain. Kabhi guess mat karo:
+1. **Rows** → outer loop.
+2. Har **row mein kya** hai? → inner loop.
+3. **Table** banao: row number → kitne spaces, kitne stars.
+4. **Formula** dhoondo.
+5. Code likho, phir ek row trace karo.
+
+### Right triangle
+Row i mein i stars, isliye `print("*" * i)`. Python mein `"*" * i` string repeat karta hai, lekin practice ke liye do loops se bhi likho.
+
+### Ulta triangle
+Table mein dekho: `i + stars` hamesha n + 1 hai, toh **stars = n − i + 1**.
+
+### Pyramid
+spaces = **n − i**, stars = **2i − 1** (odd numbers). `print(" " * (n - i) + "*" * (2 * i - 1))`.
+
+### Number patterns
+Star ki jagah i ya j pe depend karne wali value daal do.
+
+### Data pe nested loops
+`for i in range(n): for j in range(i + 1, n):` har **pair** ko exactly ek baar dekhta hai (handshake problem). Two Sum jaisi problems ka brute force yahi hai, aur cost **O(n²)** hai.
+
+> **Tip:** Pattern badh raha ho ya ghat raha ho, table mein kuch **constant** dhoondo (jaise i + stars = n + 1). Table guess ko "dekhne" mein badal deti hai.
+=== drills
+--- d
+q: What does this print?
+code:
+n = 4
+for i in range(1, n + 1):
+    print("*" * (n - i + 1))
+answer:
+****
+***
+**
+*
+en: stars = n − i + 1 gives 4, 3, 2, 1.
+hi: stars = n − i + 1 se 4, 3, 2, 1 milte hain.
+--- d
+q: What does this print?
+code:
+n = 3
+for i in range(1, n + 1):
+    print(" " * (n - i) + "*" * (2 * i - 1))
+answer:
+  *
+ ***
+*****
+en: spaces = n − i (2, 1, 0) and stars = 2i − 1 (1, 3, 5).
+hi: spaces = n − i (2, 1, 0) aur stars = 2i − 1 (1, 3, 5).
+--- d
+q: How many times does the inner body run?
+code:
+count = 0
+n = 5
+for i in range(n):
+    for j in range(i + 1, n):
+        count += 1
+print(count)
+answer:
+10
+en: Every pair (i, j) with i < j once: n(n − 1)/2 = 5 × 4 / 2 = 10.
+hi: Har pair (i, j) jisme i < j, ek baar: n(n − 1)/2 = 10.
+--- d
+q: What does this print?
+code:
+for i in range(1, 5):
+    print(" ".join(str(j) for j in range(1, i + 1)))
+answer:
+1
+1 2
+1 2 3
+1 2 3 4
+en: Row i prints the numbers 1..i.
+hi: Row i mein 1 se i tak numbers.
+--- d
+kind: write
+q: Write `hollow_square(n)` that returns a list of n strings forming a hollow square of stars (border stars, spaces inside). For n = 4 → ["****", "*  *", "*  *", "****"].
+answer:
+def hollow_square(n):
+    rows = []
+    for i in range(n):
+        if i == 0 or i == n - 1:
+            rows.append("*" * n)
+        else:
+            rows.append("*" + " " * (n - 2) + "*")
+    return rows
+test:
+check(hollow_square(4), ["****", "*  *", "*  *", "****"])
+check(hollow_square(2), ["**", "**"])
+en: First and last rows are full; middle rows are a star, n − 2 spaces, a star.
+hi: Pehli aur aakhri row poori stars; beech ki rows mein star, n − 2 spaces, star.
+
+## module: py09 | Strings
+summary: Indexing, negative indexes, slicing, immutability, string methods, ord/chr and building strings efficiently.
+=== en
+### A string is a row of characters
+```python
+s = "PYTHON"
+```
+| char | P | Y | T | H | O | N |
+|---|---|---|---|---|---|---|
+| index | 0 | 1 | 2 | 3 | 4 | 5 |
+| negative index | -6 | -5 | -4 | -3 | -2 | -1 |
+
+> **Analogy:** Beads on a thread, each with a number tag starting from 0. Negative tags count from the end: `-1` is the last bead.
+
+```python
+print(len(s))    # 6
+print(s[0])      # P
+print(s[-1])     # N  (same as s[len(s) - 1])
+print(s[6])      # IndexError: string index out of range
+```
+
+### Slicing: s[start:stop:step]
+Like `range`, **start is included, stop is not**.
+```python
+s = "PYTHON"
+s[1:4]     # "YTH"   indexes 1, 2, 3
+s[:3]      # "PYT"   from the start
+s[3:]      # "HON"   to the end
+s[::2]     # "PTO"   every second char
+s[::-1]    # "NOHTYP" reversed!
+```
+Slices never raise IndexError: `s[2:100]` just stops at the end.
+
+### Strings are immutable
+You can't change a character in place:
+```python
+s[0] = "J"          # TypeError
+s = "J" + s[1:]     # build a NEW string instead → "JYTHON"
+```
+
+### Looping over strings
+```python
+for ch in s:                   # each character
+    ...
+for i in range(len(s)):        # each index (when you need s[i-1], s[i+1]…)
+    ...
+for i, ch in enumerate(s):     # both
+    ...
+```
+
+### Everyday string methods
+| Method | Does | Example |
+|---|---|---|
+| `lower()`, `upper()` | change case | `"Hi".lower()` → "hi" |
+| `strip()` | remove spaces at both ends | `"  a b ".strip()` → "a b" |
+| `split()` | break into a list of words | `"a b  c".split()` → ['a', 'b', 'c'] |
+| `" ".join(list)` | glue a list into one string | `"-".join(['a','b'])` → "a-b" |
+| `replace(a, b)` | replace text | `"aXa".replace("X","-")` |
+| `find(x)` | first index or -1 | `"hello".find("l")` → 2 |
+| `count(x)` | occurrences | `"banana".count("a")` → 3 |
+| `startswith`, `endswith` | prefix/suffix test | |
+| `isdigit()`, `isalpha()`, `isalnum()` | character tests | `"a1".isalnum()` → True |
+| `in` | substring test | `"ana" in "banana"` → True |
+
+All of them return **new** strings; the original never changes.
+
+### Characters are numbers: ord() and chr()
+```python
+ord("a")   # 97
+ord("b")   # 98
+chr(97)    # "a"
+ord("d") - ord("a")   # 3 → position in the alphabet
+```
+This lets you count letters in a list of 26 slots: `count[ord(ch) - ord("a")] += 1`. Every anagram problem uses it.
+
+### Building strings efficiently
+Adding to a string in a loop (`result += ch`) creates a new string every time, which can be slow for long strings (O(n²) in the worst case). The Pythonic way: collect pieces in a list and `join` once:
+```python
+parts = []
+for ch in s:
+    if ch != " ":
+        parts.append(ch)
+result = "".join(parts)
+```
+
+### Comparing strings
+`==` compares contents. `<` compares alphabetically (by character codes): `"apple" < "banana"`, and `"Zebra" < "apple"` because uppercase letters have smaller codes.
+
+> **Think:** Palindrome check. By hand you compare the first and last characters, then move inward. In Python: `s == s[::-1]`, or two pointers `l` and `r` (Two Pointers topic).
+=== hi
+### String characters ki ek row hai
+`s = "PYTHON"` mein har character ka index hota hai: P=0, Y=1 … N=5. Negative index peeche se ginte hain: `-1` aakhri character.
+
+> **Analogy:** Dhaage mein moti, har moti pe 0 se shuru hone wala number tag. Negative tags end se ginte hain.
+
+`len(s)` = 6, `s[0]` = P, `s[-1]` = N, aur `s[6]` pe IndexError aata hai.
+
+### Slicing: s[start:stop:step]
+`range` jaisa hi: **start include, stop nahi**.
+- `s[1:4]` → "YTH" (index 1, 2, 3)
+- `s[:3]` → "PYT", `s[3:]` → "HON"
+- `s[::2]` → har doosra character
+- `s[::-1]` → poori string ulti!
+Slice kabhi IndexError nahi deta: `s[2:100]` end pe ruk jata hai.
+
+### Strings immutable hain
+`s[0] = "J"` TypeError dega. Naya string banao: `s = "J" + s[1:]`.
+
+### Strings pe loop
+`for ch in s:` har character, `for i in range(len(s)):` har index (jab `s[i-1]` jaisa kuch chahiye), `for i, ch in enumerate(s):` dono.
+
+### Roz kaam aane wale methods
+`lower()`, `upper()`, `strip()` (dono taraf ke spaces hatao), `split()` (words ki list), `" ".join(list)` (list ko jodo), `replace()`, `find()` (index ya -1), `count()`, `startswith()`, `isdigit()`, `isalpha()`, `isalnum()`, aur `in` (substring hai ya nahi). Ye sab **naya** string return karte hain, original kabhi nahi badalta.
+
+### Characters asal mein numbers hain: ord() aur chr()
+`ord("a")` = 97, `ord("b")` = 98, `chr(97)` = "a". `ord("d") - ord("a")` = 3 → alphabet mein position. Isse 26 slots wali list mein letters gin sakte ho: `count[ord(ch) - ord("a")] += 1`. Har anagram problem mein ye trick lagti hai.
+
+### String efficiently banana
+Loop mein `result += ch` har baar naya string banata hai, lambi strings ke liye slow. Pythonic tareeka: pieces list mein daalo aur end mein ek baar `"".join(parts)`.
+
+### Strings compare karna
+`==` content compare karta hai. `<` alphabetical order (character codes se): `"apple" < "banana"`, aur `"Zebra" < "apple"` kyunki capital letters ke codes chhote hote hain.
+
+> **Socho:** Palindrome check. Haath se tum pehla aur aakhri character compare karte ho, phir andar aate ho. Python mein: `s == s[::-1]`, ya do pointers `l` aur `r` (Two Pointers topic).
+=== drills
+--- d
+q: What does this print?
+code:
+s = "PROGRAMMING"
+print(s[0], s[-1], s[3:7], s[:4], s[-3:])
+answer:
+P G GRAM PROG ING
+en: s[3:7] takes indexes 3–6. s[-3:] takes the last three characters.
+hi: s[3:7] index 3 se 6 tak. s[-3:] aakhri teen characters.
+--- d
+q: What does this print?
+code:
+s = "racecar"
+t = "hello"
+print(s == s[::-1], t == t[::-1], t[::-1])
+answer:
+True False olleh
+en: s[::-1] reverses a string, so a palindrome equals its reverse.
+hi: s[::-1] string ulti kar deta hai; palindrome apne reverse ke barabar hota hai.
+--- d
+q: What does this print?
+code:
+words = "  the quick  brown fox ".split()
+print(words)
+print("-".join(words).upper())
+answer:
+['the', 'quick', 'brown', 'fox']
+THE-QUICK-BROWN-FOX
+en: split() with no argument splits on any run of spaces and ignores leading/trailing spaces.
+hi: Bina argument ke split() kitne bhi spaces pe todta hai aur shuru/end ke spaces ignore karta hai.
+--- d
+q: What does this print?
+code:
+word = "banana"
+count = [0] * 26
+for ch in word:
+    count[ord(ch) - ord("a")] += 1
+print(count[0], count[1], count[13], chr(ord("a") + 13))
+answer:
+3 1 2 n
+en: Slot 0 is 'a', slot 1 is 'b', slot 13 is 'n'.
+hi: Slot 0 'a' hai, slot 1 'b', slot 13 'n'.
+--- d
+kind: write
+q: Write `count_vowels(s)` that counts a, e, i, o, u (either case).
+answer:
+def count_vowels(s):
+    count = 0
+    for ch in s.lower():
+        if ch in "aeiou":
+            count += 1
+    return count
+test:
+check(count_vowels("Hello World"), 3)
+check(count_vowels("xyz"), 0)
+check(count_vowels("AEIOU"), 5)
+en: Counter pattern over characters; lower() handles capitals.
+hi: Characters pe counter pattern; lower() capital letters sambhal leta hai.
+
+## module: py10 | Lists (Python's arrays)
+summary: Creating, indexing, slicing and changing lists; methods and their costs; 2-D lists; copying vs aliasing; comprehensions.
+=== en
+### A list is a row of boxes
+```python
+marks = [70, 85, 90]
+```
+Like strings, lists have indexes from 0, negative indexes and slicing. **Unlike** strings, lists are **mutable**: you can change them.
+
+> **Analogy:** A train. Each compartment has a number (0, 1, 2, …) and holds one passenger. You can swap a passenger, add a compartment at the end, or remove one.
+
+```python
+marks[1] = 88          # change → [70, 88, 90]
+marks.append(60)       # add at end → [70, 88, 90, 60]
+marks.insert(0, 50)    # add at front → [50, 70, 88, 90, 60]
+marks.pop()            # remove & return last → 60
+marks.pop(0)           # remove & return index 0 → 50
+marks.remove(88)       # remove first occurrence of the VALUE 88
+print(marks)           # [70, 90]
+```
+
+### More list tools
+```python
+nums = [3, 1, 4, 1, 5]
+len(nums), sum(nums), min(nums), max(nums)   # 5, 14, 1, 5
+nums.count(1)       # 2
+nums.index(4)       # 2  (ValueError if missing)
+4 in nums           # True
+nums.sort()         # sorts IN PLACE → [1, 1, 3, 4, 5], returns None
+new = sorted(nums, reverse=True)   # returns a NEW sorted list
+nums.reverse()      # in place;  nums[::-1] gives a new reversed list
+nums.extend([9, 2]) # add many at the end
+```
+> **Mistake:** `nums = nums.sort()` sets nums to `None`. Use either `nums.sort()` or `nums = sorted(nums)`.
+
+### Creating lists
+```python
+zeros = [0] * 5                  # [0, 0, 0, 0, 0]
+squares = [i * i for i in range(5)]   # [0, 1, 4, 9, 16]
+evens = [x for x in nums if x % 2 == 0]
+letters = list("abc")            # ['a', 'b', 'c']
+```
+The `[expression for item in iterable if condition]` form is a **list comprehension**: a compact loop that builds a list.
+
+### Walking through a list
+```python
+for x in nums:                    # values only
+for i in range(len(nums)):        # indexes (need neighbours like nums[i+1])
+for i, x in enumerate(nums):      # both
+```
+
+### What each operation costs (important for DSA)
+| Operation | Cost |
+|---|---|
+| `nums[i]`, `nums[i] = x` | O(1) |
+| `append(x)`, `pop()` (from the end) | O(1) |
+| `insert(0, x)`, `pop(0)` | O(n): everything shifts |
+| `x in nums`, `nums.index(x)`, `remove(x)` | O(n): scans |
+| `nums[a:b]` (slice) | O(b − a): makes a copy |
+| `sort()` | O(n log n) |
+Using `x in nums` inside a loop makes the whole thing O(n²). Use a **set** for fast membership (module 11).
+
+### Aliasing: two names, one list
+```python
+a = [1, 2, 3]
+b = a          # b is the SAME list, not a copy
+b.append(4)
+print(a)       # [1, 2, 3, 4]  ← a changed too!
+c = a.copy()   # or a[:] or list(a): a real (shallow) copy
+```
+> **Analogy:** `b = a` gives a second name-tag to the same train. `a.copy()` builds a second train.
+
+### 2-D lists (grids)
+```python
+grid = [[1, 0, 1],
+        [0, 1, 1]]
+grid[1][2]       # row 1, column 2 → 1
+rows, cols = len(grid), len(grid[0])
+for r in range(rows):
+    for c in range(cols):
+        print(grid[r][c], end=" ")
+```
+Create an empty grid correctly:
+```python
+good = [[0] * cols for _ in range(rows)]   # each row is a new list
+bad = [[0] * cols] * rows                  # every row is the SAME list!
+```
+With `bad`, changing `bad[0][0]` changes the first cell of **every** row. This is the most famous Python bug in interviews.
+
+### Two pointers preview
+Reversing a list in place: swap the first and last, move both inward.
+```python
+l, r = 0, len(a) - 1
+while l < r:
+    a[l], a[r] = a[r], a[l]
+    l += 1
+    r -= 1
+```
+=== hi
+### List dabbon ki ek row hai
+`marks = [70, 85, 90]`. String jaise hi index 0 se, negative index aur slicing. **Farak:** list **mutable** hai, badal sakte ho.
+
+> **Analogy:** Train. Har dibbe ka number hai (0, 1, 2 …) aur usme ek passenger hai. Passenger badal sakte ho, end mein naya dibba jod sakte ho, ya koi dibba hata sakte ho.
+
+- `marks[1] = 88` → value badlo
+- `append(x)` → end mein jodo
+- `insert(0, x)` → shuru mein jodo
+- `pop()` → aakhri hatao aur return karo; `pop(0)` → pehla
+- `remove(88)` → value 88 ka pehla occurrence hatao
+
+### Aur tools
+`len`, `sum`, `min`, `max`, `count`, `index`, `in`, `sort()` (list ko **wahi pe** sort karta hai aur `None` return karta hai), `sorted()` (**nayi** sorted list deta hai), `reverse()`, `extend()`.
+
+> **Galti:** `nums = nums.sort()` se nums `None` ho jayega. Ya toh `nums.sort()` ya `nums = sorted(nums)`.
+
+### List banana
+`[0] * 5`, `[i * i for i in range(5)]`, `[x for x in nums if x % 2 == 0]`. Ye `[expression for item in iterable if condition]` wala form **list comprehension** hai: chhota loop jo list banata hai.
+
+### Kis cheez ki kitni cost (DSA ke liye zaroori)
+| Operation | Cost |
+|---|---|
+| `nums[i]` padhna/likhna | O(1) |
+| `append`, end se `pop()` | O(1) |
+| `insert(0, x)`, `pop(0)` | O(n): sab khisakte hain |
+| `x in nums`, `index`, `remove` | O(n): poori list scan |
+| `sort()` | O(n log n) |
+Loop ke andar `x in nums` → poora O(n²). Fast membership ke liye **set** use karo (module 11).
+
+### Aliasing: do naam, ek list
+`b = a` copy nahi banata; dono same list ko point karte hain. `b.append(4)` karoge toh `a` bhi badal jayega. Asli copy: `a.copy()`, `a[:]` ya `list(a)`.
+
+> **Analogy:** `b = a` same train pe doosra name-tag laga deta hai. `a.copy()` doosri train bana deta hai.
+
+### 2-D lists (grid)
+`grid[r][c]` = row r, column c. `rows, cols = len(grid), len(grid[0])`. Khaali grid sahi tareeke se banao: `[[0] * cols for _ in range(rows)]`. **Galat:** `[[0] * cols] * rows` — isme har row SAME list hai, ek cell badlo toh sab rows badal jaati hain. Interviews ka sabse famous Python bug.
+
+### Two pointers ki jhalak
+List ko wahi pe reverse karna: pehla aur aakhri swap karo, dono andar aao: `a[l], a[r] = a[r], a[l]`.
+=== drills
+--- d
+q: What does this print?
+code:
+nums = [5, 3, 8]
+nums.append(1)
+nums.insert(1, 9)
+x = nums.pop(0)
+print(nums, x)
+answer:
+[9, 3, 8, 1] 5
+en: After append: [5, 3, 8, 1]; insert 9 at index 1: [5, 9, 3, 8, 1]; pop(0) removes 5.
+hi: append ke baad [5, 3, 8, 1]; index 1 pe 9: [5, 9, 3, 8, 1]; pop(0) ne 5 hataya.
+--- d
+q: What does this print?
+code:
+a = [1, 2, 3]
+b = a
+c = a[:]
+b.append(4)
+print(a, c)
+answer:
+[1, 2, 3, 4] [1, 2, 3]
+en: b is another name for the same list; c is a copy.
+hi: b usi list ka doosra naam hai; c ek copy hai.
+--- d
+q: What does this print?
+code:
+bad = [[0] * 3] * 2
+good = [[0] * 3 for _ in range(2)]
+bad[0][0] = 7
+good[0][0] = 7
+print(bad)
+print(good)
+answer:
+[[7, 0, 0], [7, 0, 0]]
+[[7, 0, 0], [0, 0, 0]]
+en: In `bad`, both rows are the same list object.
+hi: `bad` mein dono rows ek hi list object hain.
+--- d
+q: What does this print?
+code:
+nums = [4, 1, 3]
+result = nums.sort()
+print(result, nums, sorted([9, 2, 5], reverse=True))
+answer:
+None [1, 3, 4] [9, 5, 2]
+en: sort() changes the list and returns None; sorted() returns a new list.
+hi: sort() list badalta hai aur None return karta hai; sorted() nayi list deta hai.
+--- d
+kind: write
+q: Write `reverse_in_place(a)` that reverses a list using two pointers (no slicing, no reverse()).
+answer:
+def reverse_in_place(a):
+    l, r = 0, len(a) - 1
+    while l < r:
+        a[l], a[r] = a[r], a[l]
+        l += 1
+        r -= 1
+    return a
+test:
+check(reverse_in_place([1, 2, 3, 4, 5]), [5, 4, 3, 2, 1])
+check(reverse_in_place([1, 2]), [2, 1])
+check(reverse_in_place([]), [])
+en: Swap the ends and move inward until the pointers meet.
+hi: Dono ends swap karo aur andar aao jab tak pointers mil na jaayein.
+--- d
+kind: write
+q: Write `second_largest(nums)` that returns the second largest DISTINCT value, or -1 if none (values ≥ 0).
+answer:
+def second_largest(nums):
+    first = second = -1
+    for x in nums:
+        if x > first:
+            second = first
+            first = x
+        elif first > x > second:
+            second = x
+    return second
+test:
+check(second_largest([5, 9, 3, 9, 7]), 7)
+check(second_largest([4, 4]), -1)
+check(second_largest([1, 2]), 1)
+en: Two best-so-far variables. Push the old first down before replacing it.
+hi: Do best-so-far variables. Naya first rakhne se pehle purane first ko second mein bhejo.

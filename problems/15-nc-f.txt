@@ -1,0 +1,1338 @@
+## topic: greedy | Greedy
+
+### maximum-subarray
+title: Maximum Subarray
+lc: 53 maximum-subarray
+diff: Medium
+pattern: Kadane's algorithm
+problem: Largest sum of a contiguous (non-empty) subarray.
+example: [-2, 1, -3, 4, -1, 2, 1, -5, 4] → 6 ([4, -1, 2, 1])
+analogy: Carrying a backpack of past days' profits: if the backpack's total ever goes negative, it's only dragging you down, so drop it and start fresh today.
+hints:
+- Walk left to right keeping the best sum of a subarray ENDING here.
+- If the running sum is negative, it can only hurt: start fresh at the current number.
+- Track the best seen.
+brute: For each start, extend and track sums: O(n²).
+brutecx: O(n²)
+signal: "Max sum of a contiguous subarray" → **Kadane: cur = max(x, cur + x)**.
+optimal:
+- cur = best = nums[0]; for x in nums[1:]: cur = max(x, cur + x); best = max(best, cur).
+cx: O(n) time · O(1) space
+code:
+def max_sub_array(nums):
+    cur = best = nums[0]
+    for x in nums[1:]:
+        cur = max(x, cur + x)
+        best = max(best, cur)
+    return best
+test:
+check(max_sub_array([-2, 1, -3, 4, -1, 2, 1, -5, 4]), 6)
+check(max_sub_array([-3, -1, -2]), -1)
+trace:
+x | cur | best
+−2 | −2 | −2
+1 | 1 | 1
+−3 | −2 | 1
+4 | 4 | 4
+−1 | 3 | 4
+2 | 5 | 5
+1 | 6 | 6
+−5 | 1 | 6
+4 | 5 | 6
+mistakes:
+- Starting best at 0 (wrong when all numbers are negative).
+hinglish:
+## Sawaal
+Lagatar subarray ka sabse bada sum.
+## Analogy
+Pichhle dinon ke profit ka bag uthaye chal rahe ho: agar bag ka total kabhi negative ho jaaye toh wo sirf bojh hai, phenko aur aaj se naya shuru karo.
+## Kaise sochein
+- Yahan khatam hone wale subarray ka best sum rakho.
+- Running sum negative → naye se shuru.
+## Pattern pehchano
+Max contiguous sum → Kadane.
+## Galtiyan
+best = 0 se shuru.
+
+### jump-game
+title: Jump Game
+lc: 55 jump-game
+diff: Medium
+pattern: Greedy: farthest reach
+problem: nums[i] is the max jump from i. Starting at 0, can you reach the last index?
+example: [2, 3, 1, 1, 4] → True;   [3, 2, 1, 0, 4] → False
+analogy: Crossing a river on stones where each stone says how far you can jump. Keep a marker at the farthest stone you could possibly reach so far; if you ever stand past that marker, you're stuck.
+hints:
+- Keep reach = farthest index reachable so far.
+- Walk i; if i > reach → stuck → False.
+- Else reach = max(reach, i + nums[i]).
+brute: DP/DFS from each index: O(n²).
+brutecx: O(n²)
+signal: "Can I reach…" with jump ranges → **greedy farthest reach**.
+optimal:
+- reach = 0; for i, x: if i > reach → False; reach = max(reach, i + x). True.
+cx: O(n)
+code:
+def can_jump(nums):
+    reach = 0
+    for i, x in enumerate(nums):
+        if i > reach:
+            return False
+        reach = max(reach, i + x)
+    return True
+test:
+check(can_jump([2, 3, 1, 1, 4]), True)
+check(can_jump([3, 2, 1, 0, 4]), False)
+check(can_jump([0]), True)
+mistakes:
+- Always taking the maximum jump (can overshoot a better route).
+hinglish:
+## Sawaal
+nums[i] = i se maximum jump. 0 se aakhri index tak pahunch sakte ho?
+## Analogy
+Nadi ke pathar jahan har pathar batata hai kitna jump kar sakte ho. Ab tak ke sabse door pahunchne layak pathar pe marker rakho; kabhi marker se aage khade ho gaye toh atak gaye.
+## Kaise sochein
+- reach = ab tak ka sabse door index.
+- i > reach → False; warna reach update.
+## Pattern pehchano
+Jump ranges se reachability → greedy farthest reach.
+
+### jump-game-ii
+title: Jump Game II
+lc: 45 jump-game-ii
+diff: Medium
+pattern: Greedy BFS by jump levels
+problem: The end is reachable; return the minimum number of jumps.
+example: [2, 3, 1, 1, 4] → 2
+analogy: Bus zones: from your current zone, look at every stop you can reach and find the farthest place the NEXT bus can take you. Each zone change is one jump.
+hints:
+- Think in BFS levels: indexes reachable with 1 jump, then 2 …
+- The current level is a window [.., cur_end]; the next ends at the farthest i + nums[i] inside it.
+- Count windows until the end is covered.
+brute: DP min jumps: O(n²).
+brutecx: O(n²)
+signal: "Minimum jumps" → **BFS levels as index windows**.
+optimal:
+- jumps = cur_end = farthest = 0; for i in 0..n−2: farthest = max(...); if i == cur_end: jumps += 1; cur_end = farthest.
+cx: O(n)
+code:
+def jump(nums):
+    jumps = cur_end = farthest = 0
+    for i in range(len(nums) - 1):
+        farthest = max(farthest, i + nums[i])
+        if i == cur_end:
+            jumps += 1
+            cur_end = farthest
+    return jumps
+test:
+check(jump([2, 3, 1, 1, 4]), 2)
+check(jump([2, 3, 0, 1, 4]), 2)
+check(jump([0]), 0)
+mistakes:
+- Looping to the last index (counts an extra jump).
+hinglish:
+## Sawaal
+End tak pahunchne ke minimum jumps.
+## Analogy
+Bus zones: apne zone ke har stop se dekho agla bus sabse door kahan le ja sakti hai. Har zone change ek jump.
+## Kaise sochein
+- BFS levels socho: 1 jump se pahunchne wale, phir 2…
+- Current level ek window; agli window uske andar ke sabse door i + nums[i] tak.
+## Pattern pehchano
+Minimum jumps → windows wala BFS.
+## Galtiyan
+Aakhri index tak loop.
+
+### gas-station
+title: Gas Station
+lc: 134 gas-station
+diff: Medium
+pattern: Greedy: reset the start when the tank goes negative
+problem: gas[i] added at station i; cost[i] to reach the next. Return the start index for a full circle, or −1.
+example: gas [1,2,3,4,5], cost [3,4,5,1,2] → 3
+analogy: A road trip around a ring road: if you run dry between A and B, then starting anywhere from A to B wouldn't help either (you'd arrive with even less fuel). So the next possible start is just after B.
+hints:
+- Total gas < total cost → impossible.
+- Otherwise walk once with a tank; tank < 0 at i → no start from the current start to i works; start at i + 1.
+- The last start chosen is the answer.
+brute: Try every start: O(n²).
+brutecx: O(n²)
+signal: Circular route with a running balance → **greedy reset + total check**.
+optimal:
+- total, tank, start; for i: diff; add to both; tank < 0 → start = i + 1, tank = 0. Return start if total ≥ 0 else −1.
+cx: O(n)
+code:
+def can_complete_circuit(gas, cost):
+    total = tank = start = 0
+    for i in range(len(gas)):
+        diff = gas[i] - cost[i]
+        total += diff
+        tank += diff
+        if tank < 0:
+            start, tank = i + 1, 0
+    return start if total >= 0 else -1
+test:
+check(can_complete_circuit([1, 2, 3, 4, 5], [3, 4, 5, 1, 2]), 3)
+check(can_complete_circuit([2, 3, 4], [3, 4, 3]), -1)
+mistakes:
+- Skipping the total check.
+hinglish:
+## Sawaal
+Gol raaste pe gas stations; kahan se shuru karein ki poora chakkar lage? Na ho toh −1.
+## Analogy
+Ring road trip: agar A aur B ke beech petrol khatam ho gaya, toh A se B ke beech kahin se bhi shuru karna bekaar (aur kam petrol ke saath pahunchoge). Agla possible start B ke theek baad.
+## Kaise sochein
+- Total gas < total cost → impossible.
+- Ek pass: tank < 0 at i → start = i + 1.
+## Pattern pehchano
+Circular route + balance → greedy reset + total check.
+
+### hand-of-straights
+title: Hand of Straights
+lc: 846 hand-of-straights
+diff: Medium
+pattern: Greedy from the smallest card + counts
+problem: Can the cards be split into groups of groupSize consecutive values?
+example: [1,2,3,6,2,3,4,7,8], 3 → True
+analogy: Arranging students into relay teams of consecutive roll numbers: the smallest roll number left MUST start a team, because nobody smaller can come before them.
+hints:
+- The smallest remaining card must start a group.
+- Take x, x + 1, …, x + size − 1 from the counts.
+- Anything missing → False.
+brute: Try all groupings.
+brutecx: exponential
+signal: Consecutive groups → **greedy from the smallest using counts**.
+optimal:
+- count = Counter(hand); for x in sorted(count): while count[x] > 0: for k in range(size): if count[x + k] == 0 → False; count[x + k] −= 1.
+cx: O(n log n)
+code:
+from collections import Counter
+
+def is_n_straight_hand(hand, size):
+    if len(hand) % size:
+        return False
+    count = Counter(hand)
+    for x in sorted(count):
+        while count[x] > 0:
+            for k in range(size):
+                if count[x + k] == 0:
+                    return False
+                count[x + k] -= 1
+    return True
+test:
+check(is_n_straight_hand([1, 2, 3, 6, 2, 3, 4, 7, 8], 3), True)
+check(is_n_straight_hand([1, 2, 3, 4, 5], 4), False)
+mistakes:
+- Starting groups from arbitrary cards instead of the smallest.
+hinglish:
+## Sawaal
+Cards ko groupSize ke lagatar values wale groups mein baant sakte ho?
+## Analogy
+Students ko lagatar roll numbers wali relay teams mein baantna: bacha hua sabse chhota roll number team ZAROOR shuru karega, kyunki usse chhota koi pehle aa hi nahi sakta.
+## Kaise sochein
+- Sabse chhota bacha card group shuru karega.
+- x, x + 1, … counts se lo; kuch missing → False.
+## Pattern pehchano
+Lagatar groups → sabse chhote se greedy.
+
+### merge-triplets-to-form-target-triplet
+title: Merge Triplets to Form Target
+lc: 1899 merge-triplets-to-form-target-triplet
+diff: Medium
+pattern: Greedy filtering
+problem: Merging takes the max per position. Can you reach exactly target?
+example: [[2,5,3],[1,8,4],[1,7,5]], target [2,7,5] → True
+analogy: Mixing paint colours where each mix keeps the strongest shade per channel: any paint with even one channel too strong would ruin the mix, so throw those away and check whether the rest cover every target channel.
+hints:
+- A triplet with any value above target can never be used (max only grows).
+- All other triplets are safe to merge.
+- Check each target position is matched by some safe triplet.
+brute: Try all subsets.
+brutecx: O(2ⁿ)
+signal: "Combine with max" → **discard overshoots, check coverage**.
+optimal:
+- found = set(); for t: skip if any t[i] > target[i]; add i where t[i] == target[i]. len(found) == 3.
+cx: O(n)
+code:
+def merge_triplets(triplets, target):
+    found = set()
+    for t in triplets:
+        if all(t[i] <= target[i] for i in range(3)):
+            found |= {i for i in range(3) if t[i] == target[i]}
+    return len(found) == 3
+test:
+check(merge_triplets([[2, 5, 3], [1, 8, 4], [1, 7, 5]], [2, 7, 5]), True)
+check(merge_triplets([[3, 4, 5], [4, 5, 6]], [3, 2, 5]), False)
+mistakes:
+- Using a triplet that overshoots another position.
+hinglish:
+## Sawaal
+Merge = har position ka max. Kya exactly target bana sakte ho?
+## Analogy
+Paint mix karna jahan har mix har channel ka sabse gehra shade rakhta hai: jis paint ka ek bhi channel zyada gehra ho wo mix bigaad dega, use hatao; baaki se har target channel cover hota hai ya nahi check karo.
+## Kaise sochein
+- Kisi position pe target se bada → kabhi use nahi.
+- Baaki safe hain; har target position kisi safe triplet se match ho.
+## Pattern pehchano
+Max se combine → overshoot hatao, coverage check.
+
+### partition-labels
+title: Partition Labels
+lc: 763 partition-labels
+diff: Medium
+pattern: Last occurrence + stretching window
+problem: Split the string into as many parts as possible so each letter appears in at most one part. Return part sizes.
+example: "ababcbacadefegdehijhklij" → [9, 7, 8]
+analogy: Packing a wardrobe into boxes where all clothes of one colour must go in the same box: a box can only be closed once you've passed the LAST item of every colour already inside it.
+hints:
+- Record the last index of each letter.
+- Walk; extend the current part's end to the last occurrence of each letter seen.
+- When i reaches end, close the part.
+brute: For each prefix, check whether any letter appears later: O(n²).
+brutecx: O(n²)
+signal: "Each item in one group only" → **last occurrence + stretching end**.
+optimal:
+- last = {ch: i}; start = end = 0; for i, ch: end = max(end, last[ch]); if i == end: record; start = i + 1.
+cx: O(n)
+code:
+def partition_labels(s):
+    last = {ch: i for i, ch in enumerate(s)}
+    res, start, end = [], 0, 0
+    for i, ch in enumerate(s):
+        end = max(end, last[ch])
+        if i == end:
+            res.append(end - start + 1)
+            start = i + 1
+    return res
+test:
+check(partition_labels("ababcbacadefegdehijhklij"), [9, 7, 8])
+check(partition_labels("eccbbbbdec"), [10])
+mistakes:
+- Closing a part at the current letter's last occurrence without taking the max over all letters in the part.
+hinglish:
+## Sawaal
+String ko zyada se zyada hisson mein todo taaki har letter sirf ek hisse mein ho.
+## Analogy
+Almari ke kapde boxes mein pack karna jahan ek rang ke saare kapde ek hi box mein jaane chahiye: box tabhi band ho sakta hai jab andar rakhe har rang ka AAKHRI kapda paar ho chuka ho.
+## Kaise sochein
+- Har letter ka aakhri index.
+- Chalte hue end = max(end, last[ch]).
+- i == end → hissa band.
+## Pattern pehchano
+"Har item ek hi group mein" → last occurrence + stretching end.
+
+### valid-parenthesis-string
+title: Valid Parenthesis String
+lc: 678 valid-parenthesis-string
+diff: Medium
+pattern: Greedy range of possible open counts
+problem: '(' ')' and '*' where '*' can be '(', ')' or empty. Can it be valid?
+example: "(*))" → True;   ")(" → False
+analogy: Counting guests in a room with some "maybe" guests who may enter, leave or do nothing: track the lowest and highest possible headcount. If even the highest goes negative, it's impossible; at the end the lowest must be able to be zero.
+hints:
+- Without '*' you'd track the open count.
+- With '*', the open count could be a RANGE [lo, hi].
+- '(' → both +1; ')' → both −1; '*' → lo −1, hi +1.
+- hi < 0 → False. Keep lo ≥ 0. End: lo == 0.
+brute: Try all 3^k choices.
+brutecx: O(3^k·n)
+signal: Wildcards with an open count → **track min and max balance**.
+optimal:
+- As in the hints.
+cx: O(n)
+code:
+def check_valid_string(s):
+    lo = hi = 0
+    for ch in s:
+        if ch == "(":
+            lo += 1; hi += 1
+        elif ch == ")":
+            lo -= 1; hi -= 1
+        else:
+            lo -= 1; hi += 1
+        if hi < 0:
+            return False
+        lo = max(lo, 0)
+    return lo == 0
+test:
+check(check_valid_string("()"), True)
+check(check_valid_string("(*)"), True)
+check(check_valid_string("(*))"), True)
+check(check_valid_string(")("), False)
+check(check_valid_string("(((*)"), False)
+mistakes:
+- Letting lo go negative.
+hinglish:
+## Sawaal
+'(' ')' aur '*' ('*' = '(' ya ')' ya kuch nahi). Valid ho sakta hai?
+## Analogy
+Kamre mein guests gino jahan kuch "shayad" guests aa sakte hain, ja sakte hain ya kuch nahi karte: sabse kam aur sabse zyada possible ginti rakho. Zyada wali bhi negative → impossible; end mein kam wali zero ho sake.
+## Kaise sochein
+- Open count ek RANGE [lo, hi].
+- hi < 0 → False; lo ≥ 0 rakho; end mein lo == 0.
+## Pattern pehchano
+Wildcards + open count → min/max balance.
+
+## topic: intervals | Intervals
+
+### insert-interval
+title: Insert Interval
+lc: 57 insert-interval
+diff: Medium
+pattern: Three phases: before, overlapping, after
+problem: Insert a new interval into sorted non-overlapping intervals, merging where needed.
+example: [[1,3],[6,9]], new [2,5] → [[1,5],[6,9]]
+analogy: Adding a new meeting to a sorted calendar: meetings that end before it stay as they are, meetings that clash get merged into one big block, and meetings after it stay as they are.
+hints:
+- Before (end < new start): copy.
+- Overlapping: merge into new (min start, max end).
+- After: copy.
+brute: Append, sort, merge: O(n log n).
+brutecx: O(n log n)
+signal: Sorted intervals + one insertion → **linear three-phase scan**.
+optimal:
+- i = 0; copy while end < s; merge while start ≤ e; add merged; copy the rest.
+cx: O(n)
+code:
+def insert(intervals, new):
+    res, i, n = [], 0, len(intervals)
+    s, e = new
+    while i < n and intervals[i][1] < s:
+        res.append(intervals[i]); i += 1
+    while i < n and intervals[i][0] <= e:
+        s = min(s, intervals[i][0])
+        e = max(e, intervals[i][1])
+        i += 1
+    res.append([s, e])
+    res.extend(intervals[i:])
+    return res
+test:
+check(insert([[1, 3], [6, 9]], [2, 5]), [[1, 5], [6, 9]])
+check(insert([[1, 2], [3, 5], [6, 7], [8, 10], [12, 16]], [4, 8]), [[1, 2], [3, 10], [12, 16]])
+check(insert([], [5, 7]), [[5, 7]])
+mistakes:
+- Using < instead of <= for touching intervals.
+hinglish:
+## Sawaal
+Sorted non-overlapping intervals mein naya interval daalo, overlap ho toh merge.
+## Analogy
+Sorted calendar mein nayi meeting: jo meetings pehle khatam hoti hain wo waisi hi, jo takraati hain wo ek bade block mein merge, baad wali waisi hi.
+## Kaise sochein
+- Pehle wale copy, overlap wale merge (min start, max end), baad wale copy.
+## Pattern pehchano
+Sorted intervals + ek insertion → teen phase scan.
+
+### merge-intervals
+title: Merge Intervals
+lc: 56 merge-intervals
+diff: Medium
+pattern: Sort by start, extend the last
+problem: Merge all overlapping intervals.
+example: [[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]
+analogy: Booking a hall: sort the bookings by start time; whenever a booking starts before the current block ends, just extend the block.
+hints:
+- Sort by start: overlaps become neighbours.
+- Compare each interval with the LAST merged one: start ≤ last end → extend (max!).
+- Otherwise start a new one.
+brute: Repeatedly merge any overlapping pair.
+brutecx: O(n²)
+signal: Overlapping intervals → **sort by start, compare with the last**.
+optimal:
+- sort; res = []; for s, e: if res and s ≤ res[−1][1]: res[−1][1] = max(...) else append.
+cx: O(n log n)
+code:
+def merge(intervals):
+    res = []
+    for s, e in sorted(intervals):
+        if res and s <= res[-1][1]:
+            res[-1][1] = max(res[-1][1], e)
+        else:
+            res.append([s, e])
+    return res
+test:
+check(merge([[1, 3], [2, 6], [8, 10], [15, 18]]), [[1, 6], [8, 10], [15, 18]])
+check(merge([[1, 4], [4, 5]]), [[1, 5]])
+check(merge([[1, 4], [2, 3]]), [[1, 4]])
+mistakes:
+- Setting the end without max ([1,4] + [2,3] must stay [1,4]).
+hinglish:
+## Sawaal
+Saare overlapping intervals merge karo.
+## Analogy
+Hall booking: bookings start time se sort karo; koi booking current block khatam hone se pehle shuru ho toh block badha do.
+## Kaise sochein
+- Start se sort → overlaps pados mein.
+- Aakhri merged se compare: start ≤ uska end → extend (max!).
+## Galtiyan
+max bhoolna.
+
+### non-overlapping-intervals
+title: Non-overlapping Intervals
+lc: 435 non-overlapping-intervals
+diff: Medium
+pattern: Greedy: keep the one that ends first
+problem: Minimum intervals to remove so the rest don't overlap (touching is fine).
+example: [[1,2],[2,3],[3,4],[1,3]] → 1
+analogy: Fitting as many movies as possible into one day at one screen: always pick the movie that ENDS earliest, leaving the most time for the rest.
+hints:
+- Equivalent: keep as MANY as possible (activity selection).
+- Greedy: keep the interval that ends earliest.
+- Sort by end; keep if start ≥ last end, else remove.
+brute: Try all subsets.
+brutecx: O(2ⁿ)
+signal: Max non-overlapping intervals → **sort by END**.
+optimal:
+- sort by end; last_end = −inf; count removals.
+cx: O(n log n)
+code:
+def erase_overlap_intervals(intervals):
+    removed, last_end = 0, float("-inf")
+    for s, e in sorted(intervals, key=lambda iv: iv[1]):
+        if s >= last_end:
+            last_end = e
+        else:
+            removed += 1
+    return removed
+test:
+check(erase_overlap_intervals([[1, 2], [2, 3], [3, 4], [1, 3]]), 1)
+check(erase_overlap_intervals([[1, 2], [1, 2], [1, 2]]), 2)
+check(erase_overlap_intervals([[1, 2], [2, 3]]), 0)
+mistakes:
+- Sorting by start and keeping the first (a long early interval blocks many).
+hinglish:
+## Sawaal
+Kam se kam kitne intervals hatao ki baaki overlap na karein?
+## Analogy
+Ek screen pe ek din mein zyada se zyada movies: hamesha wo movie chuno jo SABSE PEHLE khatam ho, baaki ke liye zyada time bachta hai.
+## Kaise sochein
+- Zyada se zyada rakhna = activity selection.
+- END se sort, start ≥ last end → rakho, warna hatao.
+## Pattern pehchano
+Max non-overlapping → end se sort.
+
+### meeting-rooms
+title: Meeting Rooms
+lc: 252 meeting-rooms
+nc: meeting-schedule
+diff: Easy
+pattern: Sort by start, check neighbours
+problem: Can one person attend all meetings?
+example: [[0,30],[5,10],[15,20]] → False
+analogy: Checking your day planner: after sorting by start time, you only need to check whether each meeting starts before the previous one ends.
+hints:
+- Sort by start.
+- A clash can only happen between neighbours.
+brute: Compare every pair.
+brutecx: O(n²)
+signal: "Any overlap?" → **sort, compare adjacent**.
+optimal:
+- sort; any(a[i][0] < a[i − 1][1]) → False.
+cx: O(n log n)
+code:
+def can_attend_meetings(meetings):
+    a = sorted(meetings)
+    return all(a[i][0] >= a[i - 1][1] for i in range(1, len(a)))
+test:
+check(can_attend_meetings([[0, 30], [5, 10], [15, 20]]), False)
+check(can_attend_meetings([[7, 10], [2, 4]]), True)
+mistakes:
+- Not sorting first.
+hinglish:
+## Sawaal
+Kya ek insaan saari meetings attend kar sakta hai?
+## Analogy
+Day planner check: start time se sort karne ke baad bas dekhna hai koi meeting pichhli khatam hone se pehle toh shuru nahi hoti.
+## Kaise sochein
+- Start se sort; clash sirf pados walon mein.
+## Pattern pehchano
+"Koi overlap?" → sort + adjacent compare.
+
+### meeting-rooms-ii
+title: Meeting Rooms II
+lc: 253 meeting-rooms-ii
+nc: meeting-schedule-ii
+diff: Medium
+pattern: Sweep line (sorted starts and ends)
+problem: Minimum number of rooms needed.
+example: [[0,30],[5,10],[15,20]] → 2
+analogy: A hotel front desk watching people check in and out: the most rooms occupied at any single moment is the number of rooms you need.
+hints:
+- Rooms = the maximum number of meetings at the same time.
+- Sort starts and ends separately.
+- A start before the earliest remaining end needs a new room; otherwise a room was freed.
+brute: Count meetings covering each time point.
+brutecx: O(n · range)
+signal: "Maximum overlap at any time" → **sweep line** (or a min-heap of end times).
+optimal:
+- starts, ends sorted; rooms = e = 0; for s: if s < ends[e]: rooms += 1 else e += 1.
+cx: O(n log n)
+code:
+def min_meeting_rooms(meetings):
+    starts = sorted(m[0] for m in meetings)
+    ends = sorted(m[1] for m in meetings)
+    rooms = e = 0
+    for s in starts:
+        if s < ends[e]:
+            rooms += 1
+        else:
+            e += 1
+    return rooms
+test:
+check(min_meeting_rooms([[0, 30], [5, 10], [15, 20]]), 2)
+check(min_meeting_rooms([[7, 10], [2, 4]]), 1)
+check(min_meeting_rooms([[1, 5], [2, 6], [3, 7]]), 3)
+trace:
+start | earliest end | action | rooms
+0 | 10 | new room | 1
+5 | 10 | new room | 2
+15 | 10 | reuse (end moves to 20) | 2
+mistakes:
+- Only checking overlap with the previous meeting.
+hinglish:
+## Sawaal
+Saari meetings ke liye minimum kitne rooms?
+## Analogy
+Hotel front desk check-in aur check-out dekh raha hai: kisi bhi ek pal mein sabse zyada bhare rooms = jitne rooms chahiye.
+## Kaise sochein
+- Rooms = ek saath chal rahi meetings ka maximum.
+- Starts aur ends alag sort; sabse jaldi bache end se pehle start → naya room, warna room khaali hua.
+## Pattern pehchano
+Kisi pal ka max overlap → sweep line.
+
+### minimum-interval-to-include-each-query
+title: Minimum Interval to Include Each Query
+lc: 1851 minimum-interval-to-include-each-query
+diff: Hard
+pattern: Offline sorting + min-heap by size
+problem: For each query q, return the size (r − l + 1) of the smallest interval containing q, or −1.
+example: intervals [[1,4],[2,4],[3,6],[4,4]], queries [2,3,4,5] → [3,3,1,4]
+analogy: A security guard walking a corridor in increasing door numbers: as he passes each door, he adds all rooms that START here to his clipboard (sorted by size), and crosses off rooms that have already ENDED. The smallest room on the clipboard contains his current door.
+hints:
+- Answer queries in sorted order so you sweep once.
+- Sort intervals by start; for each query push every interval starting ≤ q into a min-heap by size.
+- Pop intervals from the top that end before q.
+- Heap top = smallest interval containing q.
+brute: For each query scan all intervals.
+brutecx: O(n·q)
+signal: Many queries over intervals → **sort queries (offline), sweep with a heap**.
+optimal:
+- Sort intervals; iterate queries in sorted order; heap of (size, end); answer via a dict or index list.
+cx: O((n + q) log n)
+code:
+import heapq
+
+def min_interval(intervals, queries):
+    intervals = sorted(intervals)
+    heap, i, ans = [], 0, {}
+    for q in sorted(set(queries)):
+        while i < len(intervals) and intervals[i][0] <= q:
+            l, r = intervals[i]
+            heapq.heappush(heap, (r - l + 1, r))
+            i += 1
+        while heap and heap[0][1] < q:
+            heapq.heappop(heap)
+        ans[q] = heap[0][0] if heap else -1
+    return [ans[q] for q in queries]
+test:
+check(min_interval([[1, 4], [2, 4], [3, 6], [4, 4]], [2, 3, 4, 5]), [3, 3, 1, 4])
+check(min_interval([[2, 3], [2, 5], [1, 8], [20, 25]], [2, 19, 5, 22]), [2, -1, 4, 6])
+mistakes:
+- Answering in the original query order (breaks the sweep).
+hinglish:
+## Sawaal
+Har query q ke liye q ko contain karne wale sabse chhote interval ka size, ya −1.
+## Analogy
+Security guard corridor mein badhte door numbers pe chalta hai: har door pe jo rooms YAHAN SHURU hote hain unhe clipboard pe (size ke order mein) likhta hai, aur jo rooms khatam ho chuke unhe kaat deta hai. Clipboard ka sabse chhota room current door ko contain karta hai.
+## Kaise sochein
+- Queries sorted order mein answer karo, ek hi sweep.
+- q se pehle shuru hone wale intervals heap mein (size se).
+- q se pehle khatam hone wale top se hatao.
+## Pattern pehchano
+Intervals pe bahut queries → offline sort + heap sweep.
+
+## topic: math-geometry | Math & Geometry
+
+### rotate-image
+title: Rotate Image
+lc: 48 rotate-image
+diff: Medium
+pattern: Transpose + reverse each row
+problem: Rotate an n×n matrix 90° clockwise in place.
+example: [[1,2,3],[4,5,6],[7,8,9]] → [[7,4,1],[8,5,2],[9,6,3]]
+analogy: Turning a photo clockwise is the same as flipping it along its diagonal (like turning a page over) and then mirroring it left-to-right. Two easy moves instead of one hard one.
+hints:
+- (r, c) goes to (c, n − 1 − r): direct 4-way swaps are fiddly.
+- Easier: transpose (swap (r, c) with (c, r)), then reverse each row.
+brute: Build a new matrix (O(n²) extra space).
+brutecx: O(n²) space
+signal: Grid rotation in place → **transpose + reverse**.
+optimal:
+- for r, for c > r: swap; then row.reverse() for each row.
+cx: O(n²) time · O(1) space
+code:
+def rotate(m):
+    n = len(m)
+    for r in range(n):
+        for c in range(r + 1, n):
+            m[r][c], m[c][r] = m[c][r], m[r][c]
+    for row in m:
+        row.reverse()
+    return m
+test:
+check(rotate([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), [[7, 4, 1], [8, 5, 2], [9, 6, 3]])
+trace:
+step | matrix
+start | [1,2,3] [4,5,6] [7,8,9]
+transpose | [1,4,7] [2,5,8] [3,6,9]
+reverse rows | [7,4,1] [8,5,2] [9,6,3]
+mistakes:
+- Transposing over ALL (r, c) pairs (each swapped twice → no change).
+hinglish:
+## Sawaal
+n×n matrix ko 90° clockwise ghumao, wahi pe.
+## Analogy
+Photo ko clockwise ghumana = diagonal pe palatna (page palatne jaisa) + left-right mirror. Ek mushkil move ki jagah do aasaan moves.
+## Kaise sochein
+- Seedha (r, c) → (c, n − 1 − r) uljhan bhara.
+- Transpose, phir har row reverse.
+## Galtiyan
+Saare pairs transpose karna (do baar swap → kuch nahi badla).
+
+### spiral-matrix
+title: Spiral Matrix
+lc: 54 spiral-matrix
+diff: Medium
+pattern: Shrinking boundaries
+problem: Return all elements in clockwise spiral order.
+example: [[1,2,3],[4,5,6],[7,8,9]] → [1,2,3,6,9,8,7,4,5]
+analogy: Peeling an orange rind in one long strip going round and round: after each side you peel, that side of the orange is done, so the walls move inward.
+hints:
+- Four walls: top, bottom, left, right.
+- Right along top → top += 1; down right → right −= 1; left along bottom → bottom −= 1; up left → left += 1.
+- Re-check top ≤ bottom and left ≤ right before the bottom and left passes.
+brute: Simulate with a direction and a visited grid.
+brutecx: O(m·n)
+signal: Spiral / layer order → **four shrinking boundaries**.
+optimal:
+- As in the hints.
+cx: O(m·n)
+code:
+def spiral_order(m):
+    res = []
+    top, bottom, left, right = 0, len(m) - 1, 0, len(m[0]) - 1
+    while top <= bottom and left <= right:
+        res += [m[top][c] for c in range(left, right + 1)]
+        top += 1
+        res += [m[r][right] for r in range(top, bottom + 1)]
+        right -= 1
+        if top <= bottom:
+            res += [m[bottom][c] for c in range(right, left - 1, -1)]
+            bottom -= 1
+        if left <= right:
+            res += [m[r][left] for r in range(bottom, top - 1, -1)]
+            left += 1
+    return res
+test:
+check(spiral_order([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), [1, 2, 3, 6, 9, 8, 7, 4, 5])
+check(spiral_order([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]), [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7])
+mistakes:
+- Missing the re-checks (duplicates on single rows/columns).
+hinglish:
+## Sawaal
+Matrix ke elements clockwise spiral order mein.
+## Analogy
+Santre ka chhilka ek lambi patti mein gol-gol utaarna: har side ke baad wo side ho gayi, deewarein andar aati hain.
+## Kaise sochein
+- Chaar deewarein: top, bottom, left, right.
+- Har side chal ke wo deewar andar.
+- Bottom aur left se pehle dobara check.
+
+### set-matrix-zeroes
+title: Set Matrix Zeroes
+lc: 73 set-matrix-zeroes
+diff: Medium
+pattern: Record zero rows/columns first
+problem: If a cell is 0, set its whole row and column to 0, in place.
+example: [[1,1,1],[1,0,1],[1,1,1]] → [[1,0,1],[0,0,0],[1,0,1]]
+analogy: A teacher marking students absent: first write down all the absent roll numbers, THEN strike out their rows. Striking while still reading would make you "see" new absentees that were never there.
+hints:
+- Zeroing while scanning creates NEW zeros that spread wrongly.
+- Pass 1: remember zero rows and columns (two sets).
+- Pass 2: zero any cell in a marked row or column.
+brute: Copy the matrix and read from the copy.
+brutecx: O(m·n) space
+signal: Changes that mustn't affect your own scan → **mark first, apply later**.
+optimal:
+- rows, cols sets; second pass.
+cx: O(m·n) time · O(m + n) space
+code:
+def set_zeroes(m):
+    rows = {r for r in range(len(m)) for c in range(len(m[0])) if m[r][c] == 0}
+    cols = {c for r in range(len(m)) for c in range(len(m[0])) if m[r][c] == 0}
+    for r in range(len(m)):
+        for c in range(len(m[0])):
+            if r in rows or c in cols:
+                m[r][c] = 0
+    return m
+test:
+check(set_zeroes([[1, 1, 1], [1, 0, 1], [1, 1, 1]]), [[1, 0, 1], [0, 0, 0], [1, 0, 1]])
+check(set_zeroes([[0, 1, 2, 0], [3, 4, 5, 2], [1, 3, 1, 5]]), [[0, 0, 0, 0], [0, 4, 5, 0], [0, 3, 1, 0]])
+mistakes:
+- Zeroing during the first scan.
+hinglish:
+## Sawaal
+Kisi cell mein 0 ho toh uski poori row aur column 0 karo.
+## Analogy
+Teacher absent mark kar raha hai: pehle saare absent roll numbers likh lo, PHIR unki rows kaato. Padhte-padhte kaatoge toh naye "absent" dikhne lagenge jo the hi nahi.
+## Kaise sochein
+- Pass 1: zero wali rows aur columns yaad rakho.
+- Pass 2: marked row/column ke cells 0.
+## Galtiyan
+Pehle scan mein hi zero karna.
+
+### happy-number
+title: Happy Number
+lc: 202 happy-number
+diff: Easy
+pattern: Cycle detection
+problem: Replace n with the sum of the squares of its digits repeatedly. Happy if it reaches 1; not happy if it loops.
+example: 19 → 82 → 68 → 100 → 1 → True;   2 → False
+analogy: Following directions from town to town: if you ever arrive at a town you've already visited, you're going round in circles and will never reach "1-town".
+hints:
+- The process reaches 1 or repeats a number.
+- Detect the repeat with a set (or slow/fast pointers).
+- next(n) = sum of squared digits (digit peeling).
+brute: Loop a fixed number of times (unreliable).
+brutecx: —
+signal: A sequence that might loop → **cycle detection**.
+optimal:
+- seen = set(); while n != 1 and n not in seen: add; n = next(n). Return n == 1.
+cx: O(log n) per step
+code:
+def is_happy(n):
+    def nxt(x):
+        return sum(int(d) ** 2 for d in str(x))
+    seen = set()
+    while n != 1 and n not in seen:
+        seen.add(n)
+        n = nxt(n)
+    return n == 1
+test:
+check(is_happy(19), True)
+check(is_happy(2), False)
+trace:
+n | next
+19 | 1 + 81 = 82
+82 | 64 + 4 = 68
+68 | 36 + 64 = 100
+100 | 1 → happy
+mistakes:
+- No cycle check (infinite loop).
+hinglish:
+## Sawaal
+n ko uske digits ke squares ke jod se baar-baar badlo. 1 pe pahuncha → happy; loop → nahi.
+## Analogy
+Ek shehar se doosre shehar directions follow karna: kabhi aise shehar pahunche jahan pehle aa chuke ho, toh gol-gol ghoom rahe ho, "1-shehar" kabhi nahi aayega.
+## Kaise sochein
+- Ya 1 aayega ya koi number repeat hoga.
+- Set se repeat pakdo.
+## Pattern pehchano
+Loop ho sakne wali sequence → cycle detection.
+
+### plus-one
+title: Plus One
+lc: 66 plus-one
+diff: Easy
+pattern: Carry from the right
+problem: A number as a list of digits (most significant first). Add one.
+example: [1, 2, 9] → [1, 3, 0];   [9, 9] → [1, 0, 0]
+analogy: A car odometer ticking up by one: the last wheel turns; if it was 9 it rolls to 0 and nudges the next wheel, all the way to the front.
+hints:
+- Start at the last digit; < 9 → add one, done.
+- 9 → becomes 0, carry left.
+- All 9s → put 1 in front.
+brute: Convert to int, add, convert back (fine in Python, fails in fixed-size languages).
+brutecx: O(n)
+signal: Arithmetic on digit lists → **simulate the carry**.
+optimal:
+- For i from the end: if d[i] < 9 → d[i] += 1; return. Else d[i] = 0. Return [1] + d.
+cx: O(n)
+code:
+def plus_one(digits):
+    d = digits[:]
+    for i in range(len(d) - 1, -1, -1):
+        if d[i] < 9:
+            d[i] += 1
+            return d
+        d[i] = 0
+    return [1] + d
+test:
+check(plus_one([1, 2, 3]), [1, 2, 4])
+check(plus_one([1, 2, 9]), [1, 3, 0])
+check(plus_one([9, 9]), [1, 0, 0])
+mistakes:
+- Forgetting the all-9s case.
+hinglish:
+## Sawaal
+Digits ki list wale number mein 1 jodo.
+## Analogy
+Gaadi ka odometer ek badhta hai: aakhri wheel ghoomta hai; 9 tha toh 0 hoke agle wheel ko dhakka deta hai, aage tak.
+## Kaise sochein
+- Aakhri digit < 9 → +1, khatam.
+- 9 → 0, carry left.
+- Saare 9 → aage 1.
+## Galtiyan
+All-9s case bhoolna.
+
+### powx-n
+title: Pow(x, n)
+lc: 50 powx-n
+diff: Medium
+pattern: Fast exponentiation
+problem: Compute x^n for a float x and integer n (can be negative).
+example: 2.0, 10 → 1024.0;   2.0, −2 → 0.25
+analogy: Folding paper to multiply layers: each fold squares nothing new but doubles what you have, so reaching 2^10 takes about 4 folds, not 10 additions.
+hints:
+- Negative power: x^n = (1/x)^(−n).
+- Squaring halves the exponent: x^10 = (x²)^5.
+- Iterative: while n: if n odd → result *= x; x *= x; n //= 2.
+brute: Multiply n times.
+brutecx: O(n)
+signal: Big exponents → **exponentiation by squaring**, O(log n).
+optimal:
+- As in the hints.
+cx: O(log n)
+code:
+def my_pow(x, n):
+    if n < 0:
+        x, n = 1 / x, -n
+    result = 1.0
+    while n:
+        if n % 2:
+            result *= x
+        x *= x
+        n //= 2
+    return result
+test:
+check(my_pow(2.0, 10), 1024.0)
+check(my_pow(2.1, 3), 9.261)
+check(my_pow(2.0, -2), 0.25)
+trace:
+n | odd? | result | x after
+10 | no | 1 | 4
+5 | yes | 4 | 16
+2 | no | 4 | 256
+1 | yes | 1024 | —
+mistakes:
+- Forgetting negative exponents.
+hinglish:
+## Sawaal
+x^n nikaalo (n negative bhi ho sakta hai).
+## Analogy
+Kaagaz modke layers badhana: har fold jo hai use double karta hai, isliye 2^10 tak ~4 folds mein pahunchte ho, 10 jod mein nahi.
+## Kaise sochein
+- Negative power → 1/x aur −n.
+- Square karne se exponent aadha: x^10 = (x²)^5.
+- n odd → result mein x guna; x square; n aadha.
+## Best approach
+O(log n).
+
+### multiply-strings
+title: Multiply Strings
+lc: 43 multiply-strings
+diff: Medium
+pattern: Schoolbook multiplication into a digit array
+problem: Multiply two non-negative numbers given as strings, returning a string, without converting the whole numbers.
+example: "123" × "456" = "56088"
+analogy: Long multiplication in a school notebook: multiply digit by digit, write each partial product in the right column, and carry.
+hints:
+- The product has at most m + n digits.
+- Digit i of a times digit j of b lands at positions i + j and i + j + 1.
+- Add into res[i + j + 1], push the carry into res[i + j].
+- Strip leading zeros.
+brute: Repeated addition.
+brutecx: huge
+signal: Big-number arithmetic → **simulate by hand with a digit array**.
+optimal:
+- res = [0] * (m + n); nested loops from the right; join and strip zeros.
+cx: O(m·n)
+code:
+def multiply(a, b):
+    if a == "0" or b == "0":
+        return "0"
+    res = [0] * (len(a) + len(b))
+    for i in range(len(a) - 1, -1, -1):
+        for j in range(len(b) - 1, -1, -1):
+            p = int(a[i]) * int(b[j]) + res[i + j + 1]
+            res[i + j + 1] = p % 10
+            res[i + j] += p // 10
+    return "".join(map(str, res)).lstrip("0")
+test:
+check(multiply("2", "3"), "6")
+check(multiply("123", "456"), "56088")
+check(multiply("0", "52"), "0")
+mistakes:
+- Mixing up which position gets the digit and which gets the carry.
+hinglish:
+## Sawaal
+Strings mein diye do numbers ka guna, string mein, bina poore number convert kiye.
+## Analogy
+School notebook wala long multiplication: digit-by-digit guna, har partial product sahi column mein, aur carry.
+## Kaise sochein
+- Answer mein max m + n digits.
+- a ka digit i × b ka digit j → positions i + j aur i + j + 1.
+- res[i + j + 1] mein jodo, carry res[i + j] mein.
+## Pattern pehchano
+Bade numbers ka arithmetic → digit array se simulate.
+
+### detect-squares
+title: Detect Squares
+lc: 2013 detect-squares
+diff: Medium
+pattern: Count points + use each diagonal partner
+problem: add(point) (duplicates allowed); count(point) = how many axis-aligned squares with positive area can be formed with the query as one corner and three stored points.
+example: add [3,10], [11,2], [3,2]; count [11,10] → 1; count [14,8] → 0; add [11,2]; count [11,10] → 2
+analogy: To find squares with your house as one corner, first pick the house diagonally opposite. Once that's fixed, the other two corners are forced, so just multiply how many points sit at each of those spots.
+hints:
+- Pick the corner DIAGONAL to the query: |px − x| == |py − y| != 0.
+- The other two corners are fixed: (x, py) and (px, y).
+- Squares = cnt(diagonal) × cnt(x, py) × cnt(px, y).
+brute: Every triple of stored points.
+brutecx: O(n³)
+signal: Geometry + counting → **fix one piece, the rest is determined; multiply counts**.
+optimal:
+- cnt = Counter of tuples; count(): loop over distinct stored points.
+cx: add O(1) · count O(distinct points)
+code:
+from collections import Counter
+
+class DetectSquares:
+    def __init__(self):
+        self.cnt = Counter()
+
+    def add(self, point):
+        self.cnt[tuple(point)] += 1
+
+    def count(self, point):
+        x, y = point
+        total = 0
+        for (px, py), c in list(self.cnt.items()):
+            if abs(px - x) != abs(py - y) or px == x:
+                continue
+            total += c * self.cnt[(x, py)] * self.cnt[(px, y)]
+        return total
+test:
+d = DetectSquares()
+d.add([3, 10]); d.add([11, 2]); d.add([3, 2])
+check(d.count([11, 10]), 1)
+check(d.count([14, 8]), 0)
+d.add([11, 2])
+check(d.count([11, 10]), 2)
+mistakes:
+- Counting zero-area "squares" (diagonal equals the query).
+hinglish:
+## Sawaal
+Points add karo; query point ko ek corner maan ke kitne axis-aligned squares ban sakte hain?
+## Analogy
+Apne ghar ko ek corner maan ke squares dhoondhne ke liye pehle diagonal ulta ghar chuno. Wo fix hote hi baaki do corners tay ho jaate hain, bas un jagahon pe kitne points hain unka guna karo.
+## Kaise sochein
+- Diagonal corner: |px − x| == |py − y| != 0.
+- Baaki do corners fixed: (x, py), (px, y).
+- Squares = teeno counts ka guna.
+## Pattern pehchano
+Geometry + counting → ek hissa fix, baaki tay.
+
+## topic: bit-manipulation | Bit Manipulation
+
+### single-number
+title: Single Number
+lc: 136 single-number
+diff: Easy
+pattern: XOR cancels pairs
+problem: Every number appears twice except one. Find it with O(1) extra space.
+example: [4, 1, 2, 1, 2] → 4
+analogy: Pairs of socks in a laundry basket: match up every pair and throw them out; the one sock left is the odd one. XOR does the matching automatically.
+hints:
+- a ^ a = 0 and a ^ 0 = a; order doesn't matter.
+- XOR everything: pairs cancel, the single remains.
+brute: A count dict.
+brutecx: O(n) space
+signal: "Everything twice except one" → **XOR all**.
+optimal:
+- res = 0; for x: res ^= x.
+cx: O(n) time · O(1) space
+code:
+def single_number(nums):
+    res = 0
+    for x in nums:
+        res ^= x
+    return res
+test:
+check(single_number([4, 1, 2, 1, 2]), 4)
+check(single_number([2, 2, 1]), 1)
+mistakes:
+- Starting res at 1.
+hinglish:
+## Sawaal
+Har number do baar hai sirf ek ke alawa. Wo dhoondo, O(1) extra space.
+## Analogy
+Laundry basket mein mozze ke jode: har jode ko match karke hatao; jo akela moza bacha wahi answer. XOR ye matching apne aap karta hai.
+## Kaise sochein
+- a ^ a = 0, a ^ 0 = a.
+- Sab XOR karo: jode cancel, akela bachega.
+## Pattern pehchano
+"Sab do baar, ek akela" → XOR.
+
+### number-of-1-bits
+title: Number of 1 Bits
+lc: 191 number-of-1-bits
+diff: Easy
+pattern: n & (n − 1) removes the lowest set bit
+problem: Count the 1 bits of a non-negative integer.
+example: 11 (1011) → 3
+analogy: Switching off the lights in a corridor one by one, always the first lit bulb from the right, and counting how many you switched off.
+hints:
+- Simple: check n & 1, then shift right.
+- Trick: n & (n − 1) clears the lowest 1 bit; count until n becomes 0.
+- (Python: bin(n).count("1").)
+brute: bin(n).count("1").
+brutecx: O(bits)
+signal: Counting set bits → **n & (n − 1)**.
+optimal:
+- while n: n &= n − 1; count += 1.
+cx: O(number of 1 bits)
+code:
+def hamming_weight(n):
+    count = 0
+    while n:
+        n &= n - 1
+        count += 1
+    return count
+test:
+check(hamming_weight(11), 3)
+check(hamming_weight(128), 1)
+check(hamming_weight(0), 0)
+trace:
+n (binary) | n − 1 | n & (n − 1)
+1011 | 1010 | 1010
+1010 | 1001 | 1000
+1000 | 0111 | 0000 → 3 steps
+mistakes:
+- In other languages, negative inputs need unsigned handling.
+hinglish:
+## Sawaal
+Number ke binary mein kitne 1 bits hain?
+## Analogy
+Corridor ki lights ek-ek karke band karna, hamesha right se pehli jalti bulb, aur gino kitni band ki.
+## Kaise sochein
+- n & (n − 1) sabse neeche wala 1 bit hata deta hai.
+- n 0 hone tak gino.
+
+### counting-bits
+title: Counting Bits
+lc: 338 counting-bits
+diff: Easy
+pattern: DP with bits[i >> 1]
+problem: ans[i] = number of 1 bits in i, for 0..n.
+example: n = 5 → [0, 1, 1, 2, 1, 2]
+analogy: Every number is its "half" (shifted right) plus possibly one extra switch at the end. You already counted the half, so just add the last bit.
+hints:
+- i >> 1 is i without its last bit; you've already computed it.
+- ans[i] = ans[i >> 1] + (i & 1).
+brute: Count each number separately: O(n log n).
+brutecx: O(n log n)
+signal: Answers for 0..n building on smaller numbers → **DP with bit relations**.
+optimal:
+- ans[0] = 0; ans[i] = ans[i >> 1] + (i & 1).
+cx: O(n)
+code:
+def count_bits(n):
+    ans = [0] * (n + 1)
+    for i in range(1, n + 1):
+        ans[i] = ans[i >> 1] + (i & 1)
+    return ans
+test:
+check(count_bits(5), [0, 1, 1, 2, 1, 2])
+check(count_bits(0), [0])
+mistakes:
+- Sizing the list n instead of n + 1.
+hinglish:
+## Sawaal
+0 se n tak har number ke 1 bits.
+## Analogy
+Har number apna "aadha" (right shift) + shayad end mein ek extra switch hai. Aadha pehle hi gin chuke ho, bas aakhri bit jodo.
+## Kaise sochein
+- ans[i] = ans[i >> 1] + (i & 1).
+## Pattern pehchano
+Chhote numbers pe bante answers → bit DP.
+
+### reverse-bits
+title: Reverse Bits
+lc: 190 reverse-bits
+diff: Easy
+pattern: Shift out right, shift in left
+problem: Reverse the bits of a 32-bit unsigned integer.
+example: 43261596 → 964176192
+analogy: Unloading a stack of 32 plates into a new stack one by one: the order flips. You must move all 32, including the empty (0) plates, or the result lands in the wrong position.
+hints:
+- Like reversing a number digit by digit, but in base 2.
+- 32 times: res = (res << 1) | (n & 1); n >>= 1.
+brute: Format as a 32-char binary string, reverse, parse.
+brutecx: O(32)
+signal: Bit-level reverse → **digit peeling in base 2**.
+optimal:
+- As in the hints.
+cx: O(32)
+code:
+def reverse_bits(n):
+    res = 0
+    for _ in range(32):
+        res = (res << 1) | (n & 1)
+        n >>= 1
+    return res
+test:
+check(reverse_bits(43261596), 964176192)
+check(reverse_bits(1), 2147483648)
+mistakes:
+- Looping only while n > 0 (leading zeros must still be shifted in).
+hinglish:
+## Sawaal
+32-bit unsigned integer ke bits ulte karo.
+## Analogy
+32 plates ka dher ek-ek karke naye dher mein rakhna: order ulta ho jaata hai. Saari 32 plates (khaali 0 wali bhi) shift karni hain, warna result galat jagah aayega.
+## Kaise sochein
+- Base 2 mein digit reverse jaisa.
+- 32 baar: res = (res << 1) | (n & 1); n >>= 1.
+## Galtiyan
+Sirf n > 0 tak loop.
+
+### missing-number
+title: Missing Number
+lc: 268 missing-number
+diff: Easy
+pattern: XOR (or the sum formula)
+problem: n distinct numbers from 0..n; one is missing. Find it.
+example: [3, 0, 1] → 2
+analogy: Every seat number should have exactly one ticket. Pair each seat number with each ticket using XOR; everything that's paired cancels, and the unpaired seat number is left.
+hints:
+- Video 1: expected sum − actual sum.
+- XOR: XOR all indexes 0..n with all values; present numbers cancel.
+brute: Sort and look for the gap, or a set.
+brutecx: O(n log n) or O(n) space
+signal: One missing from a known range → **sum difference or XOR**.
+optimal:
+- res = n; for i, x: res ^= i ^ x.
+cx: O(n) time · O(1) space
+code:
+def missing_number(nums):
+    res = len(nums)
+    for i, x in enumerate(nums):
+        res ^= i ^ x
+    return res
+test:
+check(missing_number([3, 0, 1]), 2)
+check(missing_number([0, 1]), 2)
+check(missing_number([9, 6, 4, 2, 3, 5, 7, 0, 1]), 8)
+mistakes:
+- Forgetting n itself (it isn't an index).
+hinglish:
+## Sawaal
+0..n mein se ek number missing hai. Dhoondo.
+## Analogy
+Har seat number ka exactly ek ticket hona chahiye. XOR se har seat number ko har ticket se pair karo; jo pair ho gaye wo cancel, jo seat akeli bachi wahi answer.
+## Kaise sochein
+- Sum formula: expected − actual.
+- XOR: indexes 0..n aur values sab XOR.
+## Galtiyan
+n ko bhool jaana.
+
+### sum-of-two-integers
+title: Sum of Two Integers
+lc: 371 sum-of-two-integers
+diff: Medium
+pattern: XOR = add without carry, AND << 1 = carry
+problem: Add two 32-bit integers without + or −.
+example: 1 + 2 = 3;   −2 + 3 = 1
+analogy: Column addition in binary done in two passes: XOR writes each column's digit ignoring carries; AND-shift collects the carries; repeat until there are no carries left.
+hints:
+- a ^ b adds columns ignoring carries.
+- (a & b) << 1 gives the carries.
+- Repeat until no carry.
+- Python ints are unbounded: mask to 32 bits and convert back to signed.
+brute: Increment in a loop (uses +).
+brutecx: O(|b|)
+signal: "Add without +" → **XOR for the sum, AND-shift for the carry**.
+optimal:
+- mask = 0xFFFFFFFF; while b: a, b = (a ^ b) & mask, ((a & b) << 1) & mask. Convert a > 0x7FFFFFFF to negative.
+cx: O(32)
+code:
+def get_sum(a, b):
+    mask = 0xFFFFFFFF
+    a &= mask
+    b &= mask
+    while b:
+        a, b = (a ^ b) & mask, ((a & b) << 1) & mask
+    return a if a <= 0x7FFFFFFF else ~(a ^ mask)
+test:
+check(get_sum(1, 2), 3)
+check(get_sum(-2, 3), 1)
+check(get_sum(-5, -7), -12)
+mistakes:
+- Not masking in Python (negative numbers loop forever).
+hinglish:
+## Sawaal
+Do 32-bit integers ko + ya − ke bina jodo.
+## Analogy
+Binary mein column addition do pass mein: XOR har column ka digit likhta hai carry ignore karke; AND-shift carries ikattha karta hai; carry khatam hone tak dohraao.
+## Kaise sochein
+- a ^ b = bina carry ka jod.
+- (a & b) << 1 = carries.
+- Python ke int unlimited hain: 32 bits mask karo aur end mein signed banao.
+## Galtiyan
+Python mein mask na lagana (negative pe infinite loop).
+
+### reverse-integer
+title: Reverse Integer
+lc: 7 reverse-integer
+diff: Medium
+pattern: Digit peeling + 32-bit range check
+problem: Reverse the digits of a 32-bit signed integer; return 0 if the result leaves [−2³¹, 2³¹ − 1].
+example: 123 → 321;   −123 → −321;   1534236469 → 0
+analogy: Reversing a phone number written on a slip of paper that only has room for 10 digits: if the reversed number doesn't fit on the slip, you have to give up and write 0.
+hints:
+- Video 1's reverse-number loop, keeping the sign aside.
+- Python doesn't overflow, so build the result and range-check it.
+- In C++/Java you must check BEFORE multiplying (interview talking point).
+brute: Reverse the string and parse, then range-check.
+brutecx: O(digits)
+signal: Integer reversal → **digit peeling + range guard**.
+optimal:
+- sign; x = abs(x); rev = rev * 10 + x % 10; x //= 10; apply sign; range check.
+cx: O(digits)
+code:
+def reverse(x):
+    sign = -1 if x < 0 else 1
+    x = abs(x)
+    rev = 0
+    while x:
+        rev = rev * 10 + x % 10
+        x //= 10
+    rev *= sign
+    return rev if -2**31 <= rev <= 2**31 - 1 else 0
+test:
+check(reverse(123), 321)
+check(reverse(-123), -321)
+check(reverse(120), 21)
+check(reverse(1534236469), 0)
+mistakes:
+- Using % on negative numbers in Python (−123 % 10 = 7). Work with abs().
+hinglish:
+## Sawaal
+32-bit signed integer ke digits ulte karo; range ke bahar jaaye toh 0.
+## Analogy
+Kaagaz ki parchi pe likha phone number ulta karna jisme sirf 10 digits ki jagah hai: ulta number fit na ho toh haar maan ke 0 likho.
+## Kaise sochein
+- Video 1 wala reverse loop, sign alag rakho.
+- Python overflow nahi karta: result banao, phir range check.
+## Galtiyan
+Negative pe % (Python mein −123 % 10 = 7). abs() use karo.

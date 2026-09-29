@@ -1,0 +1,796 @@
+## topic: w-arrays | Arrays (Lists)
+
+### w-sum-average
+title: Sum and average of a list
+diff: Easy
+pattern: Accumulator over a list
+problem: Return the sum and the average of a list of numbers.
+example: [4, 8, 15, 16, 23, 42] → sum 108, average 18.0
+analogy: Collecting pocket money from six friends into one box (sum), then sharing it back equally (average).
+ask:
+- Empty list? The average is undefined; return 0.
+hints:
+- Walk through each element and keep a running total.
+- Average = total / count. Use `/` (true division) to keep decimals.
+brute: Direct.
+brutecx: O(n)
+signal: "Combine every element into one value" → accumulator.
+optimal:
+- total = sum of the items (by loop, or `sum()`).
+- average = total / len(nums), guarding against an empty list.
+cx: O(n) time · O(1) space
+code:
+def sum_of(nums):
+    total = 0
+    for x in nums:
+        total += x
+    return total
+
+def average_of(nums):
+    return sum_of(nums) / len(nums) if nums else 0.0
+test:
+check(sum_of([4, 8, 15, 16, 23, 42]), 108)
+check(average_of([4, 8, 15, 16, 23, 42]), 18.0)
+check(average_of([]), 0.0)
+mistakes:
+- Using `//` for the average and losing the decimal part.
+- Dividing by zero for an empty list.
+hinglish:
+## Sawaal
+List ka sum aur average nikaalo.
+## Analogy
+Chhe doston se pocket money ek dabbe mein ikattha karo (sum), phir barabar baant do (average).
+## Kaise sochein
+- Har element pe chalo, running total rakho.
+- Average = total / count. Decimal chahiye toh `/`, `//` nahi.
+- Khaali list pe divide mat karo.
+## Best approach
+Ek loop (ya `sum()`), O(n).
+
+### w-largest
+title: Largest element
+diff: Easy
+pattern: Best so far
+problem: Return the largest number in a non-empty list.
+example: [4, 9, 2, 11, 7] → 11
+analogy: Finding the tallest student in a queue: walk down the line holding a note that says "tallest so far", and update it whenever someone taller appears.
+ask:
+- Can the numbers be negative? Yes, so starting at 0 would be a bug for [-5, -2, -9].
+hints:
+- Keep a "best so far" note.
+- Start it at the first element (always safe).
+- Update it whenever you see something bigger.
+brute: `sorted(nums)[-1]`: O(n log n) and unnecessary.
+brutecx: O(n log n)
+signal: "Largest / smallest / best" in one pass → best-so-far variable.
+optimal:
+- best = nums[0]; for x in nums[1:]: if x > best: best = x.
+cx: O(n) time · O(1) space
+code:
+def largest(nums):
+    best = nums[0]
+    for x in nums[1:]:
+        if x > best:
+            best = x
+    return best
+test:
+check(largest([4, 9, 2, 11, 7]), 11)
+check(largest([-5, -2, -9]), -2)
+check(largest([3]), 3)
+trace:
+x | best
+4 | 4 (start)
+9 | 9
+2 | 9
+11 | 11
+7 | 11
+mistakes:
+- Starting best at 0.
+hinglish:
+## Sawaal
+List ka sabse bada number do.
+## Analogy
+Line mein sabse lamba student dhoondhna: haath mein "ab tak sabse lamba" wali parchi rakho, jo bhi lamba mile parchi update karo.
+## Kaise sochein
+- "Best so far" variable.
+- Pehle element se shuru karo (0 se nahi, kyunki numbers negative ho sakte hain).
+- Bada mile toh update.
+## Best approach
+Ek pass, O(n).
+## Galtiyan
+`best = 0` se shuru karna.
+
+### w-min-max
+title: Smallest and largest in one pass
+diff: Easy
+pattern: Two best-so-far variables
+problem: Return both the smallest and the largest numbers of a non-empty list in a single pass.
+example: [7, 2, 9, 4, 1] → [1, 9]
+analogy: A cricket scorer tracking both the highest and the lowest score of the match while watching each ball once.
+hints:
+- Keep two notes at once: `lo` and `hi`.
+- Start both at the first element.
+- Each item may update one, the other, or neither.
+brute: Two separate loops. Still O(n), just double the work.
+brutecx: O(n), two passes
+signal: Several summaries of the same list → track them all in one loop.
+optimal:
+- lo = hi = nums[0]; for x: update lo if smaller, hi if bigger.
+cx: O(n) time · O(1) space
+code:
+def min_max(nums):
+    lo = hi = nums[0]
+    for x in nums:
+        if x < lo:
+            lo = x
+        if x > hi:
+            hi = x
+    return [lo, hi]
+test:
+check(min_max([7, 2, 9, 4, 1]), [1, 9])
+check(min_max([5]), [5, 5])
+trace:
+x | lo | hi
+7 | 7 | 7
+2 | 2 | 7
+9 | 2 | 9
+4 | 2 | 9
+1 | 1 | 9
+mistakes:
+- Initialising lo to 0: it would never update for positive lists.
+hinglish:
+## Sawaal
+Ek hi pass mein sabse chhota aur sabse bada number.
+## Analogy
+Cricket scorer har ball ek baar dekhte hue match ka highest aur lowest score dono track karta hai.
+## Kaise sochein
+- Do notes ek saath: `lo` aur `hi`, dono pehle element se shuru.
+- Har item ek ko, doosre ko, ya kisi ko update nahi karega.
+## Best approach
+Ek loop, O(n).
+
+### w-second-largest
+title: Second largest (distinct)
+diff: Easy
+pattern: Two ranked best-so-far variables
+problem: Return the second largest distinct value, or -1 if none exists (values ≥ 0).
+example: [5, 9, 3, 9, 7] → 7,   [4, 4] → -1
+analogy: A race with gold and silver medals. When a new fastest runner arrives, the old gold-medallist moves down to silver, not out of the podium.
+hints:
+- Brute force: sort and walk back past copies of the max.
+- One pass: keep `first` and `second`.
+- A new maximum pushes the old first down: second = first, then first = x.
+- A value strictly between second and first becomes the new second.
+brute: `sorted(set(nums))[-2]` if at least 2 distinct values.
+brutecx: O(n log n)
+signal: "Top 2" → two variables. "Top k" in general → a heap.
+optimal:
+- first = second = -1.
+- For x: if x > first → second = first; first = x. elif first > x > second → second = x.
+cx: O(n) time · O(1) space
+code:
+def second_largest(nums):
+    first = second = -1
+    for x in nums:
+        if x > first:
+            second, first = first, x
+        elif first > x > second:
+            second = x
+    return second
+test:
+check(second_largest([5, 9, 3, 9, 7]), 7)
+check(second_largest([4, 4]), -1)
+check(second_largest([1, 2]), 1)
+trace:
+x | first | second
+5 | 5 | -1
+9 | 9 | 5
+3 | 9 | 5
+9 | 9 | 5 (equal to first, skip)
+7 | 9 | 7
+mistakes:
+- Setting first before saving it into second.
+- Forgetting `first > x`, so a duplicate max becomes second.
+hinglish:
+## Sawaal
+Doosra sabse bada DISTINCT number, na ho toh -1.
+## Analogy
+Race mein gold aur silver medal. Naya sabse fast runner aaye toh purana gold-winner silver pe aa jaata hai, podium se bahar nahi.
+## Kaise sochein
+- Do variables: `first`, `second`.
+- Naya max aaye → pehle `second = first`, phir `first = x`.
+- first aur second ke beech wala → naya second.
+## Best approach
+Ek pass, O(n). Python mein `second, first = first, x` order ki galti bacha leta hai.
+## Galtiyan
+Duplicate max ko second bana dena.
+
+### w-linear-search
+title: Linear search
+diff: Easy
+pattern: Scan and stop early
+problem: Return the index of the first occurrence of target, or -1.
+example: [3, 8, 14, 21], target 14 → 2
+analogy: Looking for your friend's house on a street with no map: you check each door number one by one and stop the moment you find it.
+hints:
+- Check positions one by one from the left.
+- As soon as you find it, return the index.
+- If the loop ends, it isn't there → -1.
+brute: This is the simplest search.
+brutecx: O(n)
+signal: Unsorted + one lookup → linear scan. Many lookups → build a dict/set. Sorted → binary search.
+optimal:
+- for i, x in enumerate(nums): if x == target: return i. Return -1.
+cx: O(n) time · O(1) space
+code:
+def linear_search(nums, target):
+    for i, x in enumerate(nums):
+        if x == target:
+            return i
+    return -1
+test:
+check(linear_search([3, 8, 14, 21], 14), 2)
+check(linear_search([3, 8, 14, 21], 5), -1)
+check(linear_search([], 5), -1)
+mistakes:
+- Returning -1 in an `else` inside the loop (gives up after the first item).
+hinglish:
+## Sawaal
+target ki pehli position do, na mile toh -1.
+## Analogy
+Bina map ke gali mein dost ka ghar dhoondhna: har darwaze ka number ek-ek karke dekho, milte hi ruk jao.
+## Kaise sochein
+- Left se ek-ek position check.
+- Mila → turant index return.
+- Loop khatam → -1.
+## Best approach
+O(n). Sorted ho toh binary search, baar-baar dhoondhna ho toh dict/set.
+## Galtiyan
+Loop ke andar `else: return -1` likhna.
+
+### w-reverse-array
+title: Reverse a list in place
+diff: Easy
+pattern: Two pointers (opposite ends)
+problem: Reverse a list without creating a new list.
+example: [1, 2, 3, 4, 5] → [5, 4, 3, 2, 1]
+analogy: A line of kids swapping places: the first and last kids swap, then the second and second-last, walking inward until they meet in the middle.
+hints:
+- By hand with cards: swap the first and last, then move both fingers inward.
+- Two pointers: `l` from the start, `r` from the end.
+- Stop when they meet or cross.
+brute: `nums[::-1]` makes a new list (O(n) extra space).
+brutecx: O(n) time · O(n) space
+signal: "In place" + symmetric positions → two pointers towards each other.
+optimal:
+- l, r = 0, n − 1; while l < r: swap, l += 1, r -= 1.
+cx: O(n) time · O(1) space
+code:
+def reverse_in_place(nums):
+    l, r = 0, len(nums) - 1
+    while l < r:
+        nums[l], nums[r] = nums[r], nums[l]
+        l += 1
+        r -= 1
+    return nums
+test:
+check(reverse_in_place([1, 2, 3, 4, 5]), [5, 4, 3, 2, 1])
+check(reverse_in_place([1, 2]), [2, 1])
+check(reverse_in_place([]), [])
+trace:
+l | r | list after swap
+0 | 4 | [5, 2, 3, 4, 1]
+1 | 3 | [5, 4, 3, 2, 1]
+2 | 2 | stop (met)
+mistakes:
+- Looping i over the whole list and swapping i with n−1−i: every pair is swapped twice, and nothing changes.
+hinglish:
+## Sawaal
+List ko ulta karo, nayi list banaye bina.
+## Analogy
+Line mein khade bachche jagah badalte hain: pehla aur aakhri swap, phir doosra aur doosra-aakhri, beech mein milne tak.
+## Kaise sochein
+- Do pointers: `l` shuru se, `r` end se.
+- Swap karo, dono andar aao.
+- Mil jaayein ya cross karein toh ruko.
+## Best approach
+`nums[l], nums[r] = nums[r], nums[l]`, O(n) time, O(1) space.
+## Galtiyan
+Poori list pe loop chala ke har pair do baar swap karna (list wapas same ho jaati hai).
+
+### w-is-sorted
+title: Check if a list is sorted
+diff: Easy
+pattern: Compare neighbours
+problem: Return True if the list is in non-decreasing order.
+example: [1, 2, 2, 5] → True,   [1, 3, 2] → False
+analogy: Checking that students stand in height order: you only need to compare each student with the one right in front of them.
+hints:
+- Sorted means every element is ≥ the one before it.
+- Compare pairs (nums[i − 1], nums[i]). Any pair out of order → False immediately.
+brute: `nums == sorted(nums)`: O(n log n).
+brutecx: O(n log n)
+signal: Relationship between adjacent items → loop i from 1 and compare with i − 1.
+optimal:
+- For i in 1..n−1: if nums[i] < nums[i − 1] → False. Return True.
+cx: O(n) time · O(1) space
+code:
+def is_sorted(nums):
+    for i in range(1, len(nums)):
+        if nums[i] < nums[i - 1]:
+            return False
+    return True
+test:
+check(is_sorted([1, 2, 2, 5]), True)
+check(is_sorted([1, 3, 2]), False)
+check(is_sorted([]), True)
+mistakes:
+- Looping to len(nums) and reading nums[i + 1] → IndexError.
+hinglish:
+## Sawaal
+List sorted (chhote se bade) hai ya nahi?
+## Analogy
+Students height ke order mein khade hain ya nahi, ye check karne ke liye har student ko bas apne aage wale se compare karna hai.
+## Kaise sochein
+- Har element pichhle se bada ya barabar hona chahiye.
+- Pairs (nums[i − 1], nums[i]) compare karo; koi ulta mila → turant False.
+## Best approach
+i = 1 se loop, O(n).
+## Galtiyan
+`nums[i + 1]` padhte hue list ke bahar chale jaana.
+
+### w-frequency
+title: Count how often each element appears
+diff: Easy
+pattern: Hash map counting
+problem: Return a dict from each value to how many times it appears.
+example: [1, 2, 2, 3, 3, 3] → {1: 1, 2: 2, 3: 3}
+analogy: Counting votes in an election: a tally sheet with one row per candidate, adding a mark every time their name appears.
+hints:
+- Brute force: for each value, count it with another loop: O(n²).
+- Better: one pass with a dict value → count.
+- count[x] = count.get(x, 0) + 1.
+brute: `{x: nums.count(x) for x in nums}`: nums.count is itself O(n).
+brutecx: O(n²)
+signal: "How many times / most frequent / duplicates" → dict of counts (or Counter).
+optimal:
+- count = {}; for x: count[x] = count.get(x, 0) + 1.
+cx: O(n) time · O(k) space (k = distinct values)
+code:
+def frequency(nums):
+    count = {}
+    for x in nums:
+        count[x] = count.get(x, 0) + 1
+    return count
+test:
+check(frequency([1, 2, 2, 3, 3, 3]), {1: 1, 2: 2, 3: 3})
+check(frequency([]), {})
+trace:
+x | dict after
+1 | {1: 1}
+2 | {1: 1, 2: 1}
+2 | {1: 1, 2: 2}
+3 | {…, 3: 1}
+3 | {…, 3: 2}
+3 | {…, 3: 3}
+mistakes:
+- `count[x] += 1` for a key that doesn't exist yet → KeyError. Use get(x, 0) or defaultdict(int).
+hinglish:
+## Sawaal
+Har value kitni baar aayi, dict mein batao.
+## Analogy
+Election ke votes ginna: har candidate ki ek row, naam aaye toh ek mark.
+## Kaise sochein
+- Har value ke liye doosra loop chala ke ginna O(n²) hai.
+- Ek pass mein dict: `count[x] = count.get(x, 0) + 1`.
+## Best approach
+O(n). `collections.Counter(nums)` bhi yahi karta hai.
+## Galtiyan
+Naye key pe seedha `count[x] += 1` → KeyError.
+
+### w-remove-duplicates-sorted
+title: Remove duplicates from a sorted list
+diff: Easy
+pattern: Two pointers (slow writer, fast reader)
+problem: The list is sorted. Move the unique values to the front in order and return how many there are, without extra lists.
+example: [1, 1, 2, 3, 3] → 3, and the list starts with [1, 2, 3, …]
+analogy: A librarian shelving a sorted pile of books: she only places a book if it's different from the last one she placed, and duplicates are skipped.
+ask:
+- Why does "sorted" matter? Duplicates sit next to each other, so you only compare with the last kept value.
+hints:
+- One pointer reads every element (fast); another marks where the next unique value goes (slow).
+- A value is new if it differs from the last value written.
+- Write it at slow, then advance slow.
+brute: `sorted(set(nums))`: extra space and ignores the sorted hint.
+brutecx: O(n log n) · O(n) space
+signal: "In place" + "keep some, drop others" → slow/fast (write/read) pointers.
+optimal:
+- slow = 1; for fast in 1..n−1: if nums[fast] != nums[slow − 1]: nums[slow] = nums[fast]; slow += 1.
+cx: O(n) time · O(1) space
+code:
+def remove_duplicates(nums):
+    if not nums:
+        return 0
+    slow = 1
+    for fast in range(1, len(nums)):
+        if nums[fast] != nums[slow - 1]:
+            nums[slow] = nums[fast]
+            slow += 1
+    return slow
+test:
+a = [1, 1, 2, 3, 3]
+check(remove_duplicates(a), 3)
+check(a[:3], [1, 2, 3])
+check(remove_duplicates([]), 0)
+trace:
+fast | nums[fast] | last kept | action | slow
+1 | 1 | 1 | skip | 1
+2 | 2 | 1 | write at 1 | 2
+3 | 3 | 2 | write at 2 | 3
+4 | 3 | 3 | skip | 3
+mistakes:
+- Using `nums.remove()` inside a loop (O(n²) and index-shifting bugs).
+hinglish:
+## Sawaal
+Sorted list se duplicates hatao (wahi list mein), unique values aage rakho aur unki ginti return karo.
+## Analogy
+Librarian sorted books ka dher shelf pe lagati hai: book tabhi rakhti hai jab wo pichhli rakhi book se alag ho, duplicates chhod deti hai.
+## Kaise sochein
+- Sorted hai, isliye duplicates pados mein hain: sirf pichhli rakhi value se compare karna hai.
+- `fast` sab padhta hai, `slow` batata hai agli unique value kahan likhni hai.
+## Best approach
+Slow/fast pointers, O(n) time, O(1) space.
+## Galtiyan
+Loop ke andar `remove()` karna.
+
+### w-move-zeros
+title: Move zeros to the end
+diff: Easy
+pattern: Write pointer
+problem: Move all zeros to the end, keeping the order of the non-zero numbers, in place.
+example: [0, 1, 0, 3, 12] → [1, 3, 12, 0, 0]
+analogy: Passengers boarding a bus: only real passengers (non-zeros) take the next free seat from the front, in the order they came. Empty seats (zeros) end up at the back.
+hints:
+- Keep a `write` index: the next free seat at the front.
+- Each non-zero is copied to `write`, then write += 1.
+- After the pass, fill the rest with zeros.
+brute: `[x for x in nums if x] + [0] * nums.count(0)`: new list.
+brutecx: O(n) time · O(n) space
+signal: "Keep relative order + in place" → write pointer.
+optimal:
+- write = 0; for x: if x != 0: nums[write] = x; write += 1.
+- For i from write to the end: nums[i] = 0.
+cx: O(n) time · O(1) space
+code:
+def move_zeros(nums):
+    write = 0
+    for x in nums:
+        if x != 0:
+            nums[write] = x
+            write += 1
+    for i in range(write, len(nums)):
+        nums[i] = 0
+    return nums
+test:
+check(move_zeros([0, 1, 0, 3, 12]), [1, 3, 12, 0, 0])
+check(move_zeros([0]), [0])
+trace:
+x | write before | action
+0 | 0 | skip
+1 | 0 | nums[0] = 1
+0 | 1 | skip
+3 | 1 | nums[1] = 3
+12 | 2 | nums[2] = 12
+fill | 3 | [1, 3, 12, 0, 0]
+mistakes:
+- Removing zeros while looping over the list.
+hinglish:
+## Sawaal
+Saare zeros end mein bhejo, baaki numbers ka order same rakho, wahi list mein.
+## Analogy
+Bus mein chadhte passengers: sirf asli passengers (non-zero) aage se agli khaali seat lete hain, aane ke order mein. Khaali seats (zeros) peeche reh jaati hain.
+## Kaise sochein
+- `write` = aage ki agli khaali seat.
+- Har non-zero ko `write` pe likho, `write += 1`.
+- End mein baaki jagah zero.
+## Best approach
+Write pointer, O(n), O(1) extra space.
+
+### w-rotate-array
+title: Rotate a list right by k
+diff: Medium
+pattern: Reverse trick
+problem: Rotate a list right by k steps in place. Items that fall off the end come back at the front.
+example: [1, 2, 3, 4, 5, 6, 7], k = 3 → [5, 6, 7, 1, 2, 3, 4]
+analogy: People sitting at a round table, each moving 3 seats clockwise. With 7 seats, moving 10 seats is the same as moving 3 (10 % 7).
+ask:
+- k bigger than n? Rotating by n changes nothing, so use k % n.
+hints:
+- Brute force: rotate by one step, k times: O(n·k).
+- Index i ends up at (i + k) % n: modulo wrap-around.
+- The neat trick: reverse the whole list, then reverse the first k, then reverse the rest.
+brute: Rotate by one, k times.
+brutecx: O(n·k)
+signal: "Rotate / shift circularly" → modulo indexing, or three reversals for O(1) space.
+optimal:
+- k %= n. Reverse all; reverse [0..k−1]; reverse [k..n−1].
+cx: O(n) time · O(1) space
+code:
+def rotate(nums, k):
+    n = len(nums)
+    if n == 0:
+        return nums
+    k %= n
+
+    def rev(l, r):
+        while l < r:
+            nums[l], nums[r] = nums[r], nums[l]
+            l += 1
+            r -= 1
+
+    rev(0, n - 1)
+    rev(0, k - 1)
+    rev(k, n - 1)
+    return nums
+test:
+check(rotate([1, 2, 3, 4, 5, 6, 7], 3), [5, 6, 7, 1, 2, 3, 4])
+check(rotate([1, 2], 5), [2, 1])
+trace:
+step | list
+start | [1, 2, 3, 4, 5, 6, 7]
+reverse all | [7, 6, 5, 4, 3, 2, 1]
+reverse first 3 | [5, 6, 7, 4, 3, 2, 1]
+reverse rest | [5, 6, 7, 1, 2, 3, 4]
+mistakes:
+- Forgetting k % n.
+hinglish:
+## Sawaal
+List ko right mein k steps ghumao (wahi list mein). End se girne wale aage aa jaate hain.
+## Analogy
+Gol table pe baithe log sab 3 seat clockwise khiskte hain. 7 seats ho toh 10 seat khiskna = 3 seat khiskna (10 % 7).
+## Kaise sochein
+- Pehle `k %= n`.
+- Ek-ek step k baar ghumaana O(n·k) hai.
+- Trick: poori list ulti, phir pehle k ulte, phir baaki ulte.
+## Best approach
+Teen reversals, O(n) time, O(1) space.
+## Galtiyan
+`k % n` bhoolna.
+
+### w-missing-number
+title: Missing number in 1…n
+diff: Easy
+pattern: Maths (expected sum − actual sum)
+problem: A list holds n − 1 different numbers from 1 to n, so exactly one is missing. Find it.
+example: [1, 2, 4, 5] → 3
+analogy: A teacher knows the whole class's roll numbers add up to a fixed total. If today's sum of present roll numbers is short by 3, roll number 3 is absent.
+hints:
+- Brute force: for each number 1..n, search the list.
+- You know what the full total should be: n(n + 1)/2.
+- Missing = expected − actual.
+brute: For k in 1..n: if k not in nums → return k.
+brutecx: O(n²)
+signal: "Exactly one missing from a known range" → sum formula (or XOR).
+optimal:
+- n = len(nums) + 1; return n(n + 1)//2 − sum(nums).
+cx: O(n) time · O(1) space
+code:
+def missing_number(nums):
+    n = len(nums) + 1
+    return n * (n + 1) // 2 - sum(nums)
+test:
+check(missing_number([1, 2, 4, 5]), 3)
+check(missing_number([2]), 1)
+check(missing_number([1]), 2)
+mistakes:
+- Using n = len(nums) instead of len(nums) + 1.
+hinglish:
+## Sawaal
+1 se n tak ke numbers mein se ek gayab hai. Kaunsa?
+## Analogy
+Teacher ko pata hai poori class ke roll numbers ka jod kitna hona chahiye. Aaj ke present roll numbers ka jod 3 kam aaya, matlab roll number 3 absent hai.
+## Kaise sochein
+- Har number ko list mein dhoondhna O(n²).
+- Poora total pata hai: n(n + 1)/2.
+- Gayab = expected − actual.
+## Best approach
+O(n) time, O(1) space.
+## Galtiyan
+n = len(nums) le lena (asal mein len + 1 hai).
+
+### w-max-consecutive-ones
+title: Longest run of 1s
+diff: Easy
+pattern: Running streak + best so far
+problem: In a list of 0s and 1s, return the length of the longest run of consecutive 1s.
+example: [1, 1, 0, 1, 1, 1] → 3
+analogy: A daily study streak: every study day adds 1 to the streak, a missed day resets it to 0, and you remember your best streak ever.
+hints:
+- Keep `streak`: grows on 1, resets on 0.
+- Keep `best`: the largest streak seen.
+- Update best every time the streak grows.
+brute: For every start, count how far the 1s go: O(n²).
+brutecx: O(n²)
+signal: "Longest consecutive run" → current streak + best.
+optimal:
+- streak = best = 0; for x: streak = streak + 1 if x == 1 else 0; best = max(best, streak).
+cx: O(n) time · O(1) space
+code:
+def max_ones(nums):
+    streak = best = 0
+    for x in nums:
+        streak = streak + 1 if x == 1 else 0
+        best = max(best, streak)
+    return best
+test:
+check(max_ones([1, 1, 0, 1, 1, 1]), 3)
+check(max_ones([0, 0]), 0)
+trace:
+x | streak | best
+1 | 1 | 1
+1 | 2 | 2
+0 | 0 | 2
+1 | 1 | 2
+1 | 2 | 2
+1 | 3 | 3
+mistakes:
+- Updating best only when a 0 appears (misses a run at the end).
+hinglish:
+## Sawaal
+0 aur 1 ki list mein lagatar 1s ki sabse lambi run.
+## Analogy
+Padhai ki daily streak: padhe toh streak +1, chhoot gaya toh 0, aur apni best streak yaad rakho.
+## Kaise sochein
+- `streak`: 1 pe badhao, 0 pe reset.
+- `best`: ab tak ki sabse badi streak.
+## Best approach
+Ek pass, O(n).
+## Galtiyan
+best sirf 0 aane pe update karna (end wali run chhoot jaati hai).
+
+### w-running-sum
+title: Running sum (prefix sums)
+diff: Easy
+pattern: Prefix sums
+problem: Return a list where position i holds the sum of elements 0..i. Then use it to answer "sum of elements l..r" instantly.
+example: [3, 1, 4, 1, 5] → [3, 4, 8, 9, 14];   sum of positions 1..3 = 9 − 3 = 6
+analogy: The odometer in a car: it shows the total distance so far. The distance driven between two cities = the reading at the second city − the reading at the first.
+hints:
+- prefix[i] = prefix[i − 1] + nums[i].
+- Sum of l..r = prefix[r] − prefix[l − 1] (everything before l cancels out).
+- Many range questions become O(1) each.
+brute: Loop from l to r for every question.
+brutecx: O(n) per query
+signal: "Many range / subarray sums" → prefix sums: precompute once, answer fast.
+optimal:
+- Build prefix with a running total.
+- range_sum(l, r) = prefix[r] − (prefix[l − 1] if l > 0 else 0).
+cx: O(n) build · O(1) per query · O(n) space
+code:
+def running_sum(nums):
+    out, total = [], 0
+    for x in nums:
+        total += x
+        out.append(total)
+    return out
+
+def range_sum(prefix, l, r):
+    return prefix[r] - (prefix[l - 1] if l > 0 else 0)
+test:
+p = running_sum([3, 1, 4, 1, 5])
+check(p, [3, 4, 8, 9, 14])
+check(range_sum(p, 1, 3), 6)
+check(range_sum(p, 0, 4), 14)
+mistakes:
+- Using prefix[l] instead of prefix[l − 1], dropping nums[l] from the range.
+hinglish:
+## Sawaal
+Running sum list banao, phir kisi bhi range l..r ka sum turant do.
+## Analogy
+Gaadi ka odometer ab tak ki total doori dikhata hai. Do shehron ke beech ki doori = doosre shehar ki reading − pehle shehar ki reading.
+## Kaise sochein
+- `prefix[i] = prefix[i − 1] + nums[i]`.
+- Range l..r = `prefix[r] − prefix[l − 1]`.
+- Ek baar banao, har sawaal O(1).
+## Best approach
+Prefix sums, O(n) build, O(1) query.
+## Galtiyan
+`prefix[l]` ghata dena (nums[l] range se nikal jaata hai).
+
+### w-merge-sorted
+title: Merge two sorted lists
+diff: Easy
+pattern: Two pointers (one per list)
+problem: Given two sorted lists, return one sorted list containing all their elements.
+example: [1, 4, 7] and [2, 3, 8, 9] → [1, 2, 3, 4, 7, 8, 9]
+analogy: Two sorted piles of exam papers (by roll number). To make one sorted pile, keep taking the smaller top paper from the two piles.
+hints:
+- Pointer i on the first list, j on the second.
+- Take the smaller of a[i] and b[j] and move that pointer.
+- When one pile runs out, add the rest of the other.
+brute: `sorted(a + b)`: ignores that the inputs are already sorted.
+brutecx: O((n+m) log(n+m))
+signal: "Two sorted inputs" → one pointer each (merge sort and Merge K Lists build on this).
+optimal:
+- While both have items: append the smaller, advance it. Then extend with the leftovers.
+cx: O(n + m) time · O(n + m) output
+code:
+def merge_sorted(a, b):
+    out, i, j = [], 0, 0
+    while i < len(a) and j < len(b):
+        if a[i] <= b[j]:
+            out.append(a[i])
+            i += 1
+        else:
+            out.append(b[j])
+            j += 1
+    out.extend(a[i:])
+    out.extend(b[j:])
+    return out
+test:
+check(merge_sorted([1, 4, 7], [2, 3, 8, 9]), [1, 2, 3, 4, 7, 8, 9])
+check(merge_sorted([], [1]), [1])
+trace:
+i | j | compare | take
+0 | 0 | 1 vs 2 | 1
+1 | 0 | 4 vs 2 | 2
+1 | 1 | 4 vs 3 | 3
+1 | 2 | 4 vs 8 | 4
+2 | 2 | 7 vs 8 | 7
+3 | 2 | a done | 8, 9
+mistakes:
+- Forgetting the leftovers after the loop.
+hinglish:
+## Sawaal
+Do sorted lists ko milake ek sorted list banao.
+## Analogy
+Roll number ke hisaab se sorted do exam paper ke dher. Ek sorted dher banana hai: dono dheron mein se jiska upar wala paper chhota ho, wo uthao.
+## Kaise sochein
+- Pehli list pe `i`, doosri pe `j`.
+- Chhota uthao, uska pointer aage.
+- Ek dher khatam → doosre ka baaki sab jod do.
+## Best approach
+O(n + m).
+## Galtiyan
+Loop ke baad bache hue items jodna bhoolna.
+
+### w-intersection
+title: Intersection of two lists
+diff: Easy
+pattern: Hash set lookup
+problem: Return the distinct values that appear in both lists.
+example: [1, 2, 2, 1] and [2, 2] → [2]
+analogy: Two friends' birthday guest lists: to find who's invited to both parties, put one list on a quick-lookup register and tick names from the other.
+hints:
+- Brute force: for each value of the first list, scan the second: O(n·m).
+- Put the first list into a set: membership becomes O(1).
+- Collect values of the second list that are in the set, into a result set.
+brute: Nested loops.
+brutecx: O(n·m)
+signal: "Is x in the other collection?" repeatedly → set.
+optimal:
+- `set(a) & set(b)`, or loop over b checking membership in set(a).
+cx: O(n + m) time · O(n) space
+code:
+def intersection(a, b):
+    seen = set(a)
+    result = set()
+    for x in b:
+        if x in seen:
+            result.add(x)
+    return list(result)
+test:
+check_u(intersection([1, 2, 2, 1], [2, 2]), [2])
+check_u(intersection([4, 9, 5], [9, 4, 9, 8, 4]), [4, 9])
+mistakes:
+- Returning duplicates: the result must be a set too.
+hinglish:
+## Sawaal
+Dono lists mein aane wali distinct values.
+## Analogy
+Do doston ki birthday guest lists: dono party mein kaun invited hai, ye jaanne ke liye ek list ko fast-lookup register bana do aur doosri list ke naam tick karo.
+## Kaise sochein
+- Har value ke liye doosri list scan karna O(n·m).
+- Pehli list ko set banao: lookup O(1).
+## Best approach
+`set(a) & set(b)`, O(n + m).

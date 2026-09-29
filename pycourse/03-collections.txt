@@ -1,0 +1,997 @@
+## module: py11 | Tuples and sets
+summary: Tuples (fixed groups, unpacking, multiple return values) and sets (unique items, O(1) membership, set maths).
+=== en
+### Tuples: a fixed group of values
+```python
+point = (3, 4)
+x, y = point            # unpacking
+print(point[0])         # 3
+point[0] = 9            # TypeError: tuples are immutable
+```
+Use a tuple when a few values belong together and shouldn't change: a coordinate `(r, c)`, a pair `(value, index)`, an edge `(u, v, weight)`.
+
+> **Analogy:** A tuple is a sealed envelope with a few items inside. You can read them, but you can't swap them without making a new envelope.
+
+Tuples are everywhere in Python, often without brackets:
+```python
+a, b = b, a                 # packing and unpacking in one line
+def min_max(nums):
+    return min(nums), max(nums)   # returns ONE tuple
+lo, hi = min_max([4, 1, 9])
+for i, x in enumerate(nums):      # enumerate yields (i, x) tuples
+```
+A one-item tuple needs a comma: `(5,)`. `(5)` is just the number 5.
+
+Because tuples can't change, they can be **dictionary keys and set items**, while lists can't. That's how we store visited grid cells: `seen.add((r, c))`.
+
+### Sets: unique items, instant lookup
+```python
+guests = {"Riya", "Sam"}
+guests.add("Riya")        # ignored, already there
+guests.add("Zoya")
+print(len(guests))        # 3
+print("Sam" in guests)    # True, in O(1) on average
+guests.remove("Sam")      # KeyError if missing
+guests.discard("Nobody")  # no error if missing
+empty = set()             # NOT {} (that's an empty dict)
+```
+
+> **Analogy:** A party guest list with a bouncer. Each name appears once. And checking "is this person on the list?" is instant, because the list is organised like a library index (hashing, see Video 1 and the Arrays & Hashing topic).
+
+### Why sets matter in DSA
+`x in some_list` scans every item: O(n). `x in some_set` jumps straight to where x would be: O(1) on average. Replacing a list with a set often turns an O(n²) solution into O(n):
+```python
+def has_duplicate(nums):
+    seen = set()
+    for x in nums:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False
+```
+
+### Set maths
+```python
+a = {1, 2, 3, 4}
+b = {3, 4, 5}
+a | b    # union        {1, 2, 3, 4, 5}
+a & b    # intersection {3, 4}
+a - b    # difference   {1, 2}
+a ^ b    # symmetric difference {1, 2, 5}
+```
+`set(nums)` removes duplicates in one step, and `len(set(nums)) != len(nums)` is a one-line duplicate check.
+
+### Rules for sets
+- **Unordered:** never rely on the printing order.
+- Items must be **hashable** (immutable): numbers, strings, tuples. Not lists.
+- `frozenset` is an immutable set (can be a dict key).
+=== hi
+### Tuples: values ka ek fixed group
+`point = (3, 4)`, `x, y = point` (unpacking). Tuple **immutable** hai: `point[0] = 9` TypeError dega. Jab kuch values saath hon aur badalni na hon tab tuple use karo: coordinate `(r, c)`, pair `(value, index)`, edge `(u, v, weight)`.
+
+> **Analogy:** Tuple ek band lifafa hai jisme kuch cheezein hain. Padh sakte ho, lekin badalne ke liye naya lifafa banana padega.
+
+Python mein tuples har jagah hain, aksar bina brackets ke: `a, b = b, a`, `return min(nums), max(nums)` (ek tuple return hota hai), `for i, x in enumerate(nums)`. Ek item wala tuple: `(5,)` — comma zaroori hai.
+
+Tuple badal nahi sakta, isliye wo **dictionary key aur set item** ban sakta hai, list nahi. Grid ke visited cells aise store karte hain: `seen.add((r, c))`.
+
+### Sets: unique items, turant lookup
+`guests = {"Riya", "Sam"}`. `add` karo — duplicate ignore ho jayega. `"Sam" in guests` O(1) mein. `remove` (na ho toh KeyError), `discard` (na ho toh bhi koi error nahi). Khaali set: `set()` — `{}` nahi, wo khaali dict hai.
+
+> **Analogy:** Party ki guest list aur bouncer. Har naam ek hi baar. Aur "ye naam list mein hai?" turant pata chalta hai, kyunki list library index jaisi organised hai (hashing).
+
+### DSA mein sets kyun zaroori
+`x in list` har item scan karta hai: O(n). `x in set` seedha wahan jaata hai: average O(1). List ki jagah set lagane se aksar O(n²) solution O(n) ban jata hai (jaise `has_duplicate` upar).
+
+### Set maths
+`a | b` union, `a & b` intersection, `a - b` difference, `a ^ b` symmetric difference. `set(nums)` ek step mein duplicates hata deta hai.
+
+### Rules
+- Set **unordered** hai: print order pe bharosa mat karo.
+- Items **hashable** (immutable) hone chahiye: numbers, strings, tuples. List nahi.
+=== drills
+--- d
+q: What does this print?
+code:
+def min_max(nums):
+    return min(nums), max(nums)
+lo, hi = min_max([4, 1, 9, 3])
+t = (5,)
+print(lo, hi, type(t).__name__, type((5)).__name__)
+answer:
+1 9 tuple int
+en: The function returns one tuple that gets unpacked. (5,) is a tuple; (5) is just 5.
+hi: Function ek tuple return karta hai jo unpack ho jata hai. (5,) tuple hai; (5) sirf 5 hai.
+--- d
+q: What does this print?
+code:
+a = {1, 2, 3, 4}
+b = {3, 4, 5}
+print(sorted(a | b), sorted(a & b), sorted(a - b))
+print(len(set([1, 1, 2, 3, 3, 3])))
+answer:
+[1, 2, 3, 4, 5] [3, 4] [1, 2]
+3
+en: Union, intersection, difference. set() removes duplicates. (sorted() because sets are unordered.)
+hi: Union, intersection, difference. set() duplicates hata deta hai. (sorted() isliye kyunki set unordered hai.)
+--- d
+q: What does this print?
+code:
+seen = set()
+for cell in [(0, 1), (1, 2), (0, 1)]:
+    seen.add(cell)
+print(len(seen), (1, 2) in seen, (2, 1) in seen)
+answer:
+2 True False
+en: Tuples can go in sets. (0, 1) is added once; (2, 1) is a different tuple from (1, 2).
+hi: Tuples set mein ja sakte hain. (0, 1) ek hi baar add hua; (2, 1) aur (1, 2) alag tuples hain.
+--- d
+kind: write
+q: Write `has_duplicate(nums)` in O(n) using a set.
+answer:
+def has_duplicate(nums):
+    seen = set()
+    for x in nums:
+        if x in seen:
+            return True
+        seen.add(x)
+    return False
+test:
+check(has_duplicate([1, 2, 3, 1]), True)
+check(has_duplicate([1, 2, 3]), False)
+check(has_duplicate([]), False)
+en: Check before you add. One pass, O(1) lookups.
+hi: Add karne se pehle check karo. Ek pass, O(1) lookup.
+
+## module: py12 | Dictionaries
+summary: Key → value maps, safe lookups with get, looping, the counting and grouping patterns, defaultdict and Counter.
+=== en
+### A dictionary maps keys to values
+```python
+stock = {"apple": 5, "mango": 2}
+print(stock["apple"])      # 5
+stock["kiwi"] = 7          # add a new key
+stock["mango"] += 1        # update → 3
+del stock["apple"]         # remove
+print(len(stock), "kiwi" in stock)   # 2 True
+```
+
+> **Analogy:** Your phone's contact list. You look someone up by **name** (the key) and get their **number** (the value). You never search contact #37; you search "Riya". And lookup is instant, just like sets (hashing).
+
+### Missing keys
+```python
+stock["pear"]              # KeyError!
+stock.get("pear")          # None (no error)
+stock.get("pear", 0)       # 0  (your default)
+```
+`get(key, default)` is the safe way to read.
+
+### Looping over a dictionary
+```python
+for key in stock:                 # keys
+for value in stock.values():      # values
+for key, value in stock.items():  # both (most useful)
+    print(key, value)
+```
+Dictionaries remember **insertion order** (Python 3.7+).
+
+### Pattern 1: counting
+The single most used pattern in DSA 150:
+```python
+count = {}
+for ch in "banana":
+    count[ch] = count.get(ch, 0) + 1
+print(count)    # {'b': 1, 'a': 3, 'n': 2}
+```
+Read the key line slowly: *old count, or 0 if missing, plus one*.
+
+### Pattern 2: remembering where you saw something
+```python
+seen = {}                     # value → index
+for i, x in enumerate(nums):
+    need = target - x
+    if need in seen:
+        return [seen[need], i]
+    seen[x] = i
+```
+That is the whole of Two Sum.
+
+### Pattern 3: grouping
+```python
+groups = {}
+for w in ["eat", "tea", "tan", "ate"]:
+    key = "".join(sorted(w))          # "aet"
+    groups.setdefault(key, []).append(w)
+# {'aet': ['eat', 'tea', 'ate'], 'ant': ['tan']}
+```
+
+### defaultdict and Counter (from collections)
+They remove the boilerplate:
+```python
+from collections import defaultdict, Counter
+
+groups = defaultdict(list)     # missing keys start as []
+groups["aet"].append("eat")
+
+count = defaultdict(int)       # missing keys start as 0
+count["a"] += 1
+
+c = Counter("banana")          # {'a': 3, 'n': 2, 'b': 1}
+c.most_common(1)               # [('a', 3)]
+Counter("listen") == Counter("silent")   # True: an anagram check!
+```
+
+### Keys must be hashable
+Keys can be numbers, strings or tuples, not lists. For a grid cell use `(r, c)`.
+
+### Dictionary comprehension
+```python
+squares = {x: x * x for x in range(5)}   # {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+```
+
+### Costs
+`d[key]`, `d[key] = v`, `key in d`, `del d[key]` are all O(1) on average. Looping over all items is O(n).
+=== hi
+### Dictionary keys ko values se jodta hai
+`stock = {"apple": 5, "mango": 2}`. `stock["apple"]` → 5, `stock["kiwi"] = 7` naya key, `stock["mango"] += 1` update, `del stock["apple"]` remove.
+
+> **Analogy:** Phone ki contact list. Tum **naam** (key) se dhoondte ho aur **number** (value) milta hai. Tum "contact number 37" nahi dhoondte, "Riya" dhoondte ho. Aur lookup turant hota hai (hashing).
+
+### Missing keys
+`stock["pear"]` → KeyError! Safe tareeka: `stock.get("pear", 0)` → 0.
+
+### Dictionary pe loop
+`for key in d`, `for v in d.values()`, `for k, v in d.items()` (sabse useful). Dict insertion order yaad rakhta hai.
+
+### Pattern 1: ginti (counting)
+DSA 150 ka sabse zyada use hone wala pattern:
+```python
+count = {}
+for ch in "banana":
+    count[ch] = count.get(ch, 0) + 1
+```
+Key line dheere padho: *purana count, na ho toh 0, plus ek*.
+
+### Pattern 2: yaad rakhna kahan dekha tha
+`seen[x] = i` (value → index). Two Sum poora yahi hai: har number ke liye `need = target - x` dhoondo, mila toh answer.
+
+### Pattern 3: grouping
+Har word ki key banao (sorted letters), aur `groups.setdefault(key, []).append(w)`.
+
+### defaultdict aur Counter (collections se)
+- `defaultdict(list)`: missing key apne aap `[]` se shuru.
+- `defaultdict(int)`: missing key apne aap 0.
+- `Counter("banana")` → har character ka count. `Counter(a) == Counter(b)` → anagram check ek line mein!
+
+### Keys hashable honi chahiye
+Numbers, strings, tuples chalenge, list nahi. Grid cell ke liye `(r, c)`.
+
+### Cost
+`d[key]`, `key in d`, `del d[key]` sab average O(1).
+=== drills
+--- d
+q: What does this print?
+code:
+count = {}
+for ch in "mississippi":
+    count[ch] = count.get(ch, 0) + 1
+print(count)
+answer:
+{'m': 1, 'i': 4, 's': 4, 'p': 2}
+en: Keys appear in the order they were first inserted.
+hi: Keys usi order mein aati hain jisme pehli baar insert hui thi.
+--- d
+q: What does this print?
+code:
+from collections import Counter, defaultdict
+print(Counter("listen") == Counter("silent"), Counter("aab").most_common(1))
+g = defaultdict(list)
+for w in ["eat", "tea", "tan"]:
+    g["".join(sorted(w))].append(w)
+print(dict(g))
+answer:
+True [('a', 2)]
+{'aet': ['eat', 'tea'], 'ant': ['tan']}
+en: Anagrams have equal Counters. defaultdict(list) creates the empty list for new keys.
+hi: Anagrams ke Counter barabar hote hain. defaultdict(list) naye key ke liye khaali list bana deta hai.
+--- d
+q: What does this print?
+code:
+d = {"a": 1}
+print(d.get("b"), d.get("b", 0), "a" in d, 1 in d)
+answer:
+None 0 True False
+en: `in` checks KEYS, not values. 1 is a value here, not a key.
+hi: `in` KEYS check karta hai, values nahi. Yahan 1 value hai, key nahi.
+--- d
+kind: write
+q: Write `two_sum(nums, target)` returning the two indexes whose values add to target, in one pass with a dict.
+answer:
+def two_sum(nums, target):
+    seen = {}
+    for i, x in enumerate(nums):
+        need = target - x
+        if need in seen:
+            return [seen[need], i]
+        seen[x] = i
+    return []
+test:
+check(two_sum([2, 7, 11, 15], 9), [0, 1])
+check(two_sum([3, 2, 4], 6), [1, 2])
+check(two_sum([3, 3], 6), [0, 1])
+en: Look up the complement before storing the current value.
+hi: Current value store karne se pehle complement dhoondo.
+--- d
+kind: write
+q: Write `most_frequent(nums)` returning the value that appears most often (the first one if tied).
+answer:
+def most_frequent(nums):
+    count = {}
+    for x in nums:
+        count[x] = count.get(x, 0) + 1
+    best = nums[0]
+    for x in nums:
+        if count[x] > count[best]:
+            best = x
+    return best
+test:
+check(most_frequent([1, 3, 3, 2, 3, 1]), 3)
+check(most_frequent([5, 4, 4, 5]), 5)
+en: Count first, then a best-so-far pass.
+hi: Pehle count, phir best-so-far wala pass.
+
+## module: py13 | Functions
+summary: Defining functions, parameters vs arguments, return, defaults, keyword args, *args, scope, lambda and passing functions around.
+=== en
+### A function is a machine
+```python
+def square(x):
+    return x * x
+
+print(square(4))    # 16
+print(square(9))    # 81
+```
+> **Analogy:** A juicer. Put oranges in (the **input**), it does its job, and juice comes out (the **output**). Build it once, use it forever.
+
+- `def` starts a function, then its name and **parameters** in brackets, then a colon.
+- The indented body runs only when the function is **called**: `square(4)`.
+- `4` is an **argument**: the actual value passed in. `x` is the parameter that receives it.
+- `return` sends a value back **and ends the function immediately**.
+
+### No return means None
+```python
+def greet(name):
+    print("Hi", name)
+
+result = greet("Riya")   # prints Hi Riya
+print(result)            # None
+```
+Printing and returning are different! `print` shows something to a human; `return` hands a value back to the code that called the function. LeetCode checks what you **return**.
+
+### Returning several values
+```python
+def min_max(nums):
+    return min(nums), max(nums)   # a tuple
+lo, hi = min_max([3, 9, 1])
+```
+
+### Default and keyword arguments
+```python
+def power(base, exp=2):
+    return base ** exp
+
+power(5)            # 25 (exp defaults to 2)
+power(2, 10)        # 1024
+power(exp=3, base=2)   # 8, arguments by name
+```
+> **Mistake:** Never use a mutable default like `def f(items=[])`. The same list is shared by every call. Use `items=None` and create the list inside.
+
+### *args and **kwargs
+```python
+def total(*nums):        # any number of positional args → a tuple
+    return sum(nums)
+total(1, 2, 3)           # 6
+
+def show(**info):        # any keyword args → a dict
+    print(info)
+show(name="Riya", age=20)
+```
+
+### Scope: variables live in rooms
+Variables created inside a function exist only inside it:
+```python
+def f():
+    temp = 5
+f()
+print(temp)     # NameError
+```
+> **Analogy:** Each function call gets its own room. What happens in the room stays in the room. Two functions can both have a variable `i` without any clash.
+
+A function **can read** variables from outside, but to **reassign** an outer variable you'd need `global` / `nonlocal`. In DSA we often use nested helper functions that update an outer result; `nonlocal` or a list/`self` attribute handles that:
+```python
+def diameter(root):
+    best = 0
+    def height(node):
+        nonlocal best
+        ...
+```
+
+### Functions are values
+You can pass a function to another function. This is how custom sorting works:
+```python
+words = ["banana", "kiwi", "apple"]
+sorted(words, key=len)                  # ['kiwi', 'apple', 'banana']
+sorted(words, key=lambda w: w[-1])      # sort by last letter
+```
+`lambda args: expression` is a tiny unnamed function.
+
+### Type hints (you'll see them on LeetCode)
+```python
+def two_sum(nums: List[int], target: int) -> List[int]:
+```
+They're labels for humans and tools. Python doesn't enforce them.
+
+### How to design a function
+1. Name what it does (`is_prime`, `count_vowels`).
+2. Decide inputs and output.
+3. Handle edge cases first (empty input, 0, 1).
+4. Write the main logic.
+5. Test with small examples.
+=== hi
+### Function ek machine hai
+`def square(x): return x * x`. `square(4)` → 16.
+
+> **Analogy:** Juicer. Santre daalo (**input**), wo apna kaam karta hai, juice nikalta hai (**output**). Ek baar banao, hamesha use karo.
+
+- `def` se function shuru, phir naam aur brackets mein **parameters**, phir colon.
+- Body tabhi chalti hai jab function **call** hota hai.
+- `square(4)` mein 4 **argument** hai (asli value), `x` parameter hai jo use receive karta hai.
+- `return` value wapas bhejta hai **aur function turant khatam kar deta hai**.
+
+### Return nahi toh None
+`print` aur `return` alag hain! `print` insaan ko dikhata hai; `return` value wapas code ko deta hai. LeetCode wahi check karta hai jo tum **return** karte ho.
+
+### Kai values return karna
+`return min(nums), max(nums)` ek tuple bhejta hai; `lo, hi = min_max(...)` se unpack.
+
+### Default aur keyword arguments
+`def power(base, exp=2)`: `power(5)` → 25. Naam se bhi de sakte ho: `power(exp=3, base=2)`.
+
+> **Galti:** `def f(items=[])` kabhi mat likho. Wahi list har call mein share hoti hai. `items=None` rakho aur andar list banao.
+
+### *args aur **kwargs
+`*nums` kitne bhi positional arguments ko tuple mein le leta hai; `**info` keyword arguments ko dict mein.
+
+### Scope: variables apne kamre mein rehte hain
+Function ke andar bana variable sirf andar exist karta hai. Bahar use karoge toh NameError.
+
+> **Analogy:** Har function call ko apna kamra milta hai. Kamre ki baat kamre mein rehti hai. Do functions dono mein `i` rakh sakte hain, koi takraav nahi.
+
+Bahar ka variable padh sakte ho, lekin reassign karne ke liye `global`/`nonlocal` chahiye. DSA mein nested helper function se outer `best` update karne ke liye `nonlocal best` likhte hain.
+
+### Functions bhi values hain
+Function ko doosre function mein pass kar sakte ho. Custom sorting aise hoti hai: `sorted(words, key=len)`, `sorted(words, key=lambda w: w[-1])`. `lambda` ek chhota bina naam ka function hai.
+
+### Type hints
+LeetCode pe `nums: List[int]` jaise labels dikhenge. Ye insaano aur tools ke liye hain; Python inhe enforce nahi karta.
+
+### Function design kaise karein
+1. Naam jo kaam bataye. 2. Input aur output decide karo. 3. Edge cases pehle (khaali input, 0, 1). 4. Main logic. 5. Chhote examples se test.
+=== drills
+--- d
+q: What does this print?
+code:
+def f(x):
+    print("inside", x)
+    x = x * 2
+
+r = f(5)
+print(r)
+answer:
+inside 5
+None
+en: The function prints but never returns, so r is None.
+hi: Function print karta hai lekin return nahi, isliye r None hai.
+--- d
+q: What does this print?
+code:
+def power(base, exp=2):
+    return base ** exp
+print(power(3), power(2, 5), power(exp=0, base=9))
+answer:
+9 32 1
+en: exp defaults to 2; keyword arguments can be in any order.
+hi: exp ki default value 2; keyword arguments kisi bhi order mein de sakte ho.
+--- d
+q: What does this print? (The mutable default trap.)
+code:
+def add_item(item, box=[]):
+    box.append(item)
+    return box
+print(add_item(1))
+print(add_item(2))
+answer:
+[1]
+[1, 2]
+en: The default list is created once and shared by every call. Use box=None instead.
+hi: Default list ek hi baar banti hai aur har call mein share hoti hai. box=None use karo.
+--- d
+q: What does this print?
+code:
+words = ["banana", "kiwi", "apple", "fig"]
+print(sorted(words, key=len))
+print(sorted(words, key=lambda w: w[-1]))
+answer:
+['fig', 'kiwi', 'apple', 'banana']
+['banana', 'apple', 'fig', 'kiwi']
+en: key tells sorted what to compare. Ties keep their original order (sorting is stable).
+hi: key batata hai sorted kis cheez ko compare kare. Barabar walon ka original order bana rehta hai (stable sort).
+--- d
+kind: write
+q: Write `is_prime(n)` that checks divisors only up to √n.
+answer:
+def is_prime(n):
+    if n < 2:
+        return False
+    d = 2
+    while d * d <= n:
+        if n % d == 0:
+            return False
+        d += 1
+    return True
+test:
+check([x for x in range(1, 30) if is_prime(x)], [2, 3, 5, 7, 11, 13, 17, 19, 23, 29])
+check(is_prime(91), False)
+en: Edge case first (n < 2), then divisors while d * d <= n.
+hi: Pehle edge case (n < 2), phir divisors jab tak d * d <= n.
+
+## module: py14 | Recursion
+summary: Functions that call themselves: base case, recursive case, the call stack, memoization and when to use it.
+=== en
+### What is recursion?
+A function that calls **itself** on a **smaller** version of the same problem.
+
+> **Analogy:** Russian dolls. Open a doll, and there's a smaller doll inside. Keep opening until you reach the tiny doll that doesn't open. That tiny doll is the **base case**.
+
+```python
+def fact(n):
+    if n == 1:            # base case: the tiny doll
+        return 1
+    return n * fact(n - 1)   # recursive case: a smaller doll
+```
+
+### Two parts, always
+1. **Base case**: the smallest input you can answer directly. Without it, the calls never stop → `RecursionError: maximum recursion depth exceeded`.
+2. **Recursive case**: call yourself on a smaller input, and combine the answer.
+
+### The call stack
+`fact(4)` can't finish until `fact(3)` finishes, which waits for `fact(2)`, which waits for `fact(1)`:
+```
+fact(4) waits: 4 × fact(3)
+  fact(3) waits: 3 × fact(2)
+    fact(2) waits: 2 × fact(1)
+      fact(1) = 1          ← base case
+    fact(2) = 2
+  fact(3) = 6
+fact(4) = 24
+```
+The waiting calls pile up like plates on a **stack**, then come off one by one.
+
+### Trust the smaller call
+The mental trick: **don't trace every level**. Assume `fact(n - 1)` already returns the right answer, and ask only: "how do I use it to get fact(n)?" This "leap of faith" is how you design recursive solutions for trees and backtracking.
+
+### More examples
+```python
+def total(nums):                 # sum of a list
+    if not nums:
+        return 0
+    return nums[0] + total(nums[1:])
+
+def power(x, n):                 # x^n in O(log n)
+    if n == 0:
+        return 1
+    half = power(x, n // 2)
+    return half * half if n % 2 == 0 else half * half * x
+
+def count_down(n):
+    if n == 0:
+        print("Go!")
+        return
+    print(n)
+    count_down(n - 1)
+```
+
+### Repeated work and memoization
+```python
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+```
+`fib(40)` makes over 300 million calls, because `fib(38)`, `fib(37)`… are recomputed again and again. Fix: remember answers.
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+```
+Now each `fib(k)` is computed once: O(n). This is the heart of **dynamic programming**.
+
+### Limits
+Python allows about 1000 nested calls by default. Deep recursion (like a DFS over a 10⁵-node chain) can crash; you can raise the limit with `sys.setrecursionlimit(10**6)` or rewrite with an explicit stack.
+
+### When to use recursion
+When a problem is naturally made of smaller copies of itself: trees, backtracking (subsets, permutations), divide and conquer (merge sort, binary search), and DP.
+=== hi
+### Recursion kya hai?
+Aisa function jo **khud ko** call kare, usi problem ke **chhote** version pe.
+
+> **Analogy:** Russian dolls. Ek doll kholo, andar chhoti doll. Kholte raho jab tak wo chhoti si doll na aa jaaye jo khulti nahi. Wahi chhoti doll **base case** hai.
+
+### Hamesha do hisse
+1. **Base case**: sabse chhota input jiska answer seedha pata hai. Iske bina calls kabhi nahi rukengi → `RecursionError`.
+2. **Recursive case**: chhote input pe khud ko call karo aur answer jodo.
+
+### Call stack
+`fact(4)` tab tak khatam nahi hota jab tak `fact(3)` khatam na ho, jo `fact(2)` ka wait karta hai… `fact(1) = 1` base case pe pahunchke plates ek-ek karke utarti hain: 2, 6, 24. Wait karne wali calls **stack** ki plates jaisi jama hoti hain.
+
+### Chhoti call pe bharosa karo
+Trick: **har level trace mat karo**. Maan lo `fact(n - 1)` sahi answer deta hai, aur sirf itna socho: "isse fact(n) kaise banaun?" Trees aur backtracking mein recursive solution aise hi design hote hain.
+
+### Repeated work aur memoization
+Seedha `fib(n) = fib(n-1) + fib(n-2)` likhoge toh `fib(40)` 30 crore se zyada calls karega, kyunki same values baar-baar calculate hoti hain. Hal: answers yaad rakho. `@lru_cache(maxsize=None)` lagao, har `fib(k)` ek hi baar banega: O(n). Yahi **dynamic programming** ka dil hai.
+
+### Limit
+Python by default lagbhag 1000 nested calls allow karta hai. Bahut gehri recursion crash kar sakti hai; `sys.setrecursionlimit(10**6)` se limit badha sakte ho ya explicit stack se likho.
+
+### Recursion kab use karein
+Jab problem apne hi chhote copies se bani ho: trees, backtracking (subsets, permutations), divide and conquer (merge sort, binary search) aur DP.
+=== drills
+--- d
+q: What does this print?
+code:
+def fact(n):
+    if n == 1:
+        return 1
+    return n * fact(n - 1)
+print(fact(5), fact(1))
+answer:
+120 1
+en: 5 × 4 × 3 × 2 × 1 = 120; fact(1) is the base case.
+hi: 5 × 4 × 3 × 2 × 1 = 120; fact(1) base case hai.
+--- d
+q: What does this print?
+code:
+def show(n):
+    if n == 0:
+        return
+    print(n, end=" ")
+    show(n - 1)
+    print(n, end=" ")
+show(3)
+print()
+answer:
+3 2 1 1 2 3
+en: Prints happen on the way down, and again on the way back up as the calls finish.
+hi: Neeche jaate waqt print hota hai, aur calls khatam hote hue wapas upar aate waqt dobara.
+--- d
+q: What does this print?
+code:
+calls = 0
+def fib(n):
+    global calls
+    calls += 1
+    if n < 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+print(fib(10), calls)
+answer:
+55 177
+en: Without memoization, fib(10) makes 177 calls for 11 distinct values. That's the repeated work DP removes.
+hi: Memoization ke bina fib(10) sirf 11 alag values ke liye 177 calls karta hai. DP yahi repeated work hatata hai.
+--- d
+kind: write
+q: Write `digit_sum(n)` recursively (no loops).
+answer:
+def digit_sum(n):
+    if n < 10:
+        return n
+    return n % 10 + digit_sum(n // 10)
+test:
+check(digit_sum(4729), 22)
+check(digit_sum(7), 7)
+check(digit_sum(0), 0)
+en: Base case: a single digit. Otherwise last digit + digit sum of the rest.
+hi: Base case: ek digit. Warna aakhri digit + baaki ka digit sum.
+--- d
+kind: write
+q: Write `power(x, n)` recursively in O(log n) by halving n.
+answer:
+def power(x, n):
+    if n == 0:
+        return 1
+    half = power(x, n // 2)
+    if n % 2 == 0:
+        return half * half
+    return half * half * x
+test:
+check(power(2, 10), 1024)
+check(power(3, 5), 243)
+check(power(7, 0), 1)
+en: Compute half once and reuse it; calling power twice would bring back O(n).
+hi: half ek baar calculate karke dobara use karo; do baar call karoge toh O(n) wapas aa jayega.
+
+## module: py15 | Built-in tools you'll use every day
+summary: len, sum, min/max with key, sorted, enumerate, zip, reversed, any/all, map/filter, divmod, abs and unpacking tricks.
+=== en
+Python ships with a toolbox that turns 5-line loops into one readable line. Learn these; interviewers love clean Python.
+
+### Measuring and summarising
+```python
+nums = [4, -2, 9, 1]
+len(nums), sum(nums), min(nums), max(nums)   # 4, 12, -2, 9
+max(["kiwi", "banana"], key=len)             # 'banana'
+min(points, key=lambda p: p[0]**2 + p[1]**2) # closest point
+abs(-7), round(3.567, 2), divmod(17, 5)      # 7, 3.57, (3, 2)
+```
+
+### Sorting
+```python
+sorted(nums)                         # new list, ascending
+sorted(nums, reverse=True)           # descending
+sorted(words, key=len)               # by a computed key
+sorted(pairs, key=lambda p: (p[1], p[0]))   # by second, then first
+intervals.sort(key=lambda iv: iv[0]) # in place, by start
+```
+Sorting is **stable**: equal items keep their original order. Cost: O(n log n).
+
+### enumerate and zip
+```python
+for i, x in enumerate(nums):          # index + value
+for i, x in enumerate(nums, start=1): # count from 1
+for a, b in zip(list1, list2):        # walk two lists together
+    ...
+pairs = list(zip([1, 2, 3], "abc"))   # [(1,'a'), (2,'b'), (3,'c')]
+```
+`zip` stops at the shorter list.
+
+### reversed, any, all
+```python
+for x in reversed(nums): ...          # walk backwards (no copy)
+any(x < 0 for x in nums)              # True if at least one is negative
+all(x > 0 for x in nums)              # True if every one is positive
+```
+
+### map and filter
+```python
+list(map(int, "3 5 7".split()))              # [3, 5, 7]
+list(filter(lambda x: x % 2 == 0, nums))     # evens
+```
+A list comprehension (`[int(s) for s in parts]`) often reads better.
+
+### Unpacking tricks
+```python
+first, *rest = [1, 2, 3, 4]     # first = 1, rest = [2, 3, 4]
+*init, last = [1, 2, 3, 4]      # last = 4
+a, b = b, a                     # swap
+r, c = divmod(k, cols)          # index k → (row, col) in a grid
+```
+
+### Infinity and big numbers
+```python
+best = float("inf")        # bigger than any number
+worst = float("-inf")
+```
+Use them as starting values for min/max searches.
+
+### Strings ↔ lists
+```python
+list("abc")            # ['a', 'b', 'c']
+"".join(['a', 'b'])    # 'ab'
+" ".join(map(str, [1, 2, 3]))   # '1 2 3'
+```
+
+> **Tip:** Knowing these makes your code shorter, but in interviews always be able to explain what the built-in costs. `max(nums)` is still an O(n) loop inside.
+=== hi
+Python ke saath ek toolbox aata hai jo 5 line ke loops ko ek readable line bana deta hai. Ye seekh lo; interviewers ko saaf Python pasand hai.
+
+### Measure aur summarise
+`len`, `sum`, `min`, `max` — aur `max(words, key=len)` jaise **key** ke saath bhi. `abs(-7)` = 7, `round(3.567, 2)` = 3.57, `divmod(17, 5)` = (3, 2) (quotient aur remainder ek saath).
+
+### Sorting
+`sorted(nums)` nayi list, `reverse=True` ulta, `key=len` ya `key=lambda p: (p[1], p[0])` custom order. `list.sort()` wahi pe sort. Sorting **stable** hai: barabar items ka original order rehta hai. Cost O(n log n).
+
+### enumerate aur zip
+`for i, x in enumerate(nums)` index + value. `for a, b in zip(l1, l2)` do lists saath-saath chalao; zip chhoti list pe ruk jata hai.
+
+### reversed, any, all
+`reversed(nums)` peeche se chalo (copy nahi banta). `any(...)` koi ek bhi True? `all(...)` sab True?
+
+### map aur filter
+`list(map(int, "3 5 7".split()))` → [3, 5, 7]. Aksar list comprehension zyada readable hoti hai.
+
+### Unpacking tricks
+`first, *rest = [1, 2, 3, 4]`, `*init, last = ...`, `a, b = b, a` swap, `r, c = divmod(k, cols)` grid index.
+
+### Infinity
+`float("inf")` kisi bhi number se bada, `float("-inf")` sabse chhota. Min/max search ki starting value ke liye.
+
+> **Tip:** Ye tools code chhota karte hain, lekin interview mein unki cost bata paana zaroori hai. `max(nums)` andar se O(n) loop hi hai.
+=== drills
+--- d
+q: What does this print?
+code:
+words = ["pear", "fig", "banana", "kiwi"]
+print(max(words, key=len), min(words, key=len), sorted(words, key=lambda w: (len(w), w)))
+answer:
+banana fig ['fig', 'kiwi', 'pear', 'banana']
+en: The key (len(w), w) sorts by length, then alphabetically for ties.
+hi: Key (len(w), w) pehle length se, barabari ho toh alphabet se sort karta hai.
+--- d
+q: What does this print?
+code:
+names = ["a", "b", "c"]
+scores = [90, 75]
+print(list(zip(names, scores)))
+for i, n in enumerate(names, start=1):
+    print(i, n, end="; ")
+print()
+answer:
+[('a', 90), ('b', 75)]
+1 a; 2 b; 3 c;
+en: zip stops at the shorter list. enumerate can start counting at 1.
+hi: zip chhoti list pe ruk jata hai. enumerate 1 se ginti shuru kar sakta hai.
+--- d
+q: What does this print?
+code:
+nums = [3, -1, 4]
+first, *rest = nums
+print(first, rest, any(x < 0 for x in nums), all(x < 10 for x in nums), divmod(17, 5))
+answer:
+3 [-1, 4] True True (3, 2)
+en: *rest collects the remaining items into a list. divmod gives (quotient, remainder).
+hi: *rest baaki items ki list bana deta hai. divmod (quotient, remainder) deta hai.
+--- d
+kind: write
+q: Write `closest_point(points)` that returns the point closest to (0, 0) using min with a key.
+answer:
+def closest_point(points):
+    return min(points, key=lambda p: p[0] * p[0] + p[1] * p[1])
+test:
+check(closest_point([[3, 3], [1, -2], [-4, 1]]), [1, -2])
+en: Compare squared distances; no square root needed.
+hi: Squared distance compare karo; square root ki zaroorat nahi.
+
+## module: py16 | Comprehensions and Pythonic style
+summary: List, set and dict comprehensions, conditions inside them, nested comprehensions for grids, generator expressions and writing readable Python.
+=== en
+### List comprehension = a loop that builds a list
+Instead of:
+```python
+squares = []
+for x in range(6):
+    squares.append(x * x)
+```
+write:
+```python
+squares = [x * x for x in range(6)]    # [0, 1, 4, 9, 16, 25]
+```
+Read it as: **[what to keep  for each item  in where]**.
+
+> **Analogy:** A factory conveyor belt. Items come in from the right (`for x in ...`), an optional inspector throws some away (`if ...`), and a machine shapes each survivor (the expression on the left).
+
+### With a filter
+```python
+evens = [x for x in nums if x % 2 == 0]
+words = [w.lower() for w in text.split() if w.isalpha()]
+```
+
+### With if/else (transforming, not filtering)
+```python
+labels = ["even" if x % 2 == 0 else "odd" for x in nums]
+```
+Note the position: a filter `if` goes at the **end**; a value-choosing `if/else` goes at the **front**.
+
+### Set and dict comprehensions
+```python
+unique_lengths = {len(w) for w in words}
+index_of = {x: i for i, x in enumerate(nums)}
+```
+
+### Nested comprehensions (grids)
+```python
+grid = [[0] * cols for _ in range(rows)]            # correct empty grid
+flat = [x for row in grid for x in row]              # flatten
+transposed = [[m[r][c] for r in range(len(m))] for c in range(len(m[0]))]
+```
+The `for` clauses read in the same order as nested loops.
+
+### Generator expressions
+Round brackets instead of square ones produce values **one at a time** without building a list:
+```python
+total = sum(x * x for x in range(1_000_000))   # no giant list in memory
+has_neg = any(x < 0 for x in nums)             # stops at the first negative
+```
+
+### Pythonic habits interviewers like
+- Swap with `a, b = b, a`.
+- `for x in nums` instead of `for i in range(len(nums))` when you don't need i.
+- `if not stack:` instead of `if len(stack) == 0:`.
+- Chained comparisons: `if 0 <= r < rows and 0 <= c < cols:`.
+- `"".join(parts)` to build strings.
+- `float("inf")` as a starting minimum.
+- Clear names: `left, right`, `seen`, `count`, `best`.
+
+> **Remember:** Comprehensions are for simple transformations. If you need several steps, `break`, or complex logic, a normal loop is clearer. Readable beats clever.
+=== hi
+### List comprehension = list banane wala loop
+`squares = [x * x for x in range(6)]`. Padho: **[kya rakhna hai  har item ke liye  kahan se]**.
+
+> **Analogy:** Factory ka conveyor belt. Items aate hain (`for x in ...`), ek inspector kuch ko nikaal deta hai (`if ...`), aur machine bache hue har item ko shape deti hai (left wala expression).
+
+### Filter ke saath
+`evens = [x for x in nums if x % 2 == 0]`.
+
+### if/else ke saath (badalna, filter nahi)
+`labels = ["even" if x % 2 == 0 else "odd" for x in nums]`. Dhyaan do: filter wala `if` **end** mein, value chunne wala `if/else` **shuru** mein.
+
+### Set aur dict comprehension
+`{len(w) for w in words}`, `{x: i for i, x in enumerate(nums)}`.
+
+### Nested (grid)
+`[[0] * cols for _ in range(rows)]` sahi khaali grid. `[x for row in grid for x in row]` flatten. `for` clauses nested loops ke order mein hi padhe jaate hain.
+
+### Generator expression
+Square ki jagah round brackets: values **ek-ek karke** banti hain, poori list memory mein nahi. `sum(x * x for x in range(1_000_000))`, `any(x < 0 for x in nums)` (pehle negative pe ruk jata hai).
+
+### Interviewers ko pasand aane wali aadatein
+`a, b = b, a` swap; index na chahiye toh `for x in nums`; `if not stack:`; `if 0 <= r < rows and 0 <= c < cols:`; strings ke liye `"".join(parts)`; `float("inf")` starting minimum; saaf naam jaise `left, right, seen, count, best`.
+
+> **Yaad rakho:** Comprehension simple transformation ke liye hai. Kai steps, `break` ya complex logic ho toh normal loop zyada clear hai. Readable > clever.
+=== drills
+--- d
+q: What does this print?
+code:
+nums = [1, 2, 3, 4, 5, 6]
+print([x * x for x in nums if x % 2 == 0])
+print(["E" if x % 2 == 0 else "O" for x in nums])
+answer:
+[4, 16, 36]
+['O', 'E', 'O', 'E', 'O', 'E']
+en: A filter if goes at the end; a value-choosing if/else goes at the front.
+hi: Filter wala if end mein; value chunne wala if/else shuru mein.
+--- d
+q: What does this print?
+code:
+m = [[1, 2, 3], [4, 5, 6]]
+print([x for row in m for x in row])
+print([[m[r][c] for r in range(2)] for c in range(3)])
+answer:
+[1, 2, 3, 4, 5, 6]
+[[1, 4], [2, 5], [3, 6]]
+en: The first flattens the grid; the second is the transpose.
+hi: Pehla grid ko flatten karta hai; doosra transpose hai.
+--- d
+q: What does this print?
+code:
+nums = [5, 3, 5, 1]
+print({x: i for i, x in enumerate(nums)})
+print(sorted({len(w) for w in ["a", "bb", "cc", "ddd"]}))
+answer:
+{5: 2, 3: 1, 1: 3}
+[1, 2, 3]
+en: A dict keeps the LAST index for the repeated key 5 (later assignments overwrite).
+hi: Dict mein repeat hone wale key 5 ki AAKHRI index rehti hai (baad wala assignment overwrite karta hai).
+--- d
+kind: write
+q: Write `word_lengths(sentence)` returning a dict from each word to its length, using a comprehension.
+answer:
+def word_lengths(sentence):
+    return {w: len(w) for w in sentence.split()}
+test:
+check(word_lengths("I love python"), {"I": 1, "love": 4, "python": 6})
+en: split() into words, then map each word to len(word).
+hi: split() se words, phir har word ko len(word) se map karo.

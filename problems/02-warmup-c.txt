@@ -1,0 +1,1043 @@
+## topic: w-strings | Strings
+
+### w-reverse-string
+title: Reverse a string
+diff: Easy
+pattern: Walk backwards · Two pointers
+problem: Return the string with its characters in reverse order.
+example: "hello" → "olleh"
+analogy: Reading a name board in a car's rear-view mirror: the letters come in reverse order.
+ask:
+- Python strings can't be changed in place, so we either build a new string or work on a list of characters.
+hints:
+- The one-liner: `s[::-1]`. Learn it, but also learn the logic behind it.
+- Logic version: turn the string into a list, then swap from both ends inward.
+- Join the list back into a string.
+brute: Build it backwards: loop i from len − 1 down to 0 and collect s[i].
+brutecx: O(n)
+signal: "Reverse" → walk backwards, or two pointers swapping.
+optimal:
+- chars = list(s); l, r = 0, n − 1; swap while l < r; return "".join(chars).
+cx: O(n) time · O(n) space (strings are immutable, so a copy is unavoidable)
+code:
+def reverse_string(s):
+    chars = list(s)
+    l, r = 0, len(chars) - 1
+    while l < r:
+        chars[l], chars[r] = chars[r], chars[l]
+        l += 1
+        r -= 1
+    return "".join(chars)
+test:
+check(reverse_string("hello"), "olleh")
+check(reverse_string(""), "")
+check(reverse_string("ab"), "ba")
+trace:
+l | r | chars
+0 | 4 | o e l l h
+1 | 3 | o l l e h
+2 | 2 | stop
+mistakes:
+- Trying `s[0] = "x"`: strings are immutable.
+hinglish:
+## Sawaal
+String ulti karo: "hello" → "olleh".
+## Analogy
+Gaadi ke rear-view mirror mein name board padhna: letters ulte order mein dikhte hain.
+## Kaise sochein
+- Shortcut `s[::-1]` yaad rakho, lekin logic bhi seekho.
+- String ko list banao, dono ends se swap karte hue andar aao, phir `"".join`.
+## Best approach
+Two pointers, O(n).
+## Galtiyan
+`s[0] = "x"` karna (string immutable hai).
+
+### w-palindrome-string
+title: Palindrome string
+diff: Easy
+pattern: Two pointers (opposite ends)
+problem: Return True if a string reads the same forwards and backwards.
+example: "racecar" → True,   "hello" → False
+analogy: Folding a paper strip with letters in half: every letter must land on the same letter.
+hints:
+- Easy way: `s == s[::-1]` (uses extra space).
+- Compare the first and last characters, then move inward.
+- The moment a pair differs → False.
+brute: `s == s[::-1]`.
+brutecx: O(n) time · O(n) space
+signal: "Palindrome" → two pointers from both ends.
+optimal:
+- l, r = 0, n − 1; while l < r: if s[l] != s[r] → False; move both.
+cx: O(n) time · O(1) space
+code:
+def is_palindrome(s):
+    l, r = 0, len(s) - 1
+    while l < r:
+        if s[l] != s[r]:
+            return False
+        l += 1
+        r -= 1
+    return True
+test:
+check(is_palindrome("racecar"), True)
+check(is_palindrome("hello"), False)
+check(is_palindrome(""), True)
+check(is_palindrome("abba"), True)
+trace:
+l | r | s[l] vs s[r]
+0 | 6 | r = r
+1 | 5 | a = a
+2 | 4 | c = c
+3 | 3 | stop → True
+mistakes:
+- Checking every pair twice by looping over the whole string.
+hinglish:
+## Sawaal
+String aage-peeche se same hai?
+## Analogy
+Letters wali kaagaz ki patti beech se modo: har letter same letter pe girna chahiye.
+## Kaise sochein
+- Pehla aur aakhri compare, phir andar aao.
+- Koi pair alag → turant False.
+## Best approach
+Two pointers, O(n) time, O(1) space.
+
+### w-vowels
+title: Count vowels and consonants
+diff: Easy
+pattern: Counter + membership check
+problem: Count vowels (a, e, i, o, u) and consonants in a string, ignoring non-letters and case.
+example: "Hello World!" → [3, 7]
+analogy: Sorting fruit into two baskets (vowels and consonants) and throwing away anything that isn't fruit (spaces, punctuation).
+hints:
+- Lowercase first.
+- For each character: is it a letter? Then is it a vowel?
+- `ch in "aeiou"` is a neat vowel check.
+brute: Direct.
+brutecx: O(n)
+signal: Classify each item into buckets → counters + if/else.
+optimal:
+- For ch in s.lower(): skip if not ch.isalpha(); vowel → v += 1 else c += 1.
+cx: O(n) time · O(1) space
+code:
+def count_vowels(s):
+    v = c = 0
+    for ch in s.lower():
+        if not ch.isalpha():
+            continue
+        if ch in "aeiou":
+            v += 1
+        else:
+            c += 1
+    return [v, c]
+test:
+check(count_vowels("Hello World!"), [3, 7])
+check(count_vowels("123"), [0, 0])
+mistakes:
+- Counting spaces and punctuation as consonants.
+hinglish:
+## Sawaal
+Vowels aur consonants gino; letters ke alawa sab ignore, case bhi ignore.
+## Analogy
+Phal do tokriyon mein chhantna (vowels, consonants), aur jo phal hi nahi (space, punctuation) wo phenk do.
+## Kaise sochein
+- Pehle lowercase.
+- Letter nahi → skip. `ch in "aeiou"` → vowel, warna consonant.
+## Best approach
+Ek loop, O(n).
+
+### w-char-frequency
+title: Character frequency
+diff: Easy
+pattern: Counting (26-slot list or dict)
+problem: Count how many times each lowercase letter appears.
+example: "banana" → a:3, b:1, n:2
+analogy: A post office with 26 letter boxes labelled a–z: every letter you read gets dropped into its own box, and you count the box contents.
+hints:
+- A dict char → count works for any characters.
+- For 'a'..'z' only, a list of 26 counters is fastest: slot = ord(ch) − ord('a').
+- 'c' − 'a' = 99 − 97 = 2.
+brute: For each letter a..z, `s.count(letter)` (26 passes).
+brutecx: O(26·n)
+signal: Counting letters → 26-slot list (or Counter). Powers every anagram problem.
+optimal:
+- count = [0] * 26; for ch: count[ord(ch) − 97] += 1.
+cx: O(n) time · O(1) space
+code:
+def letter_counts(s):
+    count = [0] * 26
+    for ch in s:
+        count[ord(ch) - ord("a")] += 1
+    return count
+test:
+c = letter_counts("banana")
+check([c[0], c[1], c[13]], [3, 1, 2])
+mistakes:
+- Uppercase letters give negative or wrong slots; lowercase first.
+hinglish:
+## Sawaal
+Har lowercase letter kitni baar aaya.
+## Analogy
+Post office mein a–z ke 26 letter boxes: har letter apne box mein jaata hai, phir box gino.
+## Kaise sochein
+- Dict bhi chalega, lekin a–z ke liye 26 slots ki list best.
+- Slot = `ord(ch) − ord('a')`.
+## Best approach
+O(n) time, O(1) space.
+
+### w-anagram
+title: Anagram check
+diff: Easy
+pattern: Compare letter counts
+problem: Two words are anagrams if they use exactly the same letters the same number of times. Return whether s and t are anagrams.
+example: "listen", "silent" → True;   "rat", "car" → False
+analogy: Two Scrabble racks: they're anagrams if both racks have exactly the same tiles, just in a different order.
+ask:
+- Different lengths? Then definitely not anagrams.
+hints:
+- Sorting both gives the same word if they're anagrams: O(n log n).
+- Faster: counts. +1 for each letter of s, −1 for each letter of t.
+- All counts zero at the end → anagram.
+brute: `sorted(s) == sorted(t)`.
+brutecx: O(n log n)
+signal: "Same letters, different order" → letter counting.
+optimal:
+- Length check; count[26] with +1/−1; all zero.
+cx: O(n) time · O(1) space
+code:
+def is_anagram(s, t):
+    if len(s) != len(t):
+        return False
+    count = [0] * 26
+    for a, b in zip(s, t):
+        count[ord(a) - 97] += 1
+        count[ord(b) - 97] -= 1
+    return all(c == 0 for c in count)
+test:
+check(is_anagram("listen", "silent"), True)
+check(is_anagram("rat", "car"), False)
+check(is_anagram("a", "ab"), False)
+mistakes:
+- Only checking that each letter of s appears in t ("aab" vs "abb" would pass).
+hinglish:
+## Sawaal
+Kya dono words mein bilkul same letters same ginti mein hain (bas order alag)?
+## Analogy
+Scrabble ke do racks: anagram tab hain jab dono racks mein bilkul same tiles hon, bas alag order mein.
+## Kaise sochein
+- Length alag → seedha False.
+- Sort karke compare O(n log n).
+- Better: s ke letter pe +1, t ke letter pe −1; end mein sab zero?
+## Best approach
+26-slot counting, O(n).
+## Galtiyan
+Sirf ye check karna ki s ka har letter t mein hai ("aab" vs "abb" pass ho jayega).
+
+### w-first-unique-char
+title: First non-repeating character
+diff: Easy
+pattern: Count first, then scan
+problem: Return the index of the first character that appears exactly once, or -1.
+example: "leetcode" → 0,   "loveleetcode" → 2,   "aabb" → -1
+analogy: Taking attendance twice: first count how many times each student's name appears on the sign-up sheet, then walk the sheet in order and pick the first name that appears only once.
+hints:
+- To know whether a character repeats, you must see the whole string: two passes.
+- Pass 1: count every character.
+- Pass 2: return the first index whose count is 1.
+brute: For each i, scan the whole string for another s[i]: O(n²).
+brutecx: O(n²)
+signal: Decision per item that depends on the whole input → one pass to count, another to decide.
+optimal:
+- count = Counter(s); for i, ch in enumerate(s): if count[ch] == 1: return i.
+cx: O(n) time · O(1) space (26 letters)
+code:
+from collections import Counter
+
+def first_unique_char(s):
+    count = Counter(s)
+    for i, ch in enumerate(s):
+        if count[ch] == 1:
+            return i
+    return -1
+test:
+check(first_unique_char("leetcode"), 0)
+check(first_unique_char("loveleetcode"), 2)
+check(first_unique_char("aabb"), -1)
+mistakes:
+- Deciding in the first pass before seeing later repeats.
+hinglish:
+## Sawaal
+Pehla character jo sirf ek baar aaya ho, uska index; na ho toh -1.
+## Analogy
+Attendance do baar: pehle sign-up sheet pe har naam kitni baar hai gino, phir sheet order mein chalke pehla naam chuno jo sirf ek baar aaya ho.
+## Kaise sochein
+- Character repeat hota hai ya nahi, ye poori string dekhe bina nahi pata chalega → do passes.
+- Pass 1: ginti (`Counter`). Pass 2: pehla count 1 wala.
+## Best approach
+O(n).
+
+### w-reverse-words
+title: Reverse the words in a sentence
+diff: Easy
+pattern: Split, reverse, join
+problem: Reverse the order of the words; extra spaces collapse into one.
+example: "  the sky   is blue " → "blue is sky the"
+analogy: A train of word-carriages: uncouple them (split), turn the train around (reverse), couple them again with one link each (join).
+hints:
+- `split()` with no argument drops extra spaces automatically.
+- Reverse the list of words.
+- Join with a single space.
+brute: This is the clean approach.
+brutecx: O(n)
+signal: Word-level operations → split into words first.
+optimal:
+- return " ".join(reversed(s.split())).
+cx: O(n) time · O(n) space
+code:
+def reverse_words(s):
+    return " ".join(reversed(s.split()))
+test:
+check(reverse_words("  the sky   is blue "), "blue is sky the")
+check(reverse_words("hello"), "hello")
+trace:
+step | result
+split() | ['the', 'sky', 'is', 'blue']
+reverse | ['blue', 'is', 'sky', 'the']
+join | "blue is sky the"
+mistakes:
+- `split(" ")` keeps empty strings for repeated spaces.
+hinglish:
+## Sawaal
+Sentence ke words ka order ulta karo, extra spaces ek mein badal do.
+## Analogy
+Words ke dibbon wali train: dibbe alag karo (split), train ghumao (reverse), phir ek-ek link se jodo (join).
+## Kaise sochein
+- `split()` bina argument ke extra spaces hata deta hai.
+- List ulti karo, single space se join.
+## Best approach
+`" ".join(reversed(s.split()))`, O(n).
+## Galtiyan
+`split(" ")` use karna (khaali strings aa jaati hain).
+
+### w-title-case
+title: Capitalise each word
+diff: Easy
+pattern: Transform each piece
+problem: Make the first letter of every word uppercase and the rest lowercase.
+example: "hELLO wORLD from python" → "Hello World From Python"
+analogy: Writing names on a class list neatly: each name starts with a capital letter, whatever mess the original form had.
+hints:
+- Work word by word: split on spaces.
+- For each word: first character upper + the rest lower.
+- Watch out for empty words.
+brute: Direct transformation. (`str.title()` exists, but it treats apostrophes oddly; practise the logic.)
+brutecx: O(n)
+signal: "Do the same thing to each part" → split, transform, join.
+optimal:
+- " ".join(w[0].upper() + w[1:].lower() for w in s.split(" ") if …).
+cx: O(n) time · O(n) space
+code:
+def title_case(s):
+    words = []
+    for w in s.split(" "):
+        words.append(w[:1].upper() + w[1:].lower())
+    return " ".join(words)
+test:
+check(title_case("hELLO wORLD from python"), "Hello World From Python")
+check(title_case("a"), "A")
+mistakes:
+- `w[0]` on an empty word crashes; `w[:1]` is safe.
+hinglish:
+## Sawaal
+Har word ka pehla letter capital, baaki small.
+## Analogy
+Class list pe naam saaf-suthre likhna: har naam capital letter se, chahe form pe kaisa bhi likha ho.
+## Kaise sochein
+- Words mein todo, har word: pehla upper + baaki lower, phir jodo.
+- Khaali word ke liye `w[:1]` safe hai, `w[0]` crash karega.
+## Best approach
+O(n).
+
+### w-count-words
+title: Count words
+diff: Easy
+pattern: State machine (inside a word or not)
+problem: Count the words; words are separated by one or more spaces.
+example: "  I love   coding  " → 3
+analogy: Counting islands while walking along a beach: every time you step from water onto sand, a new island begins.
+hints:
+- Easy: `len(s.split())`.
+- Loop version: a word starts when a non-space comes after a space (or at the very beginning).
+- Keep a flag `in_word`.
+brute: `len(s.split())`
+brutecx: O(n)
+signal: "Count groups / runs" → detect the START of each group.
+optimal:
+- For ch: if ch != " " and not in_word → count += 1, in_word = True; if ch == " " → in_word = False.
+cx: O(n) time · O(1) space
+code:
+def count_words(s):
+    count, in_word = 0, False
+    for ch in s:
+        if ch != " ":
+            if not in_word:
+                count += 1
+            in_word = True
+        else:
+            in_word = False
+    return count
+test:
+check(count_words("  I love   coding  "), 3)
+check(count_words(""), 0)
+check(count_words("one"), 1)
+mistakes:
+- Counting spaces + 1 (breaks with leading, trailing or repeated spaces).
+hinglish:
+## Sawaal
+Sentence mein kitne words hain (beech mein ek ya zyada spaces)?
+## Analogy
+Beach pe chalte hue islands ginna: jab bhi paani se ret pe kadam rakho, naya island shuru.
+## Kaise sochein
+- Seedha: `len(s.split())`.
+- Loop se: word tab shuru hota hai jab space ke baad non-space aaye. `in_word` flag rakho.
+## Best approach
+O(n).
+## Galtiyan
+Spaces + 1 ginna.
+
+### w-pangram
+title: Pangram check
+diff: Easy
+pattern: Set of seen letters
+problem: A pangram uses every letter a–z at least once. Is the string one?
+example: "The quick brown fox jumps over the lazy dog" → True
+analogy: Collecting all 26 stickers of an album: duplicates don't help; you're done when every slot is filled.
+hints:
+- Collect the distinct letters you see.
+- A set ignores duplicates automatically.
+- Pangram if the set has 26 letters.
+brute: For each letter a–z, check `letter in s` (26 scans).
+brutecx: O(26·n)
+signal: "Have we seen all of X?" → set, then compare sizes.
+optimal:
+- len({ch for ch in s.lower() if ch.isalpha()}) == 26.
+cx: O(n) time · O(1) space
+code:
+def is_pangram(s):
+    return len({ch for ch in s.lower() if "a" <= ch <= "z"}) == 26
+test:
+check(is_pangram("The quick brown fox jumps over the lazy dog"), True)
+check(is_pangram("hello world"), False)
+mistakes:
+- Adding spaces/punctuation to the set.
+hinglish:
+## Sawaal
+Kya string mein a se z tak har letter kam se kam ek baar hai?
+## Analogy
+Album ke 26 stickers ikatthe karna: duplicate kaam ka nahi, har slot bhar gaya toh complete.
+## Kaise sochein
+- Distinct letters ek set mein daalo (duplicates apne aap ignore).
+- Set ka size 26?
+## Best approach
+O(n).
+
+### w-compress
+title: String compression
+diff: Easy
+pattern: Group consecutive runs
+problem: Replace each run of the same character with the character followed by the run length.
+example: "aabcccccaaa" → "a2b1c5a3"
+analogy: A shopkeeper noting stock on a shelf: "5 packets of Maggi, then 2 of Parle-G" instead of writing every packet separately.
+hints:
+- Walk the string, counting the current run.
+- A run ends when the next character is different (or the string ends).
+- Then write the character and its count, and start a new run.
+brute: Direct simulation.
+brutecx: O(n)
+signal: "Consecutive equal items" → compare with the neighbour; flush when it changes.
+optimal:
+- For i: count += 1; if i is last or s[i + 1] != s[i]: append s[i] + str(count); count = 0.
+cx: O(n) time · O(n) space
+code:
+def compress(s):
+    parts, count = [], 0
+    for i in range(len(s)):
+        count += 1
+        if i == len(s) - 1 or s[i + 1] != s[i]:
+            parts.append(s[i] + str(count))
+            count = 0
+    return "".join(parts)
+test:
+check(compress("aabcccccaaa"), "a2b1c5a3")
+check(compress("a"), "a1")
+check(compress(""), "")
+trace:
+i | ch | count | action
+0 | a | 1 | next is a, continue
+1 | a | 2 | next is b → write a2
+2 | b | 1 | next is c → write b1
+3–7 | c | 5 | → write c5
+8–10 | a | 3 | end → write a3
+mistakes:
+- Forgetting to flush the final run.
+hinglish:
+## Sawaal
+Lagatar same characters ke group ko "character + ginti" se badlo: "aabcccccaaa" → "a2b1c5a3".
+## Analogy
+Dukaandaar shelf ka stock likhta hai: "5 packet Maggi, phir 2 Parle-G", har packet alag se nahi.
+## Kaise sochein
+- String pe chalo, current run gino.
+- Agla character alag ho (ya string khatam) toh run khatam: character + count likho, count reset.
+## Best approach
+O(n).
+## Galtiyan
+Aakhri run likhna bhoolna.
+
+### w-remove-duplicate-chars
+title: Remove duplicate characters
+diff: Easy
+pattern: Set of seen items, keep the first occurrence
+problem: Keep only the first occurrence of each character, in order.
+example: "programming" → "progamin"
+analogy: Making a guest list from RSVPs: a name is written down only the first time it appears; later repeats are ignored.
+hints:
+- Remember which characters you've already kept.
+- A set answers "kept before?" instantly.
+- Keep a character only the first time you see it.
+brute: For each character, search the part of the string before it: O(n²).
+brutecx: O(n²)
+signal: "Seen before?" → set.
+optimal:
+- seen = set(); out = []; for ch: if ch not in seen: add to both.
+cx: O(n) time · O(n) space
+code:
+def remove_duplicate_chars(s):
+    seen, out = set(), []
+    for ch in s:
+        if ch not in seen:
+            seen.add(ch)
+            out.append(ch)
+    return "".join(out)
+test:
+check(remove_duplicate_chars("programming"), "progamin")
+check(remove_duplicate_chars("aaa"), "a")
+mistakes:
+- Using `set(s)` directly loses the original order.
+hinglish:
+## Sawaal
+Har character ka sirf pehla occurrence rakho, order same.
+## Analogy
+RSVPs se guest list banana: naam sirf pehli baar likhte ho, baad ke repeats ignore.
+## Kaise sochein
+- Set mein yaad rakho kaun already rakha gaya.
+- Naya ho toh rakho.
+## Best approach
+O(n).
+## Galtiyan
+Seedha `set(s)` karna, order kho jaata hai.
+
+### w-roman-to-int
+title: Roman numeral to integer
+diff: Easy
+pattern: Peek at the next item
+problem: Convert a Roman numeral to an integer. A smaller value before a larger one is subtracted (IV = 4, IX = 9, CM = 900).
+example: "MCMXCIV" → 1994
+analogy: Reading a price tag with a discount sticker: normally you add values, but a smaller note placed just before a bigger one means "subtract me".
+hints:
+- Normally, add each symbol's value.
+- Exception: if a symbol is smaller than the next one, subtract it instead.
+- So at each position, peek at the next symbol.
+brute: List every two-letter special case (IV, IX, …). The peek rule is simpler.
+brutecx: O(n)
+signal: Rule that depends on the neighbour → compare s[i] with s[i + 1].
+optimal:
+- For i: v = val[s[i]]; if the next exists and v < val[next] → total −= v else total += v.
+cx: O(n) time · O(1) space
+code:
+def roman_to_int(s):
+    val = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+    total = 0
+    for i in range(len(s)):
+        v = val[s[i]]
+        if i + 1 < len(s) and v < val[s[i + 1]]:
+            total -= v
+        else:
+            total += v
+    return total
+test:
+check(roman_to_int("MCMXCIV"), 1994)
+check(roman_to_int("III"), 3)
+check(roman_to_int("LVIII"), 58)
+trace:
+i | symbol | next | action | total
+0 | M | C | +1000 | 1000
+1 | C | M | −100 | 900
+2 | M | X | +1000 | 1900
+3 | X | C | −10 | 1890
+4 | C | I | +100 | 1990
+5 | I | V | −1 | 1989
+6 | V | — | +5 | 1994
+mistakes:
+- Peeking at s[i + 1] without checking that it exists.
+hinglish:
+## Sawaal
+Roman numeral ko number mein badlo. Chhota symbol bade se pehle ho toh ghatao (IV = 4).
+## Analogy
+Price tag pe discount sticker: normally values jodte ho, lekin bade note se theek pehle chhota note matlab "mujhe ghatao".
+## Kaise sochein
+- Har symbol ki value jodo.
+- Agar agla symbol bada hai toh is wale ko ghatao.
+- Har position pe agle symbol ko "peek" karo.
+## Best approach
+O(n).
+## Galtiyan
+`s[i + 1]` padhne se pehle check na karna ki wo exist karta hai.
+
+### w-longest-common-prefix
+title: Longest common prefix
+diff: Easy
+pattern: Vertical scan
+problem: Return the longest prefix shared by all words.
+example: ["flower", "flow", "flight"] → "fl"
+analogy: Several friends reading the same phone number aloud digit by digit: you stop the moment anyone says a different digit.
+hints:
+- Compare column by column: all first letters, then all second letters…
+- Stop at the first column where a word is too short or differs.
+- The prefix can't be longer than the shortest word.
+brute: Try prefixes of the first word from longest to shortest.
+brutecx: O(n·m²)
+signal: "Shared by all" → check position by position, stop at the first mismatch.
+optimal:
+- For i, ch in enumerate(words[0]): if any word has len ≤ i or w[i] != ch → return words[0][:i].
+cx: O(total characters) time · O(1) extra
+code:
+def longest_common_prefix(words):
+    if not words:
+        return ""
+    first = words[0]
+    for i, ch in enumerate(first):
+        for w in words:
+            if i >= len(w) or w[i] != ch:
+                return first[:i]
+    return first
+test:
+check(longest_common_prefix(["flower", "flow", "flight"]), "fl")
+check(longest_common_prefix(["dog", "racecar", "car"]), "")
+check(longest_common_prefix(["a"]), "a")
+mistakes:
+- Reading w[i] before checking i < len(w).
+hinglish:
+## Sawaal
+Saare words ka sabse lamba common shuruaati hissa.
+## Analogy
+Kai dost ek hi phone number digit-by-digit bol rahe hain: jaise hi koi alag digit bole, ruk jao.
+## Kaise sochein
+- Column-by-column compare: sabke pehle letters, phir doosre…
+- Jahan koi word chhota pade ya letter alag ho, wahi ruk jao.
+## Best approach
+O(total characters).
+
+## topic: w-matrix | Matrices
+
+### w-transpose
+title: Transpose a matrix
+diff: Easy
+pattern: Swap row and column indexes
+problem: Return the transpose: row r of the answer is column r of the input.
+example: [[1, 2, 3], [4, 5, 6]] → [[1, 4], [2, 5], [3, 6]]
+analogy: A cinema seating chart flipped on its diagonal: whoever sat in row 2, seat 5 now sits in row 5, seat 2.
+hints:
+- Cell (r, c) moves to (c, r).
+- The answer has as many rows as the input has columns.
+- Build an empty cols × rows grid, then fill it with a nested loop.
+brute: Direct. (Pythonic: `[list(row) for row in zip(*m)]`.)
+brutecx: O(rows·cols)
+signal: Grid reshaping → work out where (r, c) goes, then a nested loop.
+optimal:
+- out = [[0] * rows for _ in range(cols)]; out[c][r] = m[r][c].
+cx: O(rows·cols) time and space
+code:
+def transpose(m):
+    rows, cols = len(m), len(m[0])
+    out = [[0] * rows for _ in range(cols)]
+    for r in range(rows):
+        for c in range(cols):
+            out[c][r] = m[r][c]
+    return out
+test:
+check(transpose([[1, 2, 3], [4, 5, 6]]), [[1, 4], [2, 5], [3, 6]])
+mistakes:
+- `[[0] * rows] * cols` shares one row list.
+hinglish:
+## Sawaal
+Matrix ka transpose: answer ki row r = input ka column r.
+## Analogy
+Cinema seating chart ko diagonal pe palto: jo row 2 seat 5 pe tha, ab row 5 seat 2 pe.
+## Kaise sochein
+- Cell (r, c) → (c, r).
+- Khaali cols × rows grid banao (sahi tareeke se), nested loop se bharo.
+## Best approach
+O(rows × cols). Python trick: `[list(row) for row in zip(*m)]`.
+## Galtiyan
+`[[0] * rows] * cols` se shared rows.
+
+### w-matrix-sums
+title: Row sums, column sums and diagonal sum
+diff: Easy
+pattern: Nested loops with several accumulators
+problem: For a square matrix return the row sums, column sums, and the sum of both diagonals (don't count the centre twice).
+example: [[1,2,3],[4,5,6],[7,8,9]] → [[6, 15, 24], [12, 15, 18], 25]
+analogy: A school marks sheet: total per student (row), total per subject (column), all in one pass over the sheet.
+hints:
+- One nested loop can fill both row_sum[r] and col_sum[c].
+- Main diagonal: r == c. Other diagonal: r + c == n − 1.
+- If n is odd, the centre is on both diagonals: subtract it once.
+brute: Three separate passes.
+brutecx: O(n²)
+signal: Grid summaries → index maths: r == c, r + c == n − 1.
+optimal:
+- As in the hints, one pass.
+cx: O(n²) time · O(n) space
+code:
+def matrix_sums(m):
+    n = len(m)
+    rows, cols, diag = [0] * n, [0] * n, 0
+    for r in range(n):
+        for c in range(n):
+            rows[r] += m[r][c]
+            cols[c] += m[r][c]
+        diag += m[r][r] + m[r][n - 1 - r]
+    if n % 2 == 1:
+        diag -= m[n // 2][n // 2]
+    return [rows, cols, diag]
+test:
+check(matrix_sums([[1, 2, 3], [4, 5, 6], [7, 8, 9]]), [[6, 15, 24], [12, 15, 18], 25])
+mistakes:
+- Counting the centre twice for odd n.
+hinglish:
+## Sawaal
+Square matrix ki har row ka sum, har column ka sum, aur dono diagonals ka sum (centre do baar nahi).
+## Analogy
+School ki marks sheet: har student ka total (row), har subject ka total (column), ek hi baar sheet dekh ke.
+## Kaise sochein
+- Ek nested loop mein `rows[r]` aur `cols[c]` dono bharo.
+- Main diagonal r == c, doosra r + c == n − 1.
+- n odd ho toh centre ek baar ghatao.
+## Best approach
+O(n²).
+
+## topic: w-recursion | Recursion
+
+### w-power
+title: Power x to the n (recursive)
+diff: Medium
+pattern: Divide and conquer (halve the problem)
+problem: Compute xⁿ (n ≥ 0) with recursion, faster than n multiplications.
+example: 2¹⁰ = 1024
+analogy: Folding paper: to get 1024 layers you don't add layers one by one; each fold doubles everything. Halving n at each step is the same idea in reverse.
+hints:
+- Base case: x⁰ = 1.
+- x¹⁰ = (x⁵)². Compute the half once, then square it.
+- Odd n: xⁿ = x · (x^(n−1)), or half·half·x.
+- Each call halves n → about log n calls.
+brute: Multiply x by itself n times.
+brutecx: O(n)
+signal: "Can I solve half and combine?" → divide and conquer, O(log n).
+optimal:
+- If n == 0 → 1. half = power(x, n // 2). Even → half·half; odd → half·half·x.
+cx: O(log n) time · O(log n) call stack
+code:
+def power(x, n):
+    if n == 0:
+        return 1
+    half = power(x, n // 2)
+    if n % 2 == 0:
+        return half * half
+    return half * half * x
+test:
+check(power(2, 10), 1024)
+check(power(3, 0), 1)
+check(power(3, 5), 243)
+trace:
+call | n | returns
+power(2, 10) | 10 | 32 × 32 = 1024
+power(2, 5) | 5 | 4 × 4 × 2 = 32
+power(2, 2) | 2 | 2 × 2 = 4
+power(2, 1) | 1 | 1 × 1 × 2 = 2
+power(2, 0) | 0 | 1 (base)
+mistakes:
+- Calling power(x, n // 2) twice instead of storing it: O(n) again.
+hinglish:
+## Sawaal
+xⁿ recursion se nikaalo, n baar guna karne se tez.
+## Analogy
+Kaagaz modna: 1024 layers ke liye ek-ek layer nahi jodte; har fold sab double kar deta hai. Har step n ko aadha karna isi ka ulta hai.
+## Kaise sochein
+- Base case: x⁰ = 1.
+- x¹⁰ = (x⁵)²: aadha ek baar nikaalo, square karo.
+- n odd ho toh ek x aur guna.
+## Best approach
+O(log n).
+## Galtiyan
+`power(x, n // 2)` do baar call karna.
+
+### w-fib-memo
+title: Fibonacci with recursion and memo
+diff: Medium
+pattern: Recursion + memoization (top-down DP)
+problem: Write fib(n) recursively, then make it fast by remembering computed answers.
+example: fib(40) = 102334155
+analogy: A student who writes every solved answer in a notebook: before solving a question, check the notebook; if it's there, copy it instead of solving again.
+hints:
+- Direct recursion: fib(n) = fib(n − 1) + fib(n − 2), base fib(0) = 0, fib(1) = 1.
+- Draw the call tree for fib(5): fib(3) appears twice, fib(2) three times!
+- Memo: check a dict before computing; store after computing. Or `@lru_cache`.
+brute: Plain recursion.
+brutecx: O(2ⁿ)
+signal: Recursion with repeated inputs → memoize. That's the heart of dynamic programming.
+optimal:
+- memo = {}; fib(n): n < 2 → n; if n in memo → memo[n]; else compute, store, return.
+cx: O(n) time · O(n) space
+code:
+def fib_memo(n, memo=None):
+    if memo is None:
+        memo = {}
+    if n < 2:
+        return n
+    if n in memo:
+        return memo[n]
+    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
+    return memo[n]
+test:
+check(fib_memo(10), 55)
+check(fib_memo(40), 102334155)
+mistakes:
+- Using `memo={}` as a default argument (it's shared between calls; works here but is a bad habit).
+hinglish:
+## Sawaal
+fib(n) recursion se likho, phir answers yaad rakh ke fast banao.
+## Analogy
+Student jo har solved answer notebook mein likh leta hai: naya sawaal solve karne se pehle notebook check, mil gaya toh copy.
+## Kaise sochein
+- Seedha recursion same values baar-baar banata hai (fib(5) mein fib(3) do baar, fib(2) teen baar).
+- Dict mein store karo, pehle check karo. Ya `@lru_cache` lagao.
+## Best approach
+Memoization se O(n). Yahi DP ka dil hai.
+
+### w-binary-strings
+title: All binary strings of length n
+diff: Medium
+pattern: Backtracking (choose → explore → undo)
+problem: Return every string of length n made of '0' and '1'.
+example: n = 2 → ["00", "01", "10", "11"]
+analogy: A row of n light switches: every combination of ON/OFF is one string. You decide switch by switch.
+hints:
+- Each position has 2 choices → 2ⁿ strings.
+- Build one character at a time: try '0', go deeper, then try '1'.
+- When the string reaches length n, record it (base case).
+brute: Count 0..2ⁿ − 1 and format each in binary with padding: `format(i, f"0{n}b")`.
+brutecx: O(n·2ⁿ)
+signal: "Generate all combinations" → recursion with one choice per level.
+optimal:
+- build(prefix): if len == n → record. build(prefix + "0"); build(prefix + "1").
+cx: O(n·2ⁿ) (the output itself is that big)
+code:
+def binary_strings(n):
+    out = []
+
+    def build(prefix):
+        if len(prefix) == n:
+            out.append(prefix)
+            return
+        build(prefix + "0")
+        build(prefix + "1")
+
+    build("")
+    return out
+test:
+check(binary_strings(2), ["00", "01", "10", "11"])
+check(len(binary_strings(3)), 8)
+trace:
+call | action
+build("") | try 0
+build("0") | try 0 → "00" recorded
+build("0") | try 1 → "01" recorded
+build("") | try 1 → "10", "11" recorded
+mistakes:
+- No base case → infinite recursion.
+hinglish:
+## Sawaal
+Length n ki saari strings jo sirf '0' aur '1' se bani hon.
+## Analogy
+n light switches ki row: ON/OFF ka har combination ek string. Switch-by-switch decide karte ho.
+## Kaise sochein
+- Har position pe 2 choices → 2ⁿ strings.
+- Ek character jodo, aage badho; '0' try karo, phir '1'.
+- Length n ho gayi → record (base case).
+## Best approach
+Backtracking, O(n·2ⁿ). DSA 150 ke Backtracking section ka warm-up.
+
+## topic: w-sorting | Sorting & Searching
+
+### w-selection-sort
+title: Selection sort
+diff: Easy
+pattern: Nested loops · find the min, swap into place
+problem: Sort a list ascending by repeatedly selecting the smallest remaining element.
+example: [64, 25, 12, 22, 11] → [11, 12, 22, 25, 64]
+analogy: Picking a cricket team by height: find the shortest player and put them first, then the shortest of the rest in second place, and so on.
+hints:
+- Position 0 should hold the smallest value: find it and swap it there.
+- Then position 1 gets the smallest of the rest, and so on.
+- Outer loop = position to fill; inner loop = find the minimum of the unsorted part.
+brute: This is an O(n²) teaching sort. In real code use `sorted()`.
+brutecx: O(n²)
+signal: Nested-loop practice.
+optimal:
+- For i: min_idx = index of the smallest in nums[i:]; swap nums[i], nums[min_idx].
+cx: O(n²) time · O(1) space
+code:
+def selection_sort(nums):
+    n = len(nums)
+    for i in range(n - 1):
+        min_idx = i
+        for j in range(i + 1, n):
+            if nums[j] < nums[min_idx]:
+                min_idx = j
+        nums[i], nums[min_idx] = nums[min_idx], nums[i]
+    return nums
+test:
+check(selection_sort([64, 25, 12, 22, 11]), [11, 12, 22, 25, 64])
+check(selection_sort([]), [])
+trace:
+i | min of nums[i:] | list after swap
+0 | 11 | [11, 25, 12, 22, 64]
+1 | 12 | [11, 12, 25, 22, 64]
+2 | 22 | [11, 12, 22, 25, 64]
+3 | 25 | unchanged
+mistakes:
+- Swapping inside the inner loop every time: find the min first, then swap once.
+hinglish:
+## Sawaal
+List ko sort karo: har baar bache hue mein se sabse chhota chun ke uski sahi jagah rakho.
+## Analogy
+Height se cricket team line up: sabse chhote player ko pehle, phir baaki mein sabse chhota doosre number pe, aise hi.
+## Kaise sochein
+- Position 0 pe sabse chhota, position 1 pe baaki mein sabse chhota…
+- Outer loop position, inner loop minimum dhoondhta hai.
+## Best approach
+O(n²) (practice ke liye). Real code mein `sorted()`, O(n log n).
+
+### w-insertion-sort
+title: Insertion sort
+diff: Easy
+pattern: Grow a sorted prefix
+problem: Sort a list the way you sort playing cards in your hand.
+example: [5, 2, 4, 6, 1, 3] → [1, 2, 3, 4, 5, 6]
+analogy: Picking up cards one by one: each new card slides left past the bigger cards until it sits in the right place. The cards in your hand are always sorted.
+hints:
+- The left part nums[0..i−1] is always sorted.
+- key = nums[i]. Shift bigger elements one step right.
+- Drop the key into the gap.
+brute: O(n²) but very fast on nearly-sorted lists.
+brutecx: O(n²) worst · O(n) if already sorted
+signal: "Shift to make room" / nearly sorted data.
+optimal:
+- For i from 1: key; j = i − 1; while j ≥ 0 and nums[j] > key: shift; j −= 1. nums[j + 1] = key.
+cx: O(n²) time · O(1) space
+code:
+def insertion_sort(nums):
+    for i in range(1, len(nums)):
+        key = nums[i]
+        j = i - 1
+        while j >= 0 and nums[j] > key:
+            nums[j + 1] = nums[j]
+            j -= 1
+        nums[j + 1] = key
+    return nums
+test:
+check(insertion_sort([5, 2, 4, 6, 1, 3]), [1, 2, 3, 4, 5, 6])
+trace:
+i | key | list after inserting
+1 | 2 | [2, 5, 4, 6, 1, 3]
+2 | 4 | [2, 4, 5, 6, 1, 3]
+3 | 6 | [2, 4, 5, 6, 1, 3]
+4 | 1 | [1, 2, 4, 5, 6, 3]
+5 | 3 | [1, 2, 3, 4, 5, 6]
+mistakes:
+- Writing `nums[j] > key and j >= 0`: nums[-1] silently reads the last element in Python. Check j first.
+hinglish:
+## Sawaal
+List ko waise sort karo jaise haath mein taash ke patte lagate ho.
+## Analogy
+Ek-ek patta uthao: naya patta bade patton ko paar karte hue left khiskta hai aur sahi jagah baith jaata hai. Haath ke patte hamesha sorted rehte hain.
+## Kaise sochein
+- Left hissa hamesha sorted.
+- `key = nums[i]`, bade elements ek step right khiskao, gap mein key daalo.
+## Best approach
+O(n²), lekin almost-sorted list pe bahut fast.
+## Galtiyan
+`j >= 0` baad mein check karna: Python mein `nums[-1]` chupchaap aakhri element padh leta hai.
+
+### w-first-last-position
+title: First and last position in a sorted list
+diff: Medium
+pattern: Binary search for a boundary
+problem: In a sorted list return the first and last index of target, or [-1, -1].
+example: [5, 7, 7, 8, 8, 10], target 8 → [3, 4]
+analogy: Finding the first and last page of the "S" section in a dictionary: open in the middle, and when you land on an S page, keep going left (for the first) or right (for the last).
+hints:
+- Linear scan: O(n).
+- Normal binary search stops at any match. Here, when you find target, record it and keep searching left (for the first) or right (for the last).
+- One helper with a flag: leftmost True/False.
+brute: Scan left to right remembering the first and last match.
+brutecx: O(n)
+signal: Sorted + "first / last / boundary" → binary search that continues after a match.
+optimal:
+- bound(leftmost): lo, hi, ans = 0, n − 1, −1; on a match: ans = mid; hi = mid − 1 (leftmost) or lo = mid + 1.
+cx: O(log n) time · O(1) space
+code:
+def bound(nums, target, leftmost):
+    lo, hi, ans = 0, len(nums) - 1, -1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if nums[mid] == target:
+            ans = mid
+            if leftmost:
+                hi = mid - 1
+            else:
+                lo = mid + 1
+        elif nums[mid] < target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return ans
+
+def search_range(nums, target):
+    return [bound(nums, target, True), bound(nums, target, False)]
+test:
+check(search_range([5, 7, 7, 8, 8, 10], 8), [3, 4])
+check(search_range([5, 7, 7, 8, 8, 10], 6), [-1, -1])
+check(search_range([], 0), [-1, -1])
+trace:
+search | lo | hi | mid | nums[mid] | action
+first | 0 | 5 | 2 | 7 | lo = 3
+first | 3 | 5 | 4 | 8 | ans 4, hi = 3
+first | 3 | 3 | 3 | 8 | ans 3, hi = 2 → stop
+last | 0 | 5 | 2 | 7 | lo = 3
+last | 3 | 5 | 4 | 8 | ans 4, lo = 5
+last | 5 | 5 | 5 | 10 | hi = 4 → stop
+mistakes:
+- Returning on the first match (gives "some" 8, not the first).
+hinglish:
+## Sawaal
+Sorted list mein target ki pehli aur aakhri position, na ho toh [-1, -1].
+## Analogy
+Dictionary mein "S" section ka pehla aur aakhri page dhoondhna: beech se kholo, S page mile toh pehle ke liye aur left jao, aakhri ke liye aur right.
+## Kaise sochein
+- Normal binary search kisi bhi match pe ruk jaata hai.
+- Yahan match mile toh note karo aur search jaari rakho: pehle ke liye `hi = mid − 1`, aakhri ke liye `lo = mid + 1`.
+## Best approach
+Do binary searches, O(log n).
+## Galtiyan
+Pehle match pe hi return kar dena.
