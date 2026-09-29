@@ -27,6 +27,24 @@ body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15
 
 #sw{position:relative;width:100%;aspect-ratio:16/9;background:#0a0c16;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px -18px rgba(10,12,30,.55)}
 #sw:fullscreen{border-radius:0}
+/* captions in fullscreen: a fixed-height band under the video (the stage is scaled into the space above it) */
+#fscap{display:none}
+#sw:fullscreen #fscap,#sw:-webkit-full-screen #fscap,#sw.pfs #fscap{display:flex;align-items:center;justify-content:center;position:absolute;left:0;right:0;bottom:0;z-index:5;
+  box-sizing:border-box;height:calc(3 * 1.35 * clamp(16px,2.1vw,30px) + 28px + env(safe-area-inset-bottom,0px));padding:14px max(24px,6vw) calc(14px + env(safe-area-inset-bottom,0px));overflow:hidden;
+  background:#05060d;border-top:1px solid rgba(255,255,255,.08);color:#f4f5fb;text-align:center;text-wrap:balance;
+  font-family:var(--f-body);font-weight:600;font-size:clamp(16px,2.1vw,30px);line-height:1.35}
+#sw:fullscreen,#sw:-webkit-full-screen{width:100%;height:100%;aspect-ratio:auto;background:#05060d}
+/* portrait phones have spare height under a wide video: give captions up to 7 lines at a readable size */
+@media (orientation: portrait){
+  #sw:fullscreen #fscap,#sw:-webkit-full-screen #fscap,#sw.pfs #fscap{font-size:17px;height:calc(7 * 1.35 * 17px + 28px + env(safe-area-inset-bottom,0px));padding-inline:18px}
+}
+/* full-window fallback where the Fullscreen API is missing (iPhone) */
+#sw.pfs{position:fixed;inset:0;z-index:1000;width:auto;height:auto;aspect-ratio:auto;border-radius:0;background:#05060d}
+html.pfs-lock,html.pfs-lock body{overflow:hidden}
+#fsx{display:none}
+#sw:fullscreen #fsx,#sw:-webkit-full-screen #fsx,#sw.pfs #fsx{display:grid;place-items:center;position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:12;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(5,6,13,.7);cursor:pointer;padding:0}
+#fsx svg{width:20px;height:20px;fill:none;stroke:#f4f5fb;stroke-width:2.4;stroke-linecap:round}
+#fsx:focus-visible{outline:3px solid #ffd166;outline-offset:2px}
 #stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;background:var(--s-bg);color:var(--s-ink);font-family:var(--f-body);font-size:26px;line-height:1.4;overflow:hidden}
 #stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
 .st-head{position:absolute;left:36px;right:36px;top:22px;display:flex;justify-content:space-between;align-items:center;gap:20px;z-index:2}
