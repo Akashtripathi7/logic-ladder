@@ -38,12 +38,10 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 python3 build.py
 ```
 
-This runs every solution and drill answer against its tests (722 checks), then writes `index.html`. The build reports any failing check.
+This runs every solution and drill answer against its tests (722 checks), then writes the site to `public/index.html`. If any check fails, the build stops with an error, so a broken change never goes live.
 
 ## Deploy
 
-`index.html` is the whole site, so any static host works. With Vercel:
+The repo is connected to Vercel: every push to `main` builds and deploys to https://logic-ladder.vercel.app automatically (settings in `vercel.json`). Pull requests get their own preview URL.
 
-```bash
-npx vercel deploy --prod
-```
+`public/index.html` is the whole site, so any static host works too.

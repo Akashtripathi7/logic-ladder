@@ -311,8 +311,16 @@ def main():
     out = (shell.replace('{{CSS}}', (D / 'style.css').read_text() + (D / 'app.css').read_text() + (D / 'mascot.css').read_text())
            .replace('{{DATA}}', json.dumps(data, ensure_ascii=False).replace('</', '<\\/'))
            .replace('{{JS}}', '\n;\n'.join(js)))
-    (D / 'index.html').write_text(out)
+    # public/ is what Vercel serves; build/ holds the same page without the document skeleton (for hosts that add their own)
+    (D / 'public').mkdir(exist_ok=True)
+    (D / 'public' / 'index.html').write_text(out)
+    bare = re.sub(r'\A<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n', '', out)
+    bare = re.sub(r'<meta name="viewport"[^>]*>\n', '', bare, count=1)
+    (D / 'build').mkdir(exist_ok=True)
+    (D / 'build' / 'logic-ladder.html').write_text(bare)
     print('page', len(out), 'errors', len(ERRORS))
+    if ERRORS:
+        sys.exit(1)
 
 
 main()
