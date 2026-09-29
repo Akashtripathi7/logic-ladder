@@ -196,11 +196,42 @@ function stepPanel(s, st) {
       ${items.length > 8 ? `<button type="button" class="sp-more${items.length <= 15 ? ' few' : ''}">${tr('Show all', 'Sab dikhao')} ${items.length}</button>` : ''}
     </div>`;
 }
+/* Where the learner is, from what they have actually done (not from pages they merely opened).
+   new: nothing done yet · continue: partway through a step · next: a step finished, the next not started · done: all five finished */
+const hasProgress = () => lessonProgress('math') > 0 || modsDone.size > 0 || solved.size > 0;
+const stepOfRoute = r => !r ? -1 : r === 'video-math' ? 0 : r === 'python' || r.startsWith('m-py') ? 1 : r === 'gym' || /^m-g\d/.test(r) ? 2 : r === 'warmup' || r.startsWith('t-w-') || r.startsWith('p-w-') ? 3 : r === 'dsa150' || r.startsWith('t-') || r.startsWith('p-') ? 4 : -1;
+function homeStage(steps) {
+  let cur = steps.findIndex(s => s.prog() < 1);
+  if (cur === -1) return { kind: 'done', cur: steps.length - 1, href: steps[steps.length - 1].href };
+  if (!hasProgress()) return { kind: 'new', cur, href: steps[0].href };
+  const s = steps[cur];
+  if (s.prog() > 0) {
+    const last = store.get('last', null);
+    return { kind: 'continue', cur, href: last && stepOfRoute(last) === cur && routeLabel(last) ? '#' + last : s.href, lastLabel: last && stepOfRoute(last) === cur ? routeLabel(last) : null };
+  }
+  return { kind: 'next', cur, href: s.href };
+}
+function homeCta(steps, st) {
+  const s = steps[st.cur];
+  return {
+    new: tr('Start learning', 'Seekhna shuru karo'),
+    continue: `${tr('Continue step', 'Step')} ${s.n}${tr('', ' continue karo')}: ${esc(s.t)}`,
+    next: `${tr('Start step', 'Step')} ${s.n}${tr('', ' shuru karo')}: ${esc(s.t)}`,
+    done: tr('Review DSA 150', 'DSA 150 revise karo')
+  }[st.kind];
+}
+function homeNote(steps, st) {
+  const s = steps[st.cur];
+  if (st.kind === 'new') return tr('Starts with step 1: Math for Logic. Free, no sign-up, and your progress is saved in this browser.', 'Step 1 se shuru: Logic ke liye Math. Free, sign-up nahi, aur progress is browser mein save hota hai.');
+  if (st.kind === 'done') return tr('All five steps done. Re-solve old problems every week to keep them fresh.', 'Paanchon steps ho gaye. Har hafte purani problems dobara solve karo taaki yaad rahein.');
+  const prev = steps[st.cur - 1];
+  if (st.kind === 'next') return `${tr('Step', 'Step')} ${prev.n} (${esc(prev.t)}) ${tr('is done. Next up', 'ho gaya. Ab')}: ${esc(s.t)}.`;
+  return `${tr('Step', 'Step')} ${s.n} ${tr('of 5', 'of 5')} · ${s.label()}${st.lastLabel ? ` · ${tr('last opened', 'aakhri baar khola')}: ${esc(st.lastLabel)}` : ''}`;
+}
 function pageHome() {
-  const last = store.get('last', null);
-  const lastLabel = last && routeLabel(last);
   const solvedN = countSolved(ORDER.warm) + countSolved(ORDER.nc);
   const steps = stepsDef();
+  const stage = homeStage(steps);
   let cur = steps.findIndex(s => s.prog() < 1);
   const allDone = cur === -1;
   if (allDone) cur = steps.length - 1;
@@ -218,10 +249,10 @@ function pageHome() {
       <h1>${tr('Build your logic <span class="hl">one rung</span> at a time', 'Apna logic banao, <span class="hl">ek-ek seedhi</span> chadh ke')}</h1>
       <p class="hx-sub">${tr('A step-by-step path for people who find logic hard: the maths you need, Python from zero, logic drills, 50 warm-ups and 150 interview problems. Every explanation is in English and Hinglish.', 'Unke liye step-by-step raasta jinhe logic mushkil lagta hai: zaroori maths, bilkul shuru se Python, logic drills, 50 warm-ups aur 150 interview problems. Har explanation English aur Hinglish mein.')}</p>
       <div class="hx-cta">
-        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)} <span aria-hidden="true">→</span></a>` : `<a class="btn pri lg" href="${steps[cur].href}">${allDone ? tr('Review DSA 150', 'DSA 150 revise karo') : `${tr('Start step', 'Step')} ${cur + 1}: ${esc(steps[cur].t)}`} <span aria-hidden="true">→</span></a>`}
+        <a class="btn pri lg" id="home-cta" href="${stage.href}">${homeCta(steps, stage)} <span aria-hidden="true">→</span></a>
         <a class="btn ghost lg" href="#path" id="how-link">${tr('See the 5 steps', '5 steps dekho')} <span aria-hidden="true">↓</span></a>
       </div>
-      <p class="hx-note">${lastLabel ? `${tr('You are on step', 'Tum step')} ${cur + 1} ${tr('of 5', 'of 5 pe ho')}: <a href="${steps[cur].href}">${esc(steps[cur].t)}</a> · ${steps[cur].label()}` : tr('Free. No sign-up. Your progress is saved in this browser.', 'Free. Sign-up nahi. Progress is browser mein save hota hai.')}</p>
+      <p class="hx-note">${homeNote(steps, stage)}</p>
     </div>
     <div class="hx-art" aria-hidden="true" style="--climb:${climb}%">
       <div class="hx-grid"></div>
@@ -548,7 +579,7 @@ function mascotRoute(r) {
   Mascot.mount(host, document.getElementById('bitu-say'));
   const [pose, key] = mascotFor(r === 'neet' + 'code' ? 'dsa150' : r);
   spoilerNudged = false;
-  const returning = key === 'home' && (store.get('last', null) || solved.size || modsDone.size);
+  const returning = key === 'home' && hasProgress();
   Mascot.say(say2(key === 'home' ? LINES.home[returning ? 1 : 0] : pick(LINES[key])));
   if (pose === 'wave') { routePose = 'idle'; Mascot.pose('idle'); Mascot.react('wave'); }
   else { routePose = pose; Mascot.pose(pose); }
