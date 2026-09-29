@@ -74,10 +74,14 @@ function create() {
     });
   }, { passive: true });
 }
-/* move Bitu into this page's host element (it keeps its state between pages) */
-function mount(host) {
+/* move Bitu into this page's host element (it keeps its state between pages).
+   sayHost, when given, holds the speech bubble somewhere else on the page (the home ladder puts it in the current step's card). */
+function mount(host, sayHost) {
   if (!root) create();
   if (host && root.parentNode !== host) host.appendChild(root);
+  const where = sayHost || root;
+  if (bubble.parentNode !== where) where.appendChild(bubble);
+  root.classList.toggle('say-away', !!sayHost);
 }
 function show(text) {
   if (!bubble || bubble.textContent === text) return;

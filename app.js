@@ -164,39 +164,55 @@ function pageHome() {
   const lastLabel = last && routeLabel(last);
   const done = countSolved(ORDER.warm) + countSolved(ORDER.nc);
   const steps = stepsDef();
-  const cur = steps.findIndex(s => s.prog() < 1);
+  let cur = steps.findIndex(s => s.prog() < 1);
+  const allDone = cur === -1;
+  if (allDone) cur = steps.length - 1;
+  const stateOf = i => steps[i].prog() >= 1 ? 'done' : i === cur ? 'current' : 'todo';
+  /* each ladder segment fills from the bottom: done = full; current = up to Bitu's rung (the middle), then by progress in that step; todo = empty */
+  const fillOf = i => { const st = stateOf(i); return st === 'done' ? 100 : st === 'current' ? 50 + Math.round(steps[i].prog() * 50) : 0; };
+  const rung = i => {
+    const s = steps[i], st = stateOf(i), here = i === cur;
+    return `<li class="lad-row ${st}" style="--fill:${fillOf(i)}%">
+      <div class="lc" aria-hidden="true"><span class="mrung"></span><span class="plate">${st === 'done' ? '✓' : s.n}</span>${here ? '<div class="bitu-host on-ladder" id="bitu-host"></div>' : ''}</div>
+      <a class="rung-card" href="${s.href}"${here ? ' aria-current="step"' : ''}>
+        <span class="rc-top"><span class="rc-kind">${tr('Step', 'Step')} ${s.n} · ${s.kind}</span>${st === 'done' ? `<span class="tag-done">${tr('Done', 'Ho gaya')}</span>` : here ? `<span class="here">${tr('You are here', 'Tum yahan ho')}</span>` : ''}</span>
+        <span class="rc-title">${esc(s.t)}</span>
+        <span class="rc-desc">${esc(s.d)}</span>
+        <span class="rc-prog">${bar(Math.round(s.prog() * 100), 100)}<span>${s.label()}</span></span>
+        ${here ? '<span class="say-slot" id="bitu-say"></span>' : ''}
+      </a>
+    </li>`;
+  };
   view.innerHTML = `
   <section class="home-hero">
     <div class="hh-text">
       <div class="kicker">Logic Ladder</div>
       <h1>${tr('Climb from zero logic to DSA, one rung at a time', 'Zero logic se DSA tak, ek-ek seedhi chadh ke')}</h1>
-      <p>${tr('Five steps in order: watch, read, then practise. Everything is in Python, and every explanation is also in Hinglish.', 'Paanch steps order mein: dekho, padho, phir practice. Sab Python mein, aur har explanation Hinglish mein bhi.')}</p>
+      <p>${tr('Five steps, bottom to top: watch, read, then practise. Everything is in Python, and every explanation is also in Hinglish.', 'Paanch steps, neeche se upar: dekho, padho, phir practice. Sab Python mein, aur har explanation Hinglish mein bhi.')}</p>
       <div class="hero-cta">
-        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)}</a>` : `<a class="btn pri lg" href="#video-math">${tr('Start with step 1', 'Step 1 se shuru karo')}</a>`}
+        ${lastLabel ? `<a class="btn pri lg" href="#${last}">${tr('Continue', 'Wahin se shuru')}: ${esc(lastLabel)}</a>` : `<a class="btn pri lg" href="${steps[cur].href}">${tr('Start step', 'Step shuru karo')} ${cur + 1}: ${esc(steps[cur].t)}</a>`}
         <a class="btn lg" href="#dsa150">${tr('See the DSA 150 map', 'DSA 150 ka map dekho')}</a>
       </div>
-      <dl class="hero-facts">
-        <div><dt>${tr('Problems solved', 'Problems solved')}</dt><dd>${done}<small> / 200</small></dd></div>
-        <div><dt>${tr('Modules complete', 'Modules complete')}</dt><dd>${modsDone.size}<small> / ${MODS.length}</small></dd></div>
-        <div><dt>${tr('Videos', 'Videos')}</dt><dd>${Object.keys(E.LESSONS).length}</dd></div>
-      </dl>
     </div>
-    <div class="hh-coach"><div class="bitu-host big" id="bitu-host"></div></div>
+    <dl class="hero-facts">
+      <div><dt>${tr('Problems solved', 'Problems solved')}</dt><dd>${done}<small> / 200</small></dd></div>
+      <div><dt>${tr('Modules complete', 'Modules complete')}</dt><dd>${modsDone.size}<small> / ${MODS.length}</small></dd></div>
+      <div><dt>${tr('Current step', 'Abhi ka step')}</dt><dd>${cur + 1}<small> / 5</small></dd></div>
+    </dl>
   </section>
   <section class="ladder" aria-labelledby="ladder-h">
-    <h2 id="ladder-h" class="sr-only">${tr('Your five steps', 'Tumhare paanch steps')}</h2>
-    <ol>
-      ${steps.map((s, i) => { const state = s.prog() >= 1 ? 'done' : i === cur ? 'current' : 'todo'; return `
-      <li class="rung ${state}">
-        <span class="rung-n" aria-hidden="true">${state === 'done' ? '✓' : s.n}</span>
-        <a class="rung-card" href="${s.href}">
-          <span class="rc-top"><span class="rc-kind">${tr('Step', 'Step')} ${s.n} · ${s.kind}</span>${state === 'current' ? `<span class="here">${tr('You are here', 'Tum yahan ho')}</span>` : ''}</span>
-          <span class="rc-title">${esc(s.t)}</span>
-          <span class="rc-desc">${esc(s.d)}</span>
-          <span class="rc-prog">${bar(Math.round(s.prog() * 100), 100)}<span>${s.label()}</span></span>
-        </a>
-      </li>`; }).join('')}
-    </ol>
+    <div class="lad-head"><h2 id="ladder-h">${tr('Your ladder', 'Tumhari seedhi')}</h2><span class="muted">${tr('Start at the bottom. Each finished step fills the rails.', 'Neeche se shuru karo. Har poora step rails ko bharta hai.')}</span></div>
+    <div class="lad">
+      <div class="lad-row cap ${allDone ? 'done' : 'todo'}" style="--fill:${allDone ? 100 : 0}%">
+        <div class="lc" aria-hidden="true"><svg class="flag" viewBox="0 0 40 44"><rect x="6" y="2" width="3.5" height="40" rx="1.75"/><path class="cloth" d="M9.5 4h24l-6 8 6 8h-24z"/></svg></div>
+        <div class="cap-t"><b>${tr('Goal', 'Goal')}</b> ${tr('Solve interview problems on your own, and explain your thinking.', 'Interview problems khud solve karo, aur apni soch samjhao.')}</div>
+      </div>
+      <ol class="lad-steps">${[4, 3, 2, 1, 0].map(rung).join('')}</ol>
+      <div class="lad-row base ${stateOf(0)}" style="--fill:100%">
+        <div class="lc" aria-hidden="true"><span class="ground"></span></div>
+        <div class="cap-t"><b>${tr('Start here', 'Yahan se shuru')}</b> ${tr('No coding experience needed.', 'Coding ka koi experience nahi chahiye.')}</div>
+      </div>
+    </div>
   </section>
   <section class="plan">
     <h2>${tr('A realistic pace', 'Ek realistic speed')}</h2>
@@ -444,7 +460,7 @@ const LINES = {
 };
 const say2 = l => tr(l[0], l[1]);
 function mascotFor(r) {
-  if (r === '' || r === 'path') return ['wave', 'home'];
+  if (r === '' || r === 'path') return ['climb', 'home'];
   if (r === 'video-math') return ['math', 'math'];
   if (r === 'python' || r.startsWith('m-py')) return ['type', 'python'];
   if (r === 'gym' || r.startsWith('m-g')) return ['lift', 'gym'];
@@ -458,7 +474,7 @@ function mascotRoute(r) {
   if (!window.Mascot) return;
   const host = document.getElementById('bitu-host');
   if (!host) return;
-  Mascot.mount(host);
+  Mascot.mount(host, document.getElementById('bitu-say'));
   const [pose, key] = mascotFor(r === 'neet' + 'code' ? 'dsa150' : r);
   spoilerNudged = false;
   const returning = key === 'home' && (store.get('last', null) || solved.size || modsDone.size);
