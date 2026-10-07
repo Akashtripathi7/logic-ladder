@@ -320,11 +320,7 @@ function pageHome() {
     </div>
     <p class="pace-note">${tr('Each dot is a Sunday: re-solve 5 old problems without looking. Watch each topic video before its theory and drills.', 'Har dot ek Sunday hai: 5 purani problems bina dekhe dobara solve karo. Har topic ka video uski theory aur drills se pehle dekho.')}</p>
   </section>
-
-  <footer class="home-foot">
-    <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
-    <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
-  </footer>`;
+`;
   const panel = document.getElementById('st-panel');
   const tabs = [...view.querySelectorAll('.st-node')];
   const show = (i, focus) => {
@@ -452,10 +448,6 @@ function pageGate() {
       </div>
     </div>
   </section>
-  <footer class="home-foot gate-foot">
-    <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
-    <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
-  </footer>
   </div>`;
   view.querySelectorAll('.gh-sign [data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
   document.getElementById('gh-cue').onclick = () => {
