@@ -360,8 +360,6 @@ const CLIMB_Q = [
   { ask: ['You must check, fast, whether a number was seen before. Which fits best?', 'Fast check karna hai ki number pehle aaya tha ya nahi. Sabse sahi kya hai?'], code: 'seen = <span class="n">???</span>\n<span class="k">if</span> x <span class="k">in</span> seen: ...', opts: ['list', 'set', 'string'], a: 1,
     why: ['A set answers "is x in here?" in about one step, O(1). A list checks items one by one, O(n).', 'Set "kya x isme hai?" lagbhag ek step mein batata hai, O(1). List ek-ek item check karti hai, O(n).'] }
 ];
-/* rung heights on the game ladder, step 1 (bottom) to step 5, as % of the ladder */
-const CLIMB_AT = [12, 29, 46, 63, 80];
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 let gateCleanups = [];
 function clearGate() { gateCleanups.forEach(f => f()); gateCleanups = []; }
@@ -392,6 +390,12 @@ function pageGate() {
       </div>
       <div class="st" id="st" role="region" aria-label="${tr('The five steps of the course', 'Course ke paanch steps')}">
         <div class="st-glow" aria-hidden="true"></div>
+        <div class="st-float" aria-hidden="true">
+          <div class="fl fl-video" style="--z:22;--d:0s"><span class="fl-play">▶</span><span class="fl-t"><b>Binary search</b><small>${tr('Lesson video', 'Lesson video')} · 3:12</small><i class="fl-bar"><i></i></i></span><span class="fl-eq"><i></i><i></i><i></i><i></i></span></div>
+          <div class="fl fl-code" style="--z:34;--d:-1.5s"><code><span class="k">def</span> <span class="f">two_sum</span>(nums, t):</code><code>&nbsp;&nbsp;seen = {}<b class="caret"></b></code><code class="fl-out">→ [0, 1] <em>✓ ${tr('passed', 'passed')}</em></code></div>
+          <div class="fl fl-toast" style="--z:28;--d:-3s"><span class="fl-check">✓</span><span class="fl-t"><b>Two Sum</b><small>${tr('solved', 'solve ho gaya')} · 37 / 200</small></span></div>
+          <div class="fl fl-lang" style="--z:16;--d:-2.2s"><span class="fl-sw"><i>EN</i><i>HI</i></span><span class="fl-cap"><em>repeat for each item</em><em>har item ke liye dohraao</em></span></div>
+        </div>
                 <div class="st-beam" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i * .55).toFixed(2)}s;--s:${(3 + (i % 3)).toFixed(1)}s"></i>`).join('')}</div>
         <div class="st-ring" id="st-ring"><i class="st-disc" aria-hidden="true"></i><i class="st-disc top" aria-hidden="true"></i>${steps.map((s, i) => `<button type="button" class="st-card" data-i="${i}" style="--cc:var(--${['y', 'v', 'c', 's', 'm'][i]})" aria-label="${tr('Step', 'Step')} ${s.n}: ${esc(s.t)}"><span class="st-n">0${s.n}</span>${stepIcon(s.key)}<b>${esc(s.t)}</b><small>${s.when} · ${esc(s.meta[0])}</small></button>`).join('')}</div>
         <div class="st-info">
@@ -411,20 +415,41 @@ function pageGate() {
   </section>
 
   <section class="gp" id="gp" aria-labelledby="gp-h">
-    <div class="gp-head">
-      <div class="kicker">${tr('Play · about a minute', 'Khelo · lagbhag ek minute')}</div><h2 id="gp-h">${tr('Climb a mini ladder', 'Ek mini ladder chadho')}</h2><p>${tr('Five rungs, one real question from each step of the course. Answer right and Bitu climbs a rung.', 'Paanch seedhiyan, course ke har step se ek asli sawaal. Sahi jawab do aur Bitu ek seedhi upar chadhega.')}</p>
-    </div>
-    <div class="gp-play">
-      <div class="gp-lad" id="gp-lad">
-        <div class="gp-sky" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i></div>
-        <div class="gp-top" aria-hidden="true"><svg class="gp-flag" viewBox="0 0 46 50"><rect x="6" y="2" width="4" height="46" rx="2"/><path class="cloth" d="M10 5h28l-7 9 7 9H10z"/></svg><span>${tr('Interview-ready', 'Interview-ready')}</span></div>
-        <div class="gp-frame" aria-hidden="true"><i class="gp-rail l"></i><i class="gp-rail r"></i><span class="gp-lit"><i class="gp-spark l"></i><i class="gp-spark r"></i></span>${CLIMB_AT.map((b, i) => `<i class="gp-rung" style="bottom:${b}%;--i:${i}"></i>`).join('')}</div>
-        <ol class="gp-labs" aria-label="${tr('Your climb', 'Tumhari chadhai')}">${steps.map((s, i) => `<li class="gp-lab" style="bottom:${CLIMB_AT[i]}%"><b>${s.n}</b><span>${esc(s.short)}<small>${s.when}</small></span></li>`).join('')}</ol>
-        <div class="gp-bitu" id="gp-bitu"></div>
-        <div class="gp-say" id="gp-say"></div>
-        <div class="gp-burst" id="gp-burst" aria-hidden="true"></div>
+    <div class="gp-bg" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gp-orb o1"></i></div>
+    <div class="gp-in">
+      <div class="gp-head">
+        <div class="gp-title">
+          <div class="gh-kick">${tr('Play · the 60-second climb', 'Khelo · 60 second ki chadhai')}</div>
+          <h2 id="gp-h">${tr('Climb a <span class="gp-grad">mini ladder</span>', 'Ek <span class="gp-grad">mini ladder</span> chadho')}</h2>
+          <p>${tr('One real question from each step of the course. Answer fast for a bonus, chain first-try answers for a combo, and take Bitu to the top.', 'Course ke har step se ek asli sawaal. Jaldi jawab do toh bonus, lagataar pehli baar sahi toh combo, aur Bitu ko top tak le jao.')}</p>
+        </div>
+        <dl class="gp-hud" aria-label="${tr('Score', 'Score')}">
+          <div class="hs"><dt>${tr('Score', 'Score')}</dt><dd id="hud-score">0</dd></div>
+          <div class="hc"><dt>${tr('Combo', 'Combo')}</dt><dd id="hud-combo">×1</dd></div>
+          <div><dt>${tr('Best', 'Best')}</dt><dd id="hud-best">–</dd></div>
+        </dl>
       </div>
-      <div class="gp-card" id="gp-card"></div>
+      <div class="ga" id="ga">
+        <div class="ga-view" id="ga-view">
+          <div class="ga-sky" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gh-stars s3"></i></div>
+          <div class="ga-world" id="ga-world">
+            <i class="ga-beam" aria-hidden="true"></i>
+            <i class="ga-ground" aria-hidden="true"></i>
+            <div class="ga-tower" aria-hidden="true"><i class="ga-rail l"></i><i class="ga-rail r"></i><span class="ga-lit"><i class="gp-spark l"></i><i class="gp-spark r"></i></span>
+              ${steps.map((s, i) => `<i class="ga-rung" style="--k:${i + 1};--cc:var(--${STEP_CC[i]})"></i>`).join('')}
+              <div class="ga-flag"><i class="gp-halo"></i><svg class="gp-flag" viewBox="0 0 46 50"><rect x="6" y="2" width="4" height="46" rx="2"/><path class="cloth" d="M10 5h28l-7 9 7 9H10z"/></svg><span>${tr('Interview-ready', 'Interview-ready')}</span></div>
+              <div class="ga-pop" id="ga-pop"></div>
+            </div>
+            <ol class="ga-labs" aria-label="${tr('Your climb', 'Tumhari chadhai')}">${steps.map((s, i) => `<li class="ga-lab" style="--k:${i + 1};--cc:var(--${STEP_CC[i]})"><b>${s.n}</b><span>${esc(s.short)}<small>${s.when}</small></span></li>`).join('')}</ol>
+            <div class="ga-bitu" id="gp-bitu"></div>
+          </div>
+        </div>
+        <div class="gp-say" id="gp-say"></div>
+        <div class="ga-q" id="ga-q"></div>
+        <div class="ga-pts" id="ga-pts" aria-hidden="true"></div>
+        <div class="gp-burst" id="gp-burst" aria-hidden="true"></div>
+        <div class="ga-over" id="ga-over"></div>
+      </div>
     </div>
   </section>
   <footer class="home-foot gate-foot">
@@ -575,85 +600,190 @@ function wireStage(steps) {
   gateCleanups.push(() => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); io.disconnect(); });
 }
 
-/* ---- screen 2: the mini ladder game ---- */
+/* ---- screen 2: the 60-second climb ----
+   ready → 3·2·1 → five questions (speed bonus ring, first-try combos) → score, best, sign-in */
+const STEP_CC = ['y', 'v', 'c', 's', 'm'];
+const BONUS_MS = 10000;
 function wireClimbGame(steps, n) {
-  const lad = document.getElementById('gp-lad'), card = document.getElementById('gp-card');
-  const rungs = [...lad.querySelectorAll('.gp-rung')], labs = [...lad.querySelectorAll('.gp-lab')];
-  let level = 0, poseT = 0;
+  const ga = document.getElementById('ga'), view = document.getElementById('ga-view'), world = document.getElementById('ga-world');
+  const qbox = document.getElementById('ga-q'), over = document.getElementById('ga-over'), pts = document.getElementById('ga-pts');
+  const rungs = [...ga.querySelectorAll('.ga-rung')], labs = [...ga.querySelectorAll('.ga-lab')];
+  const hud = { score: document.getElementById('hud-score'), combo: document.getElementById('hud-combo'), best: document.getElementById('hud-best') };
+  const N = steps.length, still = reduceMotion();
+  let phase = 'ready', level = 0, score = 0, shown = 0, combo = 0, bestCombo = 0, firstTries = 0, missed = false;
+  let qStart = 0, t0 = 0, tEnd = 0, inGame = false, poseT = 0, bonusT = 0, countT = 0, best = store.get('climbBest', 0);
+  const fmt = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const mult = c => 1 + .5 * Math.max(0, c - 1);
+  const say = (pose, text) => { if (!window.Mascot || !inGame) return; text ? Mascot.react(pose, text) : Mascot.react(pose); };
+  /* score ticks up rather than jumping */
+  const tweenScore = () => {
+    const from = shown, to = score, t = performance.now();
+    const step = now => { const p = Math.min(1, (now - t) / 600); shown = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3))); hud.score.textContent = shown; if (p < 1) requestAnimationFrame(step); };
+    still ? (shown = score, hud.score.textContent = score) : requestAnimationFrame(step);
+  };
+  const paintHud = () => {
+    hud.combo.textContent = '×' + mult(combo);
+    hud.combo.parentNode.classList.toggle('hot', combo > 1);
+    hud.best.textContent = best || '–';
+  };
+  /* camera: keep Bitu in the lower part of the view, so the climb scrolls the world down */
+  const camera = () => {
+    const S = parseFloat(getComputedStyle(ga).getPropertyValue('--S')) || 140, base = 70;
+    const cam = Math.max(0, base + level * S - view.clientHeight * .4);
+    world.style.setProperty('--cam', cam + 'px');
+    view.style.setProperty('--cam', cam + 'px');
+  };
   const setLadder = () => {
-    rungs.forEach((r, i) => { r.classList.toggle('on', i < level); r.classList.toggle('next', i === level); });
-    labs.forEach((l, i) => { l.classList.toggle('done', i < level); l.classList.toggle('next', i === level); l.querySelector('b').textContent = i < level ? '✓' : steps[i].n; });
-    const f = level ? CLIMB_AT[level - 1] / 100 : 0;
-    lad.style.setProperty('--lv', f);
-    lad.style.setProperty('--lit', level ? CLIMB_AT[level - 1] + '%' : '0%');
-    lad.classList.toggle('top', level === steps.length);
-    lad.classList.toggle('lit', level > 0);
+    rungs.forEach((r, i) => { r.classList.toggle('on', i < level); r.classList.toggle('next', i === level && phase !== 'ready'); });
+    labs.forEach((l, i) => { l.classList.toggle('done', i < level); l.classList.toggle('next', i === level && phase !== 'ready'); l.querySelector('b').textContent = i < level ? '✓' : steps[i].n; });
+    ga.style.setProperty('--lv', level);
+    ga.classList.toggle('summit', level === N);
+    ga.classList.toggle('lit', level > 0);
+    camera();
   };
-  const swap = () => { card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap'); };
-  const climbTo = l => {
-    level = l; setLadder();
-    if (!window.Mascot || !inGame) return;
-    clearTimeout(poseT);
-    Mascot.pose('climb');
-    poseT = setTimeout(() => { Mascot.pose('idle'); level === steps.length ? Mascot.react('cheer', tr('We made it to the top! Interview-ready!', 'Hum top pe pahunch gaye! Interview-ready!')) : Mascot.react('nod'); }, 1000);
+  const sparks = i => {
+    if (still) return;
+    const p = document.getElementById('ga-pop');
+    const c = getComputedStyle(rungs[i]).getPropertyValue('--cc').trim() || '#ffd166';
+    p.innerHTML = Array.from({ length: 18 }, (_, k) => `<i style="--a:${k * 20}deg;--r:${36 + (k % 3) * 18}px;--c:${c};--k:${i + 1}"></i>`).join('');
+    setTimeout(() => { p.innerHTML = ''; }, 1000);
   };
-  const burst = () => {
-    if (reduceMotion()) return;
+  const popPoints = (v, label) => {
+    pts.innerHTML = `<b>+${v}</b>${label ? `<small>${label}</small>` : ''}`;
+    pts.classList.remove('go'); void pts.offsetWidth; pts.classList.add('go');
+  };
+  const fireworks = () => {
+    if (still) return;
     const b = document.getElementById('gp-burst');
     const cols = ['#ffd166', '#ff8b7b', '#6ec6ff', '#62e0a9', '#bba4ff'];
-    b.innerHTML = [0, 1, 2].map(g => Array.from({ length: 18 }, (_, i) => `<i style="--a:${i * 20}deg;--r:${70 + (i % 3) * 22}px;--c:${cols[(i + g) % 5]};--x:${[30, 60, 82][g]}%;--y:${[22, 12, 30][g]}%;--t:${g * .35}s"></i>`).join('')).join('');
-    setTimeout(() => { b.innerHTML = ''; }, 2600);
+    b.innerHTML = [0, 1, 2, 3].map(g => Array.from({ length: 18 }, (_, i) => `<i style="--a:${i * 20}deg;--r:${80 + (i % 3) * 26}px;--c:${cols[(i + g) % 5]};--x:${[18, 45, 70, 88][g]}%;--y:${[24, 14, 30, 18][g]}%;--t:${g * .3}s"></i>`).join('')).join('');
+    setTimeout(() => { b.innerHTML = ''; }, 3000);
   };
-  const ask = (wrongOnce) => {
-    if (level === steps.length) return finish();
+  const flash = cls => { qbox.classList.remove('ok', 'bad'); void qbox.offsetWidth; qbox.classList.add(cls); };
+  const bonusNow = () => Math.max(0, Math.round(50 * (1 - (performance.now() - qStart) / BONUS_MS)));
+
+  /* one question in the panel */
+  const ask = retry => {
     const q = CLIMB_Q[level], s = steps[level];
-    card.innerHTML = `<div class="gc-step">${stepIcon(s.key)}<div><span class="sp-kick">${tr('Rung', 'Seedhi')} ${level + 1} / ${steps.length} · ${s.when}</span><h3>${esc(s.t)}</h3></div>
-        <span class="gc-pips" aria-label="${level} / ${steps.length}">${steps.map((_, i) => `<i class="${i < level ? 'done' : i === level ? 'cur' : ''}"></i>`).join('')}</span></div>
-      <p class="gc-about">${esc(s.d)}</p>
-      <div class="gc-meta">${s.meta.map(m => `<span>${esc(m)}</span>`).join('')}</div>
-      <div class="gc-q">
-        <p class="gc-ask">${esc(tr(q.ask[0], q.ask[1]))}</p>
-        <pre class="gq-pre"><code>${q.code}</code></pre>
-        <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"><span class="gq-k">${'ABC'[k]}</span>${esc(o)}</button>`).join('')}</div>
-        <div class="gc-foot"><p class="gq-why" role="status" aria-live="polite">${wrongOnce ? tr('Have another look. You can do this.', 'Ek baar aur dekho. Tum kar sakte ho.') : tr('Pick an answer to climb.', 'Chadhne ke liye jawab chuno.')}</p><button type="button" class="btn pri gc-next" hidden></button></div>
-      </div>`;
-    swap();
-    const opts = [...card.querySelectorAll('.gq-opt')], why = card.querySelector('.gq-why'), next = card.querySelector('.gc-next');
+    if (!retry) missed = false;
+    qbox.style.setProperty('--cc', `var(--${STEP_CC[level]})`);
+    qbox.innerHTML = `<div class="gq-head">
+        <div class="gq-step"><span class="gq-kick">${tr('Step', 'Step')} ${s.n} / ${N} · ${esc(s.t)}</span><span class="gq-sub">${s.when} · ${s.meta.map(esc).join(' · ')}</span></div>
+        <div class="gq-ring${missed ? ' off' : ''}" title="${tr('Speed bonus', 'Speed bonus')}"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" cx="24" cy="24" r="20"/></svg><span>${missed ? '–' : '+50'}</span></div>
+      </div>
+      <h3 class="gc-ask">${esc(tr(q.ask[0], q.ask[1]))}</h3>
+      <div class="gq-win"><div class="gq-bar"><i></i><i></i><i></i><span>rung_${level + 1}.py</span></div><pre class="gq-pre"><code>${q.code}</code></pre></div>
+      <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"${phase !== 'play' ? ' disabled' : ''}><kbd>${'ABC'[k]}</kbd><span>${esc(o)}</span></button>`).join('')}</div>
+      <div class="gc-foot"><p class="gq-why" role="status" aria-live="polite">${retry ? tr('Have another look. You can do this.', 'Ek baar aur dekho. Tum kar sakte ho.') : tr('Pick the answer. Faster means a bigger bonus.', 'Jawab chuno. Jitna jaldi, utna bada bonus.')}</p><button type="button" class="gc-next" hidden></button></div>`;
+    qbox.classList.remove('swap'); void qbox.offsetWidth; qbox.classList.add('swap');
+    setLadder();
+    if (phase !== 'play') return;
+    qStart = performance.now();
+    const ring = qbox.querySelector('.gq-ring'), lab = ring.querySelector('span');
+    clearInterval(bonusT);
+    if (!missed) { ring.classList.add('run'); bonusT = setInterval(() => { lab.textContent = '+' + bonusNow(); }, 200); }
+    const opts = [...qbox.querySelectorAll('.gq-opt')], why = qbox.querySelector('.gq-why'), next = qbox.querySelector('.gc-next');
     opts.forEach(b => b.onclick = () => {
+      if (b.disabled || phase !== 'play') return;
+      clearInterval(bonusT); ring.classList.add('stop');
       const ok = +b.dataset.k === q.a;
       opts.forEach(o => { o.disabled = true; if (ok && +o.dataset.k === q.a) o.classList.add('right'); });
-      if (!ok) b.classList.add('wrong');
-      why.innerHTML = `<b class="${ok ? 'ok' : 'no'}">${ok ? tr('Right!', 'Sahi!') : tr('Not quite.', 'Thoda galat.')}</b> ${ok ? esc(tr(q.why[0], q.why[1])) : tr('Try it once more.', 'Ek baar aur try karo.')}`;
       next.hidden = false;
-      if (ok) {
-        climbTo(level + 1);
-        card.querySelectorAll('.gc-pips i')[level - 1].className = 'done';
-        next.innerHTML = level === steps.length ? `${tr('Reach the top', 'Top pe pahuncho')} <span aria-hidden="true">★</span>` : `${tr('Next rung', 'Agli seedhi')} <span aria-hidden="true">↑</span>`;
-        next.onclick = () => ask(false);
-      } else {
-        if (window.Mascot && inGame) Mascot.react('think', tr('Hmm, close! Look again.', 'Hmm, kareeb tha! Phir se dekho.'));
-        next.className = 'btn gc-next';
-        next.innerHTML = tr('Try again', 'Phir try karo');
+      if (!ok) {
+        b.classList.add('wrong'); missed = true; combo = 0; paintHud(); flash('bad');
+        why.innerHTML = `<b class="no">${tr('Not quite.', 'Thoda galat.')}</b> ${tr('Your combo resets, but you can try again.', 'Combo reset ho gaya, par dobara try kar sakte ho.')}`;
+        say('think', tr('Hmm, close! Look again.', 'Hmm, kareeb tha! Phir se dekho.'));
+        next.className = 'gc-next';
+        next.innerHTML = `${tr('Try again', 'Phir try karo')} <kbd>↵</kbd>`;
         next.onclick = () => ask(true);
+      } else {
+        let v, label = '';
+        if (!missed) { const bonus = bonusNow(); combo++; firstTries++; bestCombo = Math.max(bestCombo, combo); v = Math.round((100 + bonus) * mult(combo)); label = combo > 1 ? `${tr('combo', 'combo')} ×${mult(combo)}` : bonus ? `${tr('speed bonus', 'speed bonus')} +${bonus}` : ''; }
+        else v = 50;
+        score += v; tweenScore(); paintHud(); popPoints(v, label); flash('ok');
+        why.innerHTML = `<b class="ok">${tr('Right!', 'Sahi!')}</b> ${esc(tr(q.why[0], q.why[1]))}`;
+        level++; setLadder(); sparks(level - 1);
+        if (window.Mascot && inGame) {
+          clearTimeout(poseT); Mascot.pose('climb');
+          poseT = setTimeout(() => { Mascot.pose('idle'); if (level === N) Mascot.react('cheer', tr('We made it to the top!', 'Hum top pe pahunch gaye!')); else if (combo > 1) Mascot.react('cheer', tr(`Combo ×${mult(combo)}! Keep going!`, `Combo ×${mult(combo)}! Chalte raho!`)); else Mascot.react('nod'); }, 1000);
+        }
+        next.className = 'gc-next go';
+        next.innerHTML = `${level === N ? tr('See your score', 'Apna score dekho') : tr('Next rung', 'Agli seedhi')} <kbd>↵</kbd>`;
+        next.onclick = () => level === N ? finish() : ask(false);
+        if (level === N) { tEnd = performance.now(); phase = 'end'; }
       }
       next.focus({ preventScroll: true });
     });
   };
+
+  /* overlays */
+  const showOver = html => { over.innerHTML = html; over.classList.add('on'); ga.classList.add('dim'); };
+  const hideOver = () => { over.classList.remove('on'); ga.classList.remove('dim'); };
+  const ready = () => {
+    phase = 'ready';
+    showOver(`<div class="go-card">
+        <span class="go-badge">${tr('5 rungs · about a minute', '5 seedhiyan · lagbhag ek minute')}</span>
+        <h3>${tr('Ready to climb?', 'Chadhne ke liye taiyaar?')}</h3>
+        <ul class="go-tips">
+          <li><span class="go-ic"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd></span>${tr('Answer with a click or a key', 'Click ya key se jawab do')}</li>
+          <li><span class="go-ic bolt">+50</span>${tr('Answer fast for a speed bonus', 'Jaldi jawab do, speed bonus pao')}</li>
+          <li><span class="go-ic fire">×3</span>${tr('First-try streaks multiply your points', 'Lagataar pehli baar sahi = points multiply')}</li>
+        </ul>
+        <button type="button" class="go-start">${tr('Start the climb', 'Chadhai shuru karo')} <kbd>↵</kbd></button>
+        ${best ? `<p class="go-best">${tr('Your best', 'Tumhara best')}: <b>${best}</b></p>` : ''}
+      </div>`);
+    over.querySelector('.go-start').onclick = start;
+  };
+  const start = () => {
+    if (phase !== 'ready' && phase !== 'done') return;
+    level = 0; score = 0; shown = 0; combo = 0; bestCombo = 0; firstTries = 0; hud.score.textContent = '0'; paintHud();
+    phase = 'count'; setLadder();
+    say('wave', tr('Here we go!', 'Chalo shuru!'));
+    const go = () => { phase = 'play'; t0 = performance.now(); hideOver(); ask(false); qbox.querySelector('.gq-opt').focus({ preventScroll: true }); };
+    if (still) return go();
+    const seq = ['3', '2', '1', tr('GO!', 'CHALO!')];
+    let i = 0;
+    const tick = () => {
+      if (i === seq.length) return go();
+      showOver(`<div class="go-count" key="${i}">${seq[i]}</div>`);
+      i++; countT = setTimeout(tick, i === seq.length ? 500 : 650);
+    };
+    tick();
+  };
   const finish = () => {
-    card.innerHTML = `<div class="gc-done">
-        <div class="gc-trophy" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></div>
-        <h3>${tr('You climbed all five rungs!', 'Tumne paanchon seedhiyan chadh li!')}</h3>
-        <p>${tr(`That was the whole path in miniature. The real ladder has ${MODS.length} modules, ${n.nDrills} drills and ${n.nProblems} problems, each explained step by step.`, `Ye poora raasta chhote roop mein tha. Asli ladder mein ${MODS.length} modules, ${n.nDrills} drills aur ${n.nProblems} problems hain, sab step-by-step samjhaaye hue.`)}</p>
+    phase = 'done';
+    const isBest = score > best;
+    if (isBest) { best = score; store.set('climbBest', best); paintHud(); }
+    const stars = score >= 1000 ? 3 : score >= 600 ? 2 : 1;
+    showOver(`<div class="go-card done">
+        <div class="gc-stars" aria-label="${stars} / 3">${[0, 1, 2].map(i => `<svg viewBox="0 0 24 24" class="${i < stars ? 'on' : ''}" style="--k:${i}"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>`).join('')}</div>
+        <h3>${tr('Top of the ladder!', 'Ladder ke top pe!')}</h3>
+        <div class="go-score"><b data-n="${score}">${score}</b><span>${tr('points', 'points')}</span>${isBest ? `<em>${tr('New best!', 'Naya best!')}</em>` : ''}</div>
+        <div class="gc-score"><div><b>${fmt(tEnd - t0)}</b><span>${tr('time', 'time')}</span></div><div><b>${firstTries}/${N}</b><span>${tr('first try', 'pehli baar sahi')}</span></div><div><b>×${mult(bestCombo)}</b><span>${tr('best combo', 'best combo')}</span></div></div>
+        <p>${tr(`That was the whole path in miniature. The real ladder has ${MODS.length} modules, ${n.nDrills} drills and ${n.nProblems} problems.`, `Ye poora raasta chhote roop mein tha. Asli ladder mein ${MODS.length} modules, ${n.nDrills} drills aur ${n.nProblems} problems hain.`)}</p>
         ${gBtn(tr('Sign in and climb for real', 'Sign in karo, asli chadhai shuru karo'), 'wide')}
         <p class="g-err" role="alert" hidden></p>
-        <button type="button" class="gc-replay">${tr('Play again', 'Phir se khelo')}</button>
-      </div>`;
-    swap(); burst();
-    card.querySelector('[data-signin]').onclick = e => gateSignIn(e.currentTarget);
-    card.querySelector('.gc-replay').onclick = () => { climbTo(0); ask(false); };
+        <button type="button" class="gc-replay">${tr('Climb again', 'Phir se chadho')} <kbd>↵</kbd></button>
+      </div>`);
+    if (!still) countUp(over.querySelector('.go-score'));
+    fireworks();
+    over.querySelector('[data-signin]').onclick = e => gateSignIn(e.currentTarget);
+    over.querySelector('.gc-replay').onclick = start;
   };
-  /* Bitu hops down from the sign-in card to play when the game is on screen, and back up after */
-  let inGame = false;
+
+  /* keys while the game is on screen: A/B/C or 1/2/3 answer, Enter starts and moves on */
+  const onKey = e => {
+    if (!inGame || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    const k = { a: 0, b: 1, c: 2, 1: 0, 2: 1, 3: 2 }[e.key.toLowerCase()];
+    if (k !== undefined && phase === 'play') { const o = qbox.querySelectorAll('.gq-opt')[k]; if (o && !o.disabled) { e.preventDefault(); o.click(); } return; }
+    if (e.key !== 'Enter' || (e.target.closest && e.target.closest('button, a'))) return;
+    if (phase === 'ready' || phase === 'done') { e.preventDefault(); start(); }
+    else { const nx = qbox.querySelector('.gc-next:not([hidden])'); if (nx) { e.preventDefault(); nx.click(); } }
+  };
+  document.addEventListener('keydown', onKey);
+  const onResize = () => camera();
+  window.addEventListener('resize', onResize);
+  /* Bitu hops down from the hero to play when the game is on screen, and back up after */
   const gp = document.getElementById('gp');
   const io = new IntersectionObserver(([e]) => {
     if (e.isIntersecting === inGame || !window.Mascot) { inGame = e.isIntersecting; return; }
@@ -661,14 +791,15 @@ function wireClimbGame(steps, n) {
     if (inGame) {
       Mascot.mount(document.getElementById('gp-bitu'), document.getElementById('gp-say'));
       Mascot.pose('idle');
-      Mascot.say(level === steps.length ? tr('We made it to the top!', 'Hum top pe pahunch gaye!') : tr("Let's play! Answer right and I climb a rung.", 'Chalo khelte hain! Sahi jawab do, main ek seedhi chadhunga.'));
+      Mascot.say(phase === 'ready' ? tr("Ready? Let's climb together!", 'Taiyaar? Chalo saath chadhte hain!') : tr('Back to the climb!', 'Wapas chadhai pe!'));
       Mascot.react('wave');
     } else mascotGate();
   }, { threshold: .3 });
   io.observe(gp);
-  gateCleanups.push(() => { io.disconnect(); clearTimeout(poseT); });
-  setLadder();
+  gateCleanups.push(() => { io.disconnect(); clearTimeout(poseT); clearTimeout(countT); clearInterval(bonusT); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); });
+  paintHud();
   ask(false);
+  ready();
 }
 function countUp(root) {
   const els = [...root.querySelectorAll('[data-n]')];
