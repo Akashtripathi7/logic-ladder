@@ -10,6 +10,24 @@ RAW = {'code', 'test', 'trace', 'example', 'hinglish'}
 ERRORS = []
 
 
+def load_supabase_config():
+    """SUPABASE_URL / SUPABASE_ANON_KEY: real environment first (Vercel, CI), then a local
+    `.env.local` (gitignored, KEY=VALUE per line, '#' comments) for `python3 build.py` on a
+    laptop. Either or both may be empty — the site then simply runs signed-out / local-only."""
+    import os
+    env = {}
+    local = D / '.env.local'
+    if local.exists():
+        for line in local.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            k, _, v = line.partition('=')
+            env[k.strip()] = v.strip().strip('"').strip("'")
+    return (os.environ.get('SUPABASE_URL', env.get('SUPABASE_URL', '')),
+            os.environ.get('SUPABASE_ANON_KEY', env.get('SUPABASE_ANON_KEY', '')))
+
+
 def inline(s):
     s = html.escape(s.strip(), quote=False)
     s = re.sub(r'`([^`]+)`', r'<code>\1</code>', s)
@@ -300,7 +318,7 @@ def main():
     for m in mods:
         for d in m['drills']:
             d.pop('test', None)
-    data = {'topics': topics, 'problems': probs, 'modules': mods}
+    data = {'topics': topics, 'problems': probs, 'modules': mods, 'checks': checks}
     n_w = sum(len(t['problems']) for t in topics if t['id'].startswith('w-'))
     n_n = sum(len(t['problems']) for t in topics if not t['id'].startswith('w-'))
     print(f'topics {len(topics)}  warmup {n_w}  dsa150 {n_n}  modules {len(mods)}  drills {sum(len(m["drills"]) for m in mods)}  checks {checks}')
@@ -310,13 +328,18 @@ def main():
     js = [(D / f).read_text() for f in ('engine.js',)]
     js += [f.read_text() for f in sorted(D.glob('lessons/*.js'))]
     js.append((D / 'mascot.js').read_text())
+    js.append((D / 'auth.js').read_text())
     js.append((D / 'app.js').read_text())
+    supabase_url, supabase_key = load_supabase_config()
     out = (shell.replace('{{CSS}}', (D / 'style.css').read_text() + (D / 'app.css').read_text() + (D / 'mascot.css').read_text())
            .replace('{{DATA}}', json.dumps(data, ensure_ascii=False).replace('</', '<\\/'))
+           .replace('{{SUPABASE_URL_JSON}}', json.dumps(supabase_url))
+           .replace('{{SUPABASE_ANON_KEY_JSON}}', json.dumps(supabase_key))
            .replace('{{JS}}', '\n;\n'.join(js)))
     # public/ is what Vercel serves; build/ holds the same page without the document skeleton (for hosts that add their own)
     (D / 'public').mkdir(exist_ok=True)
     (D / 'public' / 'index.html').write_text(out)
+    (D / 'public' / 'privacy_policy.html').write_text((D / 'privacy_policy.html').read_text())
     bare = re.sub(r'\A<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n', '', out)
     bare = re.sub(r'<meta name="viewport"[^>]*>\n', '', bare, count=1)
     (D / 'build').mkdir(exist_ok=True)

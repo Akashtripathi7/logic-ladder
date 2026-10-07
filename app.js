@@ -28,8 +28,16 @@ const store = {
 let solved = new Set(store.get('solved', []));
 let modsDone = new Set(store.get('mods', []));
 const isSolved = id => solved.has(id);
-function toggleSolved(id) { solved.has(id) ? solved.delete(id) : solved.add(id); store.set('solved', [...solved]); updateChip(); }
-function toggleMod(id) { modsDone.has(id) ? modsDone.delete(id) : modsDone.add(id); store.set('mods', [...modsDone]); updateChip(); }
+function toggleSolved(id) {
+  const willBeSolved = !solved.has(id);
+  solved.has(id) ? solved.delete(id) : solved.add(id); store.set('solved', [...solved]); updateChip();
+  if (window.Auth) Auth.markProblem(id, willBeSolved);
+}
+function toggleMod(id) {
+  const willBeDone = !modsDone.has(id);
+  modsDone.has(id) ? modsDone.delete(id) : modsDone.add(id); store.set('mods', [...modsDone]); updateChip();
+  if (window.Auth) Auth.markModule(id, willBeDone);
+}
 const countSolved = ids => ids.filter(isSolved).length;
 const countMods = list => list.filter(m => modsDone.has(m.id)).length;
 function lessonProgress(lessonId) {
@@ -220,11 +228,25 @@ function homeCta(steps, st) {
 }
 function homeNote(steps, st) {
   const s = steps[st.cur];
-  if (st.kind === 'new') return tr('Starts with topic 1 of Math for Logic: numbers and the number line. Free, no sign-up, and your progress is saved in this browser.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Free, sign-up nahi, aur progress is browser mein save hota hai.');
+  if (st.kind === 'new') return window.Auth && Auth.ready
+    ? tr('Starts with topic 1 of Math for Logic: numbers and the number line. Your progress is saved to your account.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Tumhara progress tumhare account mein save hota hai.')
+    : tr('Starts with topic 1 of Math for Logic: numbers and the number line. Free, no sign-up, and your progress is saved in this browser.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Free, sign-up nahi, aur progress is browser mein save hota hai.');
   if (st.kind === 'done') return tr('All five steps done. Re-solve old problems every week to keep them fresh.', 'Paanchon steps ho gaye. Har hafte purani problems dobara solve karo taaki yaad rahein.');
   const prev = steps[st.cur - 1];
   if (st.kind === 'next') return `${tr('Step', 'Step')} ${prev.n} (${esc(prev.t)}) ${tr('is done. Next up', 'ho gaya. Ab')}: ${esc(s.t)}.`;
   return `${tr('Step', 'Step')} ${s.n} ${tr('of 5', 'of 5')} · ${s.label()}${st.lastLabel ? ` · ${tr('last opened', 'aakhri baar khola')}: ${esc(st.lastLabel)}` : ''}`;
+}
+/* the four lesson moves, as small live demos (home page and sign-in page) */
+function howMoves(solvedN) {
+  return [
+    { demo: '<div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div>', t: tr('Watch', 'Dekho'), d: tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.') },
+    { demo: '<div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div>', t: tr('Understand', 'Samjho'), d: tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.') },
+    { demo: '<div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div>', t: tr('Practise', 'Practice karo'), d: tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.') },
+    { demo: `<div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div>`, t: tr('Track', 'Track karo'), d: tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.') }
+  ];
+}
+function howGrid(solvedN) {
+  return `<div class="how-grid">${howMoves(solvedN).map(m => `<div class="how-card">${m.demo}<h3>${m.t}</h3><p>${m.d}</p></div>`).join('')}</div>`;
 }
 const WEEKS = 15;
 function pageHome() {
@@ -271,7 +293,7 @@ function pageHome() {
     <div><b>${MODS.length}</b><span>${tr('modules with theory', 'modules, theory ke saath')}</span></div>
     <div><b>${nDrills}</b><span>${tr('practice drills', 'practice drills')}</span></div>
     <div><b>200</b><span>${tr('problems, explained', 'problems, samjhaaye hue')}</span></div>
-    <div><b>722</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
+    <div><b>${DATA.checks}</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
   </section>
 
   <section class="path" id="the-path" aria-labelledby="path-h">
@@ -285,12 +307,7 @@ function pageHome() {
 
   <section class="how" id="how" aria-labelledby="how-h">
     <div class="sec-head"><div class="kicker">${tr('How it works', 'Kaise kaam karta hai')}</div><h2 id="how-h">${tr('Every lesson, the same four moves', 'Har lesson, wahi chaar kadam')}</h2></div>
-    <div class="how-grid">
-      <div class="how-card"><div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div><h3>${tr('Watch', 'Dekho')}</h3><p>${tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.')}</p></div>
-      <div class="how-card"><div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div><h3>${tr('Understand', 'Samjho')}</h3><p>${tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.')}</p></div>
-      <div class="how-card"><div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div><h3>${tr('Practise', 'Practice karo')}</h3><p>${tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.')}</p></div>
-      <div class="how-card"><div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div><h3>${tr('Track', 'Track karo')}</h3><p>${tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.')}</p></div>
-    </div>
+    ${howGrid(solvedN)}
   </section>
 
   <section class="pace" aria-labelledby="pace-h">
@@ -326,6 +343,483 @@ function pageHome() {
   show(cur);
   const how = document.getElementById('how-link');
   how.onclick = e => { e.preventDefault(); const t = document.getElementById('the-path'); window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 76, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+}
+/* ---------- sign-in gate: with Supabase configured, every route shows this until the learner signs in ---------- */
+const G_LOGO = '<svg viewBox="0 0 18 18" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.69 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>';
+const gBtn = (label, cls = '') => `<button type="button" class="g-google ${cls}" data-signin><span class="g-logo">${G_LOGO}</span><span class="g-spin" aria-hidden="true"></span><span class="g-lab">${label}</span></button>`;
+/* the mini ladder game: one question from each of the five steps; code is pre-highlighted (k keyword, f builtin, n number, s string) */
+const CLIMB_Q = [
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: '<span class="f">print</span>(<span class="n">17</span> % <span class="n">5</span>)', opts: ['2', '3', '12'], a: 0,
+    why: ['17 = 5 × 3 + 2. % gives what is left over, so it prints 2.', '17 = 5 × 3 + 2. % bacha hua hissa deta hai, toh 2 print hoga.'] },
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: 'nums = [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>]\n<span class="f">print</span>(<span class="f">sum</span>(nums) % <span class="n">4</span>)', opts: ['0', '2', '8'], a: 0,
+    why: ['3 + 1 + 4 = 8, and 8 ÷ 4 leaves nothing over, so 0.', '3 + 1 + 4 = 8, aur 8 ÷ 4 mein kuch nahi bachta, toh 0.'] },
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: '<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):\n    <span class="f">print</span>(i * i, end=<span class="s">" "</span>)', opts: ['0 1 4', '1 4 9', '1 4 9 16'], a: 1,
+    why: ['range(1, 4) gives 1, 2, 3. The end value, 4, is never included.', 'range(1, 4) deta hai 1, 2, 3. End value 4 kabhi include nahi hoti.'] },
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: 's = <span class="s">"ladder"</span>\n<span class="f">print</span>(s[::<span class="n">-1</span>])', opts: ['ladder', 'reddal', 'Error'], a: 1,
+    why: ['[::-1] reads the string from the last letter to the first, so it comes out reversed.', '[::-1] string ko aakhri letter se pehle tak padhta hai, isliye ulta aata hai.'] },
+  { ask: ['You must check, fast, whether a number was seen before. Which fits best?', 'Fast check karna hai ki number pehle aaya tha ya nahi. Sabse sahi kya hai?'], code: 'seen = <span class="n">???</span>\n<span class="k">if</span> x <span class="k">in</span> seen: ...', opts: ['list', 'set', 'string'], a: 1,
+    why: ['A set answers "is x in here?" in about one step, O(1). A list checks items one by one, O(n).', 'Set "kya x isme hai?" lagbhag ek step mein batata hai, O(1). List ek-ek item check karti hai, O(n).'] }
+];
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+let gateCleanups = [];
+function clearGate() { gateCleanups.forEach(f => f()); gateCleanups = []; }
+function pageBoot() {
+  view.innerHTML = `<div class="g-boot" role="status"><svg viewBox="0 0 20 24" aria-hidden="true"><rect x="2" y="1" width="3.4" height="22" rx="1.7"/><rect x="14.6" y="1" width="3.4" height="22" rx="1.7"/><rect class="r" x="3" y="17" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="11" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="5" width="14" height="3" rx="1.5"/></svg><span>${tr('Loading…', 'Load ho raha hai…')}</span></div>`;
+}
+function pageGate() {
+  const steps = stepsDef();
+  const nVideos = Object.keys(E.LESSONS).length;
+  const nDrills = MODS.reduce((a, m) => a + m.drills.length, 0);
+  const nProblems = ORDER.warm.length + ORDER.nc.length;
+  const words = ['loops', 'recursion', 'binary search', 'graphs', 'trees', '150 problems'];
+  view.innerHTML = `<div class="gate">
+  <section class="gh" id="gh" aria-labelledby="gh-h1">
+    <div class="gh-sky" aria-hidden="true"><i class="gh-aurora"></i><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gh-stars s3"></i><i class="gh-shoot"></i><i class="gh-shoot b"></i></div>
+    <div class="gh-in">
+      <div class="gh-copy">
+        <div class="gh-kick">${tr('Logic Ladder · DSA in Python, from zero', 'Logic Ladder · Python mein DSA, zero se')}</div>
+        <h1 id="gh-h1"><span class="h1a">${tr('From zero to', 'Zero se seekho')}</span><span class="rot" aria-hidden="true">${words.map((w, i) => `<b class="${i === words.length - 1 ? 'on' : ''}">${w}</b>`).join('')}</span><span class="vh">${words[words.length - 1]}</span></h1>
+        <p class="gh-sub">${tr('Maths, Python from scratch, logic drills and 200 problems, taught slowly with animated videos for people who find logic hard. In English and Hinglish.', 'Maths, bilkul shuru se Python, logic drills aur 200 problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. English aur Hinglish mein.')}</p>
+        <div class="gh-sign">
+          ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
+          <p class="g-err" role="alert" hidden></p>
+          <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Progress synced on every device', 'Progress har device pe sync')}</li></ul>
+          <p class="g-priv">${tr('Google shares only your name, email and photo with us.', 'Google humein sirf tumhara naam, email aur photo deta hai.')}</p>
+        </div>
+        <dl class="gh-stats">${[[nVideos, tr('animated videos', 'animated videos')], [nDrills, tr('practice drills', 'practice drills')], [nProblems, tr('problems, explained', 'problems, samjhaaye hue')], [DATA.checks, tr('tested code checks', 'tested code checks')]].map(([v, l]) => `<div><dd data-n="${v}">${v}</dd><dt>${l}</dt></div>`).join('')}</dl>
+      </div>
+      <div class="st" id="st" role="region" aria-label="${tr('The five steps of the course', 'Course ke paanch steps')}">
+        <div class="st-glow" aria-hidden="true"></div>
+        <div class="st-float" aria-hidden="true">
+          <div class="fl fl-video" style="--z:22;--d:0s"><span class="fl-play">▶</span><span class="fl-t"><b>Binary search</b><small>${tr('Lesson video', 'Lesson video')} · 3:12</small><i class="fl-bar"><i></i></i></span><span class="fl-eq"><i></i><i></i><i></i><i></i></span></div>
+          <div class="fl fl-code" style="--z:34;--d:-1.5s"><code><span class="k">def</span> <span class="f">two_sum</span>(nums, t):</code><code>&nbsp;&nbsp;seen = {}<b class="caret"></b></code><code class="fl-out">→ [0, 1] <em>✓ ${tr('passed', 'passed')}</em></code></div>
+          <div class="fl fl-toast" style="--z:28;--d:-3s"><span class="fl-check">✓</span><span class="fl-t"><b>Two Sum</b><small>${tr('solved', 'solve ho gaya')} · 37 / 200</small></span></div>
+          <div class="fl fl-lang" style="--z:16;--d:-2.2s"><span class="fl-sw"><i>EN</i><i>HI</i></span><span class="fl-cap"><em>repeat for each item</em><em>har item ke liye dohraao</em></span></div>
+        </div>
+                <div class="st-beam" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i * .55).toFixed(2)}s;--s:${(3 + (i % 3)).toFixed(1)}s"></i>`).join('')}</div>
+        <div class="st-ring" id="st-ring"><i class="st-disc" aria-hidden="true"></i><i class="st-disc top" aria-hidden="true"></i>${steps.map((s, i) => `<button type="button" class="st-card" data-i="${i}" style="--cc:var(--${['y', 'v', 'c', 's', 'm'][i]})" aria-label="${tr('Step', 'Step')} ${s.n}: ${esc(s.t)}"><span class="st-n">0${s.n}</span>${stepIcon(s.key)}<b>${esc(s.t)}</b><small>${s.when} · ${esc(s.meta[0])}</small></button>`).join('')}</div>
+        <div class="st-info">
+          <div class="st-bitu" id="bitu-host"></div>
+          <div class="st-say" id="bitu-say"></div>
+          <div class="st-txt" id="st-txt" aria-live="polite"></div>
+        </div>
+        <div class="st-ctrl">
+          <button type="button" class="st-arrow" data-d="-1" aria-label="${tr('Previous step', 'Pichhla step')}">‹</button>
+          <span class="st-dots">${steps.map((_, i) => `<i data-i="${i}"></i>`).join('')}</span>
+          <button type="button" class="st-arrow" data-d="1" aria-label="${tr('Next step', 'Agla step')}">›</button>
+          <span class="st-hint">${tr('Drag to spin', 'Ghumane ke liye drag karo')}</span>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="gh-cue" id="gh-cue">${tr('Play the mini ladder', 'Mini ladder khelo')}<span aria-hidden="true"></span></button>
+  </section>
+
+  <section class="gp" id="gp" aria-labelledby="gp-h">
+    <div class="gp-bg" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gp-orb o1"></i></div>
+    <div class="gp-in">
+      <div class="gp-head">
+        <div class="gp-title">
+          <div class="gh-kick">${tr('Play · the 60-second climb', 'Khelo · 60 second ki chadhai')}</div>
+          <h2 id="gp-h">${tr('Climb a <span class="gp-grad">mini ladder</span>', 'Ek <span class="gp-grad">mini ladder</span> chadho')}</h2>
+          <p>${tr('One real question from each step of the course. Answer fast for a bonus, chain first-try answers for a combo, and take Bitu to the top.', 'Course ke har step se ek asli sawaal. Jaldi jawab do toh bonus, lagataar pehli baar sahi toh combo, aur Bitu ko top tak le jao.')}</p>
+        </div>
+        <dl class="gp-hud" aria-label="${tr('Score', 'Score')}">
+          <div class="hs"><dt>${tr('Score', 'Score')}</dt><dd id="hud-score">0</dd></div>
+          <div class="hc"><dt>${tr('Combo', 'Combo')}</dt><dd id="hud-combo">×1</dd></div>
+          <div><dt>${tr('Best', 'Best')}</dt><dd id="hud-best">–</dd></div>
+        </dl>
+      </div>
+      <div class="ga" id="ga">
+        <div class="ga-view" id="ga-view">
+          <div class="ga-sky" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gh-stars s3"></i></div>
+          <div class="ga-world" id="ga-world">
+            <i class="ga-beam" aria-hidden="true"></i>
+            <i class="ga-ground" aria-hidden="true"></i>
+            <div class="ga-tower" aria-hidden="true"><i class="ga-rail l"></i><i class="ga-rail r"></i><span class="ga-lit"><i class="gp-spark l"></i><i class="gp-spark r"></i></span>
+              ${steps.map((s, i) => `<i class="ga-rung" style="--k:${i + 1};--cc:var(--${STEP_CC[i]})"></i>`).join('')}
+              <div class="ga-flag"><i class="gp-halo"></i><svg class="gp-flag" viewBox="0 0 46 50"><rect x="6" y="2" width="4" height="46" rx="2"/><path class="cloth" d="M10 5h28l-7 9 7 9H10z"/></svg><span>${tr('Interview-ready', 'Interview-ready')}</span></div>
+              <div class="ga-pop" id="ga-pop"></div>
+            </div>
+            <ol class="ga-labs" aria-label="${tr('Your climb', 'Tumhari chadhai')}">${steps.map((s, i) => `<li class="ga-lab" style="--k:${i + 1};--cc:var(--${STEP_CC[i]})"><b>${s.n}</b><span>${esc(s.short)}<small>${s.when}</small></span></li>`).join('')}</ol>
+            <div class="ga-bitu" id="gp-bitu"></div>
+          </div>
+        </div>
+        <div class="gp-say" id="gp-say"></div>
+        <div class="ga-q" id="ga-q"></div>
+        <div class="ga-pts" id="ga-pts" aria-hidden="true"></div>
+        <div class="gp-burst" id="gp-burst" aria-hidden="true"></div>
+        <div class="ga-over" id="ga-over"></div>
+      </div>
+    </div>
+  </section>
+  <footer class="home-foot gate-foot">
+    <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
+    <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
+  </footer>
+  </div>`;
+  view.querySelectorAll('.gh-sign [data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
+  document.getElementById('gh-cue').onclick = () => {
+    const t = document.getElementById('gp');
+    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 40, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  };
+  wireHero();
+  wireStage(steps);
+  wireClimbGame(steps, { nDrills, nProblems });
+}
+function gateSignIn(btn) {
+  const all = view.querySelectorAll('[data-signin]');
+  const lab = btn.querySelector('.g-lab'), was = lab.textContent;
+  const err = btn.parentNode.querySelector('.g-err');
+  all.forEach(b => { b.disabled = true; b.classList.add('busy'); });
+  lab.textContent = tr('Opening Google…', 'Google khul raha hai…');
+  if (err) err.hidden = true;
+  Auth.signIn().catch(e => {
+    console.error('Sign-in failed', e);
+    all.forEach(b => { b.disabled = false; b.classList.remove('busy'); });
+    lab.textContent = was;
+    if (err) { err.textContent = tr("Couldn't open Google sign-in. Check your connection and try again.", 'Google sign-in nahi khula. Internet check karke dobara try karo.'); err.hidden = false; }
+  });
+}
+
+/* ---- screen 1: headline word cycle, star parallax, counters ---- */
+function wireHero() {
+  const hero = document.getElementById('gh');
+  if (reduceMotion()) return;
+  countUp(hero.querySelector('.gh-stats'));
+  const words = [...hero.querySelectorAll('.rot b')];
+  let w = words.length - 1;
+  const t = setInterval(() => {
+    if (document.hidden) return;
+    const prev = words[w]; w = (w + 1) % words.length;
+    prev.classList.remove('on'); prev.classList.add('out');
+    setTimeout(() => prev.classList.remove('out'), 600);
+    words[w].classList.add('on');
+  }, 2300);
+  gateCleanups.push(() => clearInterval(t));
+  if (matchMedia('(pointer: fine)').matches) {
+    let pr = 0;
+    hero.addEventListener('pointermove', e => {
+      if (pr) return;
+      pr = requestAnimationFrame(() => {
+        pr = 0;
+        hero.style.setProperty('--mx', ((e.clientX / innerWidth) - .5).toFixed(3));
+        hero.style.setProperty('--my', ((e.clientY / innerHeight) - .5).toFixed(3));
+      });
+    });
+  }
+}
+/* ---- the spiral staircase: five glass cards rising around a beam of light ----
+   It spins on its own; drag or flick to spin it, click a card (or the arrows) to bring that step to the front. */
+const STEP_POSE = { math: ['math', 'math'], python: ['type', 'python'], gym: ['lift', 'gym'], warm: ['jog', 'warmup'], dsa: ['climb', 'dsa'] };
+function wireStage(steps) {
+  const st = document.getElementById('st'), cards = [...st.querySelectorAll('.st-card')];
+  const txt = document.getElementById('st-txt'), dots = [...st.querySelectorAll('.st-dots i')];
+  const N = cards.length, SEP = 360 / N, still = reduceMotion();
+  let rot = 0, vel = still ? 0 : -.012, target = null, front = -1, idleUntil = 0, raf = 0, last = 0, visible = true;
+  let R = 240, RISE = 52;
+  const ring = document.getElementById('st-ring');
+  const size = () => { const w = st.clientWidth, h = st.clientHeight; R = Math.max(120, Math.min(w * .36, 290)); RISE = Math.max(24, Math.min(h * .055, 42)); ring.style.setProperty('--R', R + 'px'); ring.style.setProperty('--rise', RISE + 'px'); };
+  const norm = a => ((a % 360) + 540) % 360 - 180;
+  const bitusHome = () => window.Mascot && Mascot.el && document.getElementById('bitu-host').contains(Mascot.el);
+  const setFront = (i, byUser) => {
+    if (i === front) return;
+    front = i;
+    const s = steps[i];
+    cards.forEach((c, k) => c.classList.toggle('front', k === i));
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    txt.innerHTML = `<span class="sp-kick">${tr('Step', 'Step')} ${s.n} / ${N} · ${s.when}</span><h3>${esc(s.t)}</h3><p>${esc(s.d)}</p><div class="st-meta">${s.meta.map(m => `<span>${esc(m)}</span>`).join('')}</div>`;
+    txt.classList.remove('swap'); void txt.offsetWidth; txt.classList.add('swap');
+    if (bitusHome()) { Mascot.pose(STEP_POSE[s.key][0]); if (byUser) Mascot.say(say2(LINES[STEP_POSE[s.key][1]][0])); }
+  };
+  const place = () => {
+    let best = 0, bestA = 999;
+    cards.forEach((c, i) => {
+      const a = norm(i * SEP + rot), rad = a * Math.PI / 180;
+      const x = Math.sin(rad) * R, z = Math.cos(rad) * R - R, y = (2 - i) * RISE;
+      const f = (Math.cos(rad) + 1) / 2;
+      c.style.transform = `translate(-50%,-50%) translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.toFixed(1)}px) rotateY(${(a * .5).toFixed(1)}deg)`;
+      c.style.opacity = (.28 + .72 * f).toFixed(3);
+      c.style.zIndex = Math.round(f * 100);
+      c.style.setProperty('--f', f.toFixed(3));
+      if (Math.abs(a) < bestA) { bestA = Math.abs(a); best = i; }
+    });
+    return best;
+  };
+  const focus = (i, byUser) => {
+    const want = -i * SEP;
+    target = rot + norm(want - rot);
+    idleUntil = performance.now() + 7000;
+    setFront(i, byUser);
+  };
+  const tick = now => {
+    raf = requestAnimationFrame(tick);
+    const dt = Math.min(48, now - (last || now)); last = now;
+    if (!visible || document.hidden) return;
+    if (dragging) { /* the pointer drives rot */ }
+    else if (target !== null) { rot += (target - rot) * Math.min(1, dt * .009); if (Math.abs(target - rot) < .05) { rot = target; target = null; } }
+    else if (Math.abs(fling) > .002) { rot += fling * dt; fling *= Math.pow(.994, dt); if (Math.abs(fling) <= .002) focus(place(), true); }
+    else if (!still && now > idleUntil) rot += vel * dt;
+    const b = place();
+    if (target === null) setFront(b, false);
+  };
+  /* drag / flick */
+  let dragging = false, moved = 0, lastX = 0, lastT = 0, fling = 0;
+  st.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('.st-ctrl, .st-info')) return;
+    dragging = true; moved = 0; lastX = e.clientX; lastT = performance.now(); fling = 0; target = null;
+    st.setPointerCapture(e.pointerId); st.classList.add('drag');
+  });
+  st.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, now = performance.now();
+    moved += Math.abs(dx); rot += dx * .35;
+    fling = dx * .35 / Math.max(8, now - lastT);
+    lastX = e.clientX; lastT = now;
+  });
+  const end = e => {
+    if (!dragging) return;
+    dragging = false; st.classList.remove('drag');
+    idleUntil = performance.now() + 7000;
+    if (moved < 6) { fling = 0; const c = e.target.closest && e.target.closest('.st-card'); if (c) focus(+c.dataset.i, true); return; }
+    if (Math.abs(fling) < .02) { fling = 0; focus(place(), true); }
+  };
+  st.addEventListener('pointerup', end);
+  st.addEventListener('pointercancel', end);
+  cards.forEach((c, i) => {
+    c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focus(i, true); } });
+    c.addEventListener('focus', () => { if (!dragging) focus(i, true); });
+  });
+  st.querySelectorAll('.st-arrow').forEach(b => { b.onclick = () => focus((front + +b.dataset.d + N) % N, true); });
+  dots.forEach((d, i) => { d.onclick = () => focus(i, true); });
+  size(); setFront(place(), false);
+  const onResize = () => { size(); place(); };
+  window.addEventListener('resize', onResize);
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0 });
+  io.observe(st);
+  raf = requestAnimationFrame(tick);
+  gateCleanups.push(() => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); io.disconnect(); });
+}
+
+/* ---- screen 2: the 60-second climb ----
+   ready → 3·2·1 → five questions (speed bonus ring, first-try combos) → score, best, sign-in */
+const STEP_CC = ['y', 'v', 'c', 's', 'm'];
+const BONUS_MS = 10000;
+function wireClimbGame(steps, n) {
+  const ga = document.getElementById('ga'), view = document.getElementById('ga-view'), world = document.getElementById('ga-world');
+  const qbox = document.getElementById('ga-q'), over = document.getElementById('ga-over'), pts = document.getElementById('ga-pts');
+  const rungs = [...ga.querySelectorAll('.ga-rung')], labs = [...ga.querySelectorAll('.ga-lab')];
+  const hud = { score: document.getElementById('hud-score'), combo: document.getElementById('hud-combo'), best: document.getElementById('hud-best') };
+  const N = steps.length, still = reduceMotion();
+  let phase = 'ready', level = 0, score = 0, shown = 0, combo = 0, bestCombo = 0, firstTries = 0, missed = false;
+  let qStart = 0, t0 = 0, tEnd = 0, inGame = false, poseT = 0, bonusT = 0, countT = 0, best = store.get('climbBest', 0);
+  const fmt = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const mult = c => 1 + .5 * Math.max(0, c - 1);
+  const say = (pose, text) => { if (!window.Mascot || !inGame) return; text ? Mascot.react(pose, text) : Mascot.react(pose); };
+  /* score ticks up rather than jumping */
+  const tweenScore = () => {
+    const from = shown, to = score, t = performance.now();
+    const step = now => { const p = Math.min(1, (now - t) / 600); shown = Math.round(from + (to - from) * (1 - Math.pow(1 - p, 3))); hud.score.textContent = shown; if (p < 1) requestAnimationFrame(step); };
+    still ? (shown = score, hud.score.textContent = score) : requestAnimationFrame(step);
+  };
+  const paintHud = () => {
+    hud.combo.textContent = '×' + mult(combo);
+    hud.combo.parentNode.classList.toggle('hot', combo > 1);
+    hud.best.textContent = best || '–';
+  };
+  /* camera: keep Bitu in the lower part of the view, so the climb scrolls the world down */
+  const camera = () => {
+    const S = parseFloat(getComputedStyle(ga).getPropertyValue('--S')) || 140, base = 70;
+    const cam = Math.max(0, base + level * S - view.clientHeight * .4);
+    world.style.setProperty('--cam', cam + 'px');
+    view.style.setProperty('--cam', cam + 'px');
+  };
+  const setLadder = () => {
+    rungs.forEach((r, i) => { r.classList.toggle('on', i < level); r.classList.toggle('next', i === level && phase !== 'ready'); });
+    labs.forEach((l, i) => { l.classList.toggle('done', i < level); l.classList.toggle('next', i === level && phase !== 'ready'); l.querySelector('b').textContent = i < level ? '✓' : steps[i].n; });
+    ga.style.setProperty('--lv', level);
+    ga.classList.toggle('summit', level === N);
+    ga.classList.toggle('lit', level > 0);
+    camera();
+  };
+  const sparks = i => {
+    if (still) return;
+    const p = document.getElementById('ga-pop');
+    const c = getComputedStyle(rungs[i]).getPropertyValue('--cc').trim() || '#ffd166';
+    p.innerHTML = Array.from({ length: 18 }, (_, k) => `<i style="--a:${k * 20}deg;--r:${36 + (k % 3) * 18}px;--c:${c};--k:${i + 1}"></i>`).join('');
+    setTimeout(() => { p.innerHTML = ''; }, 1000);
+  };
+  const popPoints = (v, label) => {
+    pts.innerHTML = `<b>+${v}</b>${label ? `<small>${label}</small>` : ''}`;
+    pts.classList.remove('go'); void pts.offsetWidth; pts.classList.add('go');
+  };
+  const fireworks = () => {
+    if (still) return;
+    const b = document.getElementById('gp-burst');
+    const cols = ['#ffd166', '#ff8b7b', '#6ec6ff', '#62e0a9', '#bba4ff'];
+    b.innerHTML = [0, 1, 2, 3].map(g => Array.from({ length: 18 }, (_, i) => `<i style="--a:${i * 20}deg;--r:${80 + (i % 3) * 26}px;--c:${cols[(i + g) % 5]};--x:${[18, 45, 70, 88][g]}%;--y:${[24, 14, 30, 18][g]}%;--t:${g * .3}s"></i>`).join('')).join('');
+    setTimeout(() => { b.innerHTML = ''; }, 3000);
+  };
+  const flash = cls => { qbox.classList.remove('ok', 'bad'); void qbox.offsetWidth; qbox.classList.add(cls); };
+  const bonusNow = () => Math.max(0, Math.round(50 * (1 - (performance.now() - qStart) / BONUS_MS)));
+
+  /* one question in the panel */
+  const ask = retry => {
+    const q = CLIMB_Q[level], s = steps[level];
+    if (!retry) missed = false;
+    qbox.style.setProperty('--cc', `var(--${STEP_CC[level]})`);
+    qbox.innerHTML = `<div class="gq-head">
+        <div class="gq-step"><span class="gq-kick">${tr('Step', 'Step')} ${s.n} / ${N} · ${esc(s.t)}</span><span class="gq-sub">${s.when} · ${s.meta.map(esc).join(' · ')}</span></div>
+        <div class="gq-ring${missed ? ' off' : ''}" title="${tr('Speed bonus', 'Speed bonus')}"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" cx="24" cy="24" r="20"/></svg><span>${missed ? '–' : '+50'}</span></div>
+      </div>
+      <h3 class="gc-ask">${esc(tr(q.ask[0], q.ask[1]))}</h3>
+      <div class="gq-win"><div class="gq-bar"><i></i><i></i><i></i><span>rung_${level + 1}.py</span></div><pre class="gq-pre"><code>${q.code}</code></pre></div>
+      <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"${phase !== 'play' ? ' disabled' : ''}><kbd>${'ABC'[k]}</kbd><span>${esc(o)}</span></button>`).join('')}</div>
+      <div class="gc-foot"><p class="gq-why" role="status" aria-live="polite">${retry ? tr('Have another look. You can do this.', 'Ek baar aur dekho. Tum kar sakte ho.') : tr('Pick the answer. Faster means a bigger bonus.', 'Jawab chuno. Jitna jaldi, utna bada bonus.')}</p><button type="button" class="gc-next" hidden></button></div>`;
+    qbox.classList.remove('swap'); void qbox.offsetWidth; qbox.classList.add('swap');
+    setLadder();
+    if (phase !== 'play') return;
+    qStart = performance.now();
+    const ring = qbox.querySelector('.gq-ring'), lab = ring.querySelector('span');
+    clearInterval(bonusT);
+    if (!missed) { ring.classList.add('run'); bonusT = setInterval(() => { lab.textContent = '+' + bonusNow(); }, 200); }
+    const opts = [...qbox.querySelectorAll('.gq-opt')], why = qbox.querySelector('.gq-why'), next = qbox.querySelector('.gc-next');
+    opts.forEach(b => b.onclick = () => {
+      if (b.disabled || phase !== 'play') return;
+      clearInterval(bonusT); ring.classList.add('stop');
+      const ok = +b.dataset.k === q.a;
+      opts.forEach(o => { o.disabled = true; if (ok && +o.dataset.k === q.a) o.classList.add('right'); });
+      next.hidden = false;
+      if (!ok) {
+        b.classList.add('wrong'); missed = true; combo = 0; paintHud(); flash('bad');
+        why.innerHTML = `<b class="no">${tr('Not quite.', 'Thoda galat.')}</b> ${tr('Your combo resets, but you can try again.', 'Combo reset ho gaya, par dobara try kar sakte ho.')}`;
+        say('think', tr('Hmm, close! Look again.', 'Hmm, kareeb tha! Phir se dekho.'));
+        next.className = 'gc-next';
+        next.innerHTML = `${tr('Try again', 'Phir try karo')} <kbd>↵</kbd>`;
+        next.onclick = () => ask(true);
+      } else {
+        let v, label = '';
+        if (!missed) { const bonus = bonusNow(); combo++; firstTries++; bestCombo = Math.max(bestCombo, combo); v = Math.round((100 + bonus) * mult(combo)); label = combo > 1 ? `${tr('combo', 'combo')} ×${mult(combo)}` : bonus ? `${tr('speed bonus', 'speed bonus')} +${bonus}` : ''; }
+        else v = 50;
+        score += v; tweenScore(); paintHud(); popPoints(v, label); flash('ok');
+        why.innerHTML = `<b class="ok">${tr('Right!', 'Sahi!')}</b> ${esc(tr(q.why[0], q.why[1]))}`;
+        level++; setLadder(); sparks(level - 1);
+        if (window.Mascot && inGame) {
+          clearTimeout(poseT); Mascot.pose('climb');
+          poseT = setTimeout(() => { Mascot.pose('idle'); if (level === N) Mascot.react('cheer', tr('We made it to the top!', 'Hum top pe pahunch gaye!')); else if (combo > 1) Mascot.react('cheer', tr(`Combo ×${mult(combo)}! Keep going!`, `Combo ×${mult(combo)}! Chalte raho!`)); else Mascot.react('nod'); }, 1000);
+        }
+        next.className = 'gc-next go';
+        next.innerHTML = `${level === N ? tr('See your score', 'Apna score dekho') : tr('Next rung', 'Agli seedhi')} <kbd>↵</kbd>`;
+        next.onclick = () => level === N ? finish() : ask(false);
+        if (level === N) { tEnd = performance.now(); phase = 'end'; }
+      }
+      next.focus({ preventScroll: true });
+    });
+  };
+
+  /* overlays */
+  const showOver = html => { over.innerHTML = html; over.classList.add('on'); ga.classList.add('dim'); };
+  const hideOver = () => { over.classList.remove('on'); ga.classList.remove('dim'); };
+  const ready = () => {
+    phase = 'ready';
+    showOver(`<div class="go-card">
+        <span class="go-badge">${tr('5 rungs · about a minute', '5 seedhiyan · lagbhag ek minute')}</span>
+        <h3>${tr('Ready to climb?', 'Chadhne ke liye taiyaar?')}</h3>
+        <ul class="go-tips">
+          <li><span class="go-ic"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd></span>${tr('Answer with a click or a key', 'Click ya key se jawab do')}</li>
+          <li><span class="go-ic bolt">+50</span>${tr('Answer fast for a speed bonus', 'Jaldi jawab do, speed bonus pao')}</li>
+          <li><span class="go-ic fire">×3</span>${tr('First-try streaks multiply your points', 'Lagataar pehli baar sahi = points multiply')}</li>
+        </ul>
+        <button type="button" class="go-start">${tr('Start the climb', 'Chadhai shuru karo')} <kbd>↵</kbd></button>
+        ${best ? `<p class="go-best">${tr('Your best', 'Tumhara best')}: <b>${best}</b></p>` : ''}
+      </div>`);
+    over.querySelector('.go-start').onclick = start;
+  };
+  const start = () => {
+    if (phase !== 'ready' && phase !== 'done') return;
+    level = 0; score = 0; shown = 0; combo = 0; bestCombo = 0; firstTries = 0; hud.score.textContent = '0'; paintHud();
+    phase = 'count'; setLadder();
+    say('wave', tr('Here we go!', 'Chalo shuru!'));
+    const go = () => { phase = 'play'; t0 = performance.now(); hideOver(); ask(false); qbox.querySelector('.gq-opt').focus({ preventScroll: true }); };
+    if (still) return go();
+    const seq = ['3', '2', '1', tr('GO!', 'CHALO!')];
+    let i = 0;
+    const tick = () => {
+      if (i === seq.length) return go();
+      showOver(`<div class="go-count" key="${i}">${seq[i]}</div>`);
+      i++; countT = setTimeout(tick, i === seq.length ? 500 : 650);
+    };
+    tick();
+  };
+  const finish = () => {
+    phase = 'done';
+    const isBest = score > best;
+    if (isBest) { best = score; store.set('climbBest', best); paintHud(); }
+    const stars = score >= 1000 ? 3 : score >= 600 ? 2 : 1;
+    showOver(`<div class="go-card done">
+        <div class="gc-stars" aria-label="${stars} / 3">${[0, 1, 2].map(i => `<svg viewBox="0 0 24 24" class="${i < stars ? 'on' : ''}" style="--k:${i}"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>`).join('')}</div>
+        <h3>${tr('Top of the ladder!', 'Ladder ke top pe!')}</h3>
+        <div class="go-score"><b data-n="${score}">${score}</b><span>${tr('points', 'points')}</span>${isBest ? `<em>${tr('New best!', 'Naya best!')}</em>` : ''}</div>
+        <div class="gc-score"><div><b>${fmt(tEnd - t0)}</b><span>${tr('time', 'time')}</span></div><div><b>${firstTries}/${N}</b><span>${tr('first try', 'pehli baar sahi')}</span></div><div><b>×${mult(bestCombo)}</b><span>${tr('best combo', 'best combo')}</span></div></div>
+        <p>${tr(`That was the whole path in miniature. The real ladder has ${MODS.length} modules, ${n.nDrills} drills and ${n.nProblems} problems.`, `Ye poora raasta chhote roop mein tha. Asli ladder mein ${MODS.length} modules, ${n.nDrills} drills aur ${n.nProblems} problems hain.`)}</p>
+        ${gBtn(tr('Sign in and climb for real', 'Sign in karo, asli chadhai shuru karo'), 'wide')}
+        <p class="g-err" role="alert" hidden></p>
+        <button type="button" class="gc-replay">${tr('Climb again', 'Phir se chadho')} <kbd>↵</kbd></button>
+      </div>`);
+    if (!still) countUp(over.querySelector('.go-score'));
+    fireworks();
+    over.querySelector('[data-signin]').onclick = e => gateSignIn(e.currentTarget);
+    over.querySelector('.gc-replay').onclick = start;
+  };
+
+  /* keys while the game is on screen: A/B/C or 1/2/3 answer, Enter starts and moves on */
+  const onKey = e => {
+    if (!inGame || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    const k = { a: 0, b: 1, c: 2, 1: 0, 2: 1, 3: 2 }[e.key.toLowerCase()];
+    if (k !== undefined && phase === 'play') { const o = qbox.querySelectorAll('.gq-opt')[k]; if (o && !o.disabled) { e.preventDefault(); o.click(); } return; }
+    if (e.key !== 'Enter' || (e.target.closest && e.target.closest('button, a'))) return;
+    if (phase === 'ready' || phase === 'done') { e.preventDefault(); start(); }
+    else { const nx = qbox.querySelector('.gc-next:not([hidden])'); if (nx) { e.preventDefault(); nx.click(); } }
+  };
+  document.addEventListener('keydown', onKey);
+  const onResize = () => camera();
+  window.addEventListener('resize', onResize);
+  /* Bitu hops down from the hero to play when the game is on screen, and back up after */
+  const gp = document.getElementById('gp');
+  const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting === inGame || !window.Mascot) { inGame = e.isIntersecting; return; }
+    inGame = e.isIntersecting;
+    if (inGame) {
+      Mascot.mount(document.getElementById('gp-bitu'), document.getElementById('gp-say'));
+      Mascot.pose('idle');
+      Mascot.say(phase === 'ready' ? tr("Ready? Let's climb together!", 'Taiyaar? Chalo saath chadhte hain!') : tr('Back to the climb!', 'Wapas chadhai pe!'));
+      Mascot.react('wave');
+    } else mascotGate();
+  }, { threshold: .3 });
+  io.observe(gp);
+  gateCleanups.push(() => { io.disconnect(); clearTimeout(poseT); clearTimeout(countT); clearInterval(bonusT); document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); });
+  paintHud();
+  ask(false);
+  ready();
+}
+function countUp(root) {
+  const els = [...root.querySelectorAll('[data-n]')];
+  const t0 = performance.now(), dur = 1400;
+  const tick = now => {
+    const p = Math.min(1, (now - t0) / dur), ease = 1 - Math.pow(1 - p, 3);
+    els.forEach(b => { b.textContent = Math.round(+b.dataset.n * ease); });
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function mascotGate() {
+  if (!window.Mascot) return;
+  const host = document.getElementById('bitu-host');
+  if (!host) return;
+  Mascot.mount(host, document.getElementById('bitu-say'));
+  routePose = 'idle';
+  Mascot.pose('idle');
+  Mascot.say(tr("Hi, I'm Bitu! Sign in and we'll climb together.", 'Namaste, main Bitu hoon! Sign in karo, saath mein chadhenge.'));
+  Mascot.react('wave');
 }
 /* the three module-based courses share one page layout */
 function course(kind) {
@@ -545,6 +1039,17 @@ function route() {
   if (r === 'neet' + 'code') r = 'dsa150';
   if (r === 'video-think') r = 'm-g1';
   if (player) { player.destroy(); player = null; }
+  clearGate();
+  /* the URL hash is kept as-is, so a deep link opens its page right after sign-in */
+  const waiting = !!(window.Auth && Auth.ready && !Auth.known);
+  const gated = !!(window.Auth && Auth.ready && Auth.known && !Auth.signedIn);
+  document.body.classList.toggle('gated', waiting || gated);
+  if (waiting || gated) {
+    waiting ? pageBoot() : pageGate();
+    window.scrollTo(0, 0);
+    if (gated) mascotGate();
+    return;
+  }
   navActive(r);
   if (r === '' || r === 'path') pageHome();
   else if (r === 'math') pageModuleList('math');
@@ -643,5 +1148,24 @@ setupMascot();
 window.addEventListener('hashchange', route);
 paintLang();
 paintTheme();
+/* back from the Google page via the browser's back button: re-render so the sign-in buttons aren't stuck on "Opening Google…" */
+window.addEventListener('pageshow', e => { if (e.persisted && document.body.classList.contains('gated')) route(); });
 route();
+if (window.Auth) Auth.init({
+  /* signed in, signed out, or a different account: re-read this browser's copy (auth.js clears it on sign-out) */
+  onReady() {
+    solved = new Set(store.get('solved', []));
+    modsDone = new Set(store.get('mods', []));
+    route();
+  },
+  /* the account is the source of truth: replace, don't merge, so an "unmark" on another device sticks here too */
+  onProgress(remote) {
+    const same = (a, b) => a.size === b.size && [...a].every(x => b.has(x));
+    const m = new Set(remote.mods), p = new Set(remote.solved);
+    if (same(m, modsDone) && same(p, solved)) return;
+    modsDone = m; solved = p;
+    store.set('mods', [...modsDone]); store.set('solved', [...solved]);
+    updateChip(); route();
+  }
+});
 })();
