@@ -16,13 +16,13 @@ Every page has a **coach panel** beside the content: **Bitu**, the robot mascot,
 
 The narration uses the browser's built-in speech voice. For Hinglish, an Indian English voice (en-IN) sounds best.
 
-Progress (modules complete, problems solved) always saves to the browser. **Sign in with Google**, in the top bar, also syncs it to an account via Supabase, so it follows you across devices and keeps a real history — see [Accounts and progress](#accounts-and-progress) below. Signed out, or with no Supabase project configured, the site works exactly as before.
+**Sign-in is required.** Every page, including direct links, shows a sign-in page until the visitor signs in with Google. That page introduces the course: Bitu, the five steps as an interactive ladder, live demos of how lessons work, and a short "what does this print?" taster. After sign-in, the visitor lands on the page they originally asked for. Progress (modules complete, problems solved) is stored in their account via Supabase, so it follows them across devices and keeps a real history. Signing out clears this browser's copy. See [Accounts and progress](#accounts-and-progress) below.
 
 ## Accounts and progress
 
-Optional: without `SUPABASE_URL`/`SUPABASE_ANON_KEY` set, `auth.js` is a no-op and nothing below applies.
+Without `SUPABASE_URL`/`SUPABASE_ANON_KEY` set (a local build, or a preview with no secrets), `auth.js` is a no-op, there is no sign-in page, and progress stays in the browser. With them set, sign-in is required everywhere. That also means a Supabase outage would block access to the site.
 
-- `auth.js` — the Google sign-in button, session handling, and syncing progress to/from Supabase.
+- `auth.js`: Google sign-in, session handling, and syncing progress to and from Supabase. The sign-in page itself is `pageGate()` in `app.js`.
 - `supabase/migrations/0001_progress.sql` — run once in the Supabase SQL editor. `activity_log` is an append-only history (no update/delete policy exists for it, so it can't be rewritten, only added to); `module_progress`/`problem_progress` are fast-read summaries that only a server-side trigger can write, so they can never drift from the log.
 
 **Setup:** create a Supabase project, enable the Google provider under Authentication → Providers (needs a Google Cloud OAuth client; the redirect URI Supabase shows you goes into that client's Authorized redirect URIs), run the migration above, then set `SUPABASE_URL` and `SUPABASE_ANON_KEY` — as Vercel project environment variables for the live site, and in a local `.env.local` (gitignored, `KEY=VALUE` per line) for `python3 build.py` on a laptop.
@@ -42,7 +42,7 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 | `traces.txt` | Shared dry-run tables |
 | `app.js`, `app.css`, `style.css`, `shell.html` | The site around the lessons |
 | `mascot.js`, `mascot.css` | Bitu the mascot, and the night mode toggle |
-| `auth.js`, `supabase/migrations/*.sql` | Google sign-in and synced progress (optional, see [Accounts and progress](#accounts-and-progress)) |
+| `auth.js`, `supabase/migrations/*.sql` | Google sign-in and synced progress (see [Accounts and progress](#accounts-and-progress)) |
 | `prelude.py` | Test helpers used when verifying solutions |
 
 ## Build

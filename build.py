@@ -318,7 +318,7 @@ def main():
     for m in mods:
         for d in m['drills']:
             d.pop('test', None)
-    data = {'topics': topics, 'problems': probs, 'modules': mods}
+    data = {'topics': topics, 'problems': probs, 'modules': mods, 'checks': checks}
     n_w = sum(len(t['problems']) for t in topics if t['id'].startswith('w-'))
     n_n = sum(len(t['problems']) for t in topics if not t['id'].startswith('w-'))
     print(f'topics {len(topics)}  warmup {n_w}  dsa150 {n_n}  modules {len(mods)}  drills {sum(len(m["drills"]) for m in mods)}  checks {checks}')

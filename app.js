@@ -228,11 +228,22 @@ function homeCta(steps, st) {
 }
 function homeNote(steps, st) {
   const s = steps[st.cur];
-  if (st.kind === 'new') return tr('Starts with topic 1 of Math for Logic: numbers and the number line. Free, no sign-up, and your progress is saved in this browser.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Free, sign-up nahi, aur progress is browser mein save hota hai.');
+  if (st.kind === 'new') return window.Auth && Auth.ready
+    ? tr('Starts with topic 1 of Math for Logic: numbers and the number line. Your progress is saved to your account.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Tumhara progress tumhare account mein save hota hai.')
+    : tr('Starts with topic 1 of Math for Logic: numbers and the number line. Free, no sign-up, and your progress is saved in this browser.', 'Math for Logic ke topic 1 se shuru: numbers aur number line. Free, sign-up nahi, aur progress is browser mein save hota hai.');
   if (st.kind === 'done') return tr('All five steps done. Re-solve old problems every week to keep them fresh.', 'Paanchon steps ho gaye. Har hafte purani problems dobara solve karo taaki yaad rahein.');
   const prev = steps[st.cur - 1];
   if (st.kind === 'next') return `${tr('Step', 'Step')} ${prev.n} (${esc(prev.t)}) ${tr('is done. Next up', 'ho gaya. Ab')}: ${esc(s.t)}.`;
   return `${tr('Step', 'Step')} ${s.n} ${tr('of 5', 'of 5')} · ${s.label()}${st.lastLabel ? ` · ${tr('last opened', 'aakhri baar khola')}: ${esc(st.lastLabel)}` : ''}`;
+}
+/* the four lesson moves, as small live demos (home page and sign-in page) */
+function howGrid(solvedN) {
+  return `<div class="how-grid">
+      <div class="how-card"><div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div><h3>${tr('Watch', 'Dekho')}</h3><p>${tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.')}</p></div>
+      <div class="how-card"><div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div><h3>${tr('Understand', 'Samjho')}</h3><p>${tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.')}</p></div>
+      <div class="how-card"><div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div><h3>${tr('Practise', 'Practice karo')}</h3><p>${tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.')}</p></div>
+      <div class="how-card"><div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div><h3>${tr('Track', 'Track karo')}</h3><p>${tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.')}</p></div>
+    </div>`;
 }
 const WEEKS = 15;
 function pageHome() {
@@ -279,7 +290,7 @@ function pageHome() {
     <div><b>${MODS.length}</b><span>${tr('modules with theory', 'modules, theory ke saath')}</span></div>
     <div><b>${nDrills}</b><span>${tr('practice drills', 'practice drills')}</span></div>
     <div><b>200</b><span>${tr('problems, explained', 'problems, samjhaaye hue')}</span></div>
-    <div><b>722</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
+    <div><b>${DATA.checks}</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
   </section>
 
   <section class="path" id="the-path" aria-labelledby="path-h">
@@ -293,12 +304,7 @@ function pageHome() {
 
   <section class="how" id="how" aria-labelledby="how-h">
     <div class="sec-head"><div class="kicker">${tr('How it works', 'Kaise kaam karta hai')}</div><h2 id="how-h">${tr('Every lesson, the same four moves', 'Har lesson, wahi chaar kadam')}</h2></div>
-    <div class="how-grid">
-      <div class="how-card"><div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div><h3>${tr('Watch', 'Dekho')}</h3><p>${tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.')}</p></div>
-      <div class="how-card"><div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div><h3>${tr('Understand', 'Samjho')}</h3><p>${tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.')}</p></div>
-      <div class="how-card"><div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div><h3>${tr('Practise', 'Practice karo')}</h3><p>${tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.')}</p></div>
-      <div class="how-card"><div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div><h3>${tr('Track', 'Track karo')}</h3><p>${tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.')}</p></div>
-    </div>
+    ${howGrid(solvedN)}
   </section>
 
   <section class="pace" aria-labelledby="pace-h">
@@ -334,6 +340,240 @@ function pageHome() {
   show(cur);
   const how = document.getElementById('how-link');
   how.onclick = e => { e.preventDefault(); const t = document.getElementById('the-path'); window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 76, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+}
+/* ---------- sign-in gate: with Supabase configured, every route shows this until the learner signs in ---------- */
+const G_LOGO = '<svg viewBox="0 0 18 18" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.69 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>';
+const gBtn = (label, cls = '') => `<button type="button" class="g-google ${cls}" data-signin><span class="g-logo">${G_LOGO}</span><span class="g-spin" aria-hidden="true"></span><span class="g-lab">${label}</span></button>`;
+/* "what does this print?" taster; code is pre-highlighted HTML (k keyword, f builtin, n number, s string) */
+const QUIZ = [
+  { code: 'nums = [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>]\n<span class="f">print</span>(<span class="f">sum</span>(nums) % <span class="n">4</span>)', opts: ['0', '2', '8'], a: 0,
+    why: ['3 + 1 + 4 = 8, and % gives the remainder: 8 ÷ 4 leaves 0.', '3 + 1 + 4 = 8, aur % remainder deta hai: 8 ÷ 4 mein 0 bachta hai.'] },
+  { code: '<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):\n    <span class="f">print</span>(i * i, end=<span class="s">" "</span>)', opts: ['0 1 4', '1 4 9', '1 4 9 16'], a: 1,
+    why: ['range(1, 4) gives 1, 2, 3. The end value, 4, is never included.', 'range(1, 4) deta hai 1, 2, 3. End value 4 kabhi include nahi hoti.'] },
+  { code: 's = <span class="s">"ladder"</span>\n<span class="f">print</span>(s[::<span class="n">-1</span>])', opts: ['ladder', 'reddal', 'Error'], a: 1,
+    why: ['[::-1] walks the string from the last letter to the first, so it comes out reversed.', '[::-1] string ko aakhri letter se pehle tak padhta hai, isliye ulta aata hai.'] }
+];
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+let gateTimer = 0, gateIO = null;
+function clearGate() {
+  clearInterval(gateTimer); gateTimer = 0;
+  if (gateIO) { gateIO.disconnect(); gateIO = null; }
+}
+function pageBoot() {
+  view.innerHTML = `<div class="g-boot" role="status"><svg viewBox="0 0 20 24" aria-hidden="true"><rect x="2" y="1" width="3.4" height="22" rx="1.7"/><rect x="14.6" y="1" width="3.4" height="22" rx="1.7"/><rect class="r" x="3" y="17" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="11" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="5" width="14" height="3" rx="1.5"/></svg><span>${tr('Loading…', 'Load ho raha hai…')}</span></div>`;
+}
+function pageGate() {
+  const steps = stepsDef();
+  const nVideos = Object.keys(E.LESSONS).length;
+  const nDrills = MODS.reduce((a, m) => a + m.drills.length, 0);
+  const nProblems = ORDER.warm.length + ORDER.nc.length;
+  const glyphs = g => g.map((x, i) => `<span class="gl" style="--x:${3 + (i * 37) % 94}%;--d:${i * .9}s;--s:${9 + (i % 3) * 2}s">${x}</span>`).join('');
+  const chips = [
+    ['l1', 'y', '▶', `${nVideos} ${tr('animated videos', 'animated videos')}`],
+    ['l2', 'v', 'EN', tr('English ⇄ Hinglish', 'English ⇄ Hinglish')],
+    ['l3', 's', '{ }', `${PY.length} ${tr('Python modules', 'Python modules')}`],
+    ['r1', 'm', '✓', `${DATA.checks} ${tr('tested code checks', 'tested code checks')}`],
+    ['r2', 'c', 'O(n)', tr('Brute force → best', 'Brute force → best')],
+    ['r3', 'y', '★', `${nProblems} ${tr('problems, explained', 'problems, samjhaaye hue')}`]
+  ];
+  view.innerHTML = `<div class="gate">
+  <section class="g-hero" aria-labelledby="g-h1">
+    <div class="g-sky" aria-hidden="true"><i class="g-orb o1"></i><i class="g-orb o2"></i><div class="g-grid"></div>${glyphs(['for', '[ ]', 'O(n)', 'def', '%', '{ }', 'if', 'λ', 'while', '→'])}</div>
+    <div class="g-head">
+      <div class="kicker">${tr('Logic Ladder · learn DSA in Python', 'Logic Ladder · Python mein DSA seekho')}</div>
+      <h1 id="g-h1">${tr('From <span class="hl">zero</span> to 150 interview problems, one rung at a time', '<span class="hl">Zero</span> se 150 interview problems tak, ek‑ek seedhi chadh ke')}</h1>
+      <p class="g-sub">${tr('The maths you need, Python from scratch, logic drills, 50 warm-ups and 150 DSA problems, taught slowly with animated videos for people who find logic hard. Every explanation is in English and Hinglish.', 'Zaroori maths, bilkul shuru se Python, logic drills, 50 warm-ups aur 150 DSA problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. Har explanation English aur Hinglish mein.')}</p>
+    </div>
+    <div class="g-stage" id="g-stage">
+      <div class="g-card">
+        <div class="g-bitu" id="bitu-host"></div>
+        <h2>${tr('Sign in to start climbing', 'Sign in karo, chadhai shuru karo')}</h2>
+        <p>${tr('One click with Google. Every module you finish and every problem you solve is saved to your account, on any device.', 'Google se ek click. Har module jo tum complete karo aur har problem jo solve karo, tumhare account mein save hota hai, kisi bhi device pe.')}</p>
+        ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
+        <p class="g-err" role="alert" hidden></p>
+        <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Synced on every device', 'Har device pe sync')}</li></ul>
+        <p class="g-priv">${tr('Google shares only your name, email and profile photo with Logic Ladder.', 'Google, Logic Ladder ko sirf tumhara naam, email aur profile photo deta hai.')}</p>
+      </div>
+      <div class="g-chips" aria-hidden="true">${chips.map(([pos, c, ic, t], i) => `<span class="g-chip ${pos}" style="--cc:var(--${c});--d:${.35 + i * .09}s;--d2:${-i * .8}s;--z:${(i % 3) + 1}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
+    </div>
+    <button type="button" class="g-scroll" id="g-scroll">${tr("See what's inside", 'Dekho andar kya hai')} <span aria-hidden="true">↓</span></button>
+  </section>
+
+  <section class="nums g-nums rv" id="g-nums" aria-label="${tr('What is inside', 'Andar kya hai')}">
+    <div><b data-n="${nVideos}">${nVideos}</b><span>${tr('animated videos', 'animated videos')}</span></div>
+    <div><b data-n="${MODS.length}">${MODS.length}</b><span>${tr('modules with theory', 'modules, theory ke saath')}</span></div>
+    <div><b data-n="${nDrills}">${nDrills}</b><span>${tr('practice drills', 'practice drills')}</span></div>
+    <div><b data-n="${nProblems}">${nProblems}</b><span>${tr('problems, explained', 'problems, samjhaaye hue')}</span></div>
+    <div><b data-n="${DATA.checks}">${DATA.checks}</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
+  </section>
+
+  <section class="g-sec" aria-labelledby="g-climb-h">
+    <div class="sec-head rv"><div class="kicker">${tr('The path', 'Raasta')}</div><h2 id="g-climb-h">${tr('Five steps, from your first number to your last problem', 'Paanch steps, pehle number se aakhri problem tak')}</h2><p>${tr('Each step makes the next one easy. About 15 weeks at 1–2 hours a day. Tap a rung to look inside.', 'Har step agle ko aasaan banata hai. Roz 1–2 ghante, lagbhag 15 hafte. Andar dekhne ke liye kisi seedhi pe tap karo.')}</p></div>
+    <div class="g-climb rv" id="g-climb">
+      <div class="gc-ladder" role="tablist" aria-orientation="vertical" aria-label="${tr('The five steps', 'Paanch steps')}">
+        <span class="gc-rails" aria-hidden="true"><i class="gc-fill"></i></span>
+        ${steps.map((s, i) => `<button type="button" role="tab" class="gc-rung" id="gc-tab-${i}" aria-controls="gc-panel" aria-selected="false" tabindex="-1" data-i="${i}"><span class="gc-dot"><b>${s.n}</b></span><span class="gc-txt"><b>${esc(s.t)}</b><small>${s.when}</small></span></button>`).join('')}
+      </div>
+      <div class="gc-panel" id="gc-panel" role="tabpanel" tabindex="0"></div>
+    </div>
+  </section>
+
+  <section class="g-sec" aria-labelledby="g-how-h">
+    <div class="sec-head rv"><div class="kicker">${tr('How it works', 'Kaise kaam karta hai')}</div><h2 id="g-how-h">${tr('Every lesson, the same four moves', 'Har lesson, wahi chaar kadam')}</h2></div>
+    <div class="rv">${howGrid(37)}</div>
+  </section>
+
+  <section class="g-sec" aria-labelledby="g-quiz-h">
+    <div class="sec-head rv"><div class="kicker">${tr('Try one now', 'Abhi ek try karo')}</div><h2 id="g-quiz-h">${tr('What does this print?', 'Ye kya print karega?')}</h2><p>${tr(`This is how every drill feels: predict first, then check. There are ${nDrills} more inside.`, `Har drill aisi hi hai: pehle predict karo, phir check karo. Andar aisi ${nDrills} aur hain.`)}</p></div>
+    <div class="g-quiz rv" id="g-quiz"></div>
+  </section>
+
+  <section class="g-final rv" aria-labelledby="g-final-h">
+    <div class="g-sky" aria-hidden="true"><div class="g-grid"></div>${glyphs(['def', 'O(1)', '[ ]', 'if', '%', 'return'])}</div>
+    <h2 id="g-final-h">${tr('Your first rung is one click away', 'Pehli seedhi bas ek click door hai')}</h2>
+    <p>${tr('You start with topic 1 of Math for Logic: numbers and the number line. No experience needed.', 'Shuruaat Math for Logic ke topic 1 se: numbers aur number line. Koi experience nahi chahiye.')}</p>
+    ${gBtn(tr('Sign in with Google', 'Google se sign in karo'), 'wide')}
+  </section>
+
+  <footer class="home-foot">
+    <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
+    <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
+  </footer>
+  </div>`;
+  view.querySelectorAll('[data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
+  document.getElementById('g-scroll').onclick = () => {
+    const t = document.getElementById('g-nums');
+    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 90, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  };
+  wireGateParallax();
+  wireClimb(steps);
+  renderQuiz(0);
+  wireReveal();
+}
+function gateSignIn(btn) {
+  const all = view.querySelectorAll('[data-signin]');
+  const lab = btn.querySelector('.g-lab'), was = lab.textContent;
+  const err = view.querySelector('.g-err');
+  all.forEach(b => { b.disabled = true; b.classList.add('busy'); });
+  lab.textContent = tr('Opening Google…', 'Google khul raha hai…');
+  err.hidden = true;
+  Auth.signIn().catch(e => {
+    console.error('Sign-in failed', e);
+    all.forEach(b => { b.disabled = false; b.classList.remove('busy'); });
+    lab.textContent = was;
+    err.textContent = tr("Couldn't open Google sign-in. Check your connection and try again.", 'Google sign-in nahi khula. Internet check karke dobara try karo.');
+    err.hidden = false;
+  });
+}
+/* the floating chips drift a little against the pointer, nearer ones (bigger --z) more */
+function wireGateParallax() {
+  const stage = document.getElementById('g-stage');
+  if (reduceMotion() || !matchMedia('(pointer: fine)').matches) return;
+  let raf = 0;
+  stage.closest('.g-hero').addEventListener('pointermove', e => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      const r = stage.getBoundingClientRect();
+      stage.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5) * -12);
+      stage.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5) * -12);
+    });
+  });
+}
+/* the ladder: step 1 at the bottom; auto-climbs every few seconds until the learner picks a rung */
+function wireClimb(steps) {
+  const box = document.getElementById('g-climb');
+  const tabs = [...box.querySelectorAll('.gc-rung')];
+  const panel = document.getElementById('gc-panel');
+  let cur = 0, manual = reduceMotion(), visible = false;
+  const show = (i, focus) => {
+    cur = i;
+    tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; t.classList.toggle('past', k < i); });
+    box.style.setProperty('--f', `${(i + .5) / tabs.length * 100}%`);
+    const s = steps[i], items = stepItems(s.key), shown = items.slice(0, 10);
+    panel.setAttribute('aria-labelledby', 'gc-tab-' + i);
+    panel.innerHTML = `<span class="gc-big" aria-hidden="true">${stepIcon(s.key)}</span>
+      <div class="gc-top">${stepIcon(s.key)}<span class="sp-kick">${tr('Step', 'Step')} ${s.n} · ${s.when}</span></div>
+      <h3>${esc(s.t)}</h3>
+      <p>${esc(s.d)}</p>
+      <dl class="sp-stats">${s.meta.map(m => { const [n, ...rest] = m.split(' '); return `<div><dd>${n}</dd><dt>${rest.join(' ')}</dt></div>`; }).join('')}</dl>
+      <div class="gc-items">${shown.map((x, k) => `<span style="--k:${k}">${esc(x.t)}</span>`).join('')}${items.length > shown.length ? `<span class="more" style="--k:${shown.length}">+${items.length - shown.length} ${tr('more', 'aur')}</span>` : ''}</div>
+      ${manual ? '' : '<i class="gc-timer" aria-hidden="true"></i>'}`;
+    panel.classList.remove('swap'); void panel.offsetWidth; panel.classList.add('swap');
+    if (focus) tabs[i].focus();
+  };
+  const stopAuto = () => { if (manual) return; manual = true; clearInterval(gateTimer); gateTimer = 0; const t = panel.querySelector('.gc-timer'); if (t) t.remove(); };
+  tabs.forEach((t, i) => {
+    t.onclick = () => { stopAuto(); show(i); };
+    t.onkeydown = e => {
+      const d = e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { e.preventDefault(); stopAuto(); show((i + d + tabs.length) % tabs.length, true); }
+    };
+  });
+  box.addEventListener('pointerenter', stopAuto);
+  box.addEventListener('focusin', stopAuto);
+  show(0);
+  if (!manual) {
+    gateTimer = setInterval(() => { if (visible && !document.hidden) show((cur + 1) % tabs.length); }, 5000);
+    box.addEventListener('climbvis', e => { visible = e.detail; if (visible && !manual) show(cur); });
+  }
+}
+function renderQuiz(qi) {
+  const host = document.getElementById('g-quiz');
+  const q = QUIZ[qi];
+  host.innerHTML = `<div class="gq-code"><div class="gq-bar"><i></i><i></i><i></i><span>drill_${qi + 1}.py</span></div><pre><code>${q.code}</code></pre></div>
+    <div class="gq-side">
+      <p class="gq-ask">${tr('Pick the output:', 'Output chuno:')}</p>
+      <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"><span class="gq-k">${'ABC'[k]}</span>${esc(o)}</button>`).join('')}</div>
+      <p class="gq-why" role="status" aria-live="polite"></p>
+      <div class="gq-foot"><span class="gq-dots" aria-label="${tr('Question', 'Sawaal')} ${qi + 1} / ${QUIZ.length}">${QUIZ.map((_, k) => `<i class="${k === qi ? 'on' : ''}"></i>`).join('')}</span><button type="button" class="btn sm gq-next" hidden>${qi < QUIZ.length - 1 ? tr('Next question', 'Agla sawaal') : tr('Start over', 'Phir se')} <span aria-hidden="true">→</span></button></div>
+    </div>`;
+  const opts = [...host.querySelectorAll('.gq-opt')];
+  const next = host.querySelector('.gq-next');
+  opts.forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, ok = k === q.a;
+    opts.forEach(o => { o.disabled = true; if (+o.dataset.k === q.a) o.classList.add('right'); });
+    if (!ok) b.classList.add('wrong');
+    host.querySelector('.gq-why').innerHTML = `<b class="${ok ? 'ok' : 'no'}">${ok ? tr('Right!', 'Sahi!') : tr('Not quite.', 'Thoda galat.')}</b> ${esc(tr(q.why[0], q.why[1]))}`;
+    next.hidden = false;
+    next.focus({ preventScroll: true });
+  });
+  next.onclick = () => { renderQuiz((qi + 1) % QUIZ.length); host.querySelector('.gq-opt').focus({ preventScroll: true }); };
+}
+/* sections fade up as they scroll in; the numbers count up once */
+function wireReveal() {
+  const gate = view.querySelector('.gate');
+  const climb = document.getElementById('g-climb');
+  if (!('IntersectionObserver' in window)) return;
+  const still = reduceMotion();
+  if (!still) gate.classList.add('js-rv');
+  gateIO = new IntersectionObserver(es => es.forEach(e => {
+    if (e.target === climb) climb.dispatchEvent(new CustomEvent('climbvis', { detail: e.isIntersecting }));
+    if (!e.isIntersecting || e.target.classList.contains('in')) return;
+    e.target.classList.add('in');
+    if (e.target.id === 'g-nums' && !still) countUp(e.target);
+  }), { threshold: .2 });
+  gate.querySelectorAll('.rv').forEach(el => gateIO.observe(el));
+}
+function countUp(root) {
+  const els = [...root.querySelectorAll('b[data-n]')];
+  const t0 = performance.now(), dur = 1400;
+  const tick = now => {
+    const p = Math.min(1, (now - t0) / dur), ease = 1 - Math.pow(1 - p, 3);
+    els.forEach(b => { b.textContent = Math.round(+b.dataset.n * ease); });
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function mascotGate() {
+  if (!window.Mascot) return;
+  const host = document.getElementById('bitu-host');
+  if (!host) return;
+  Mascot.mount(host);
+  routePose = 'idle';
+  Mascot.pose('idle');
+  Mascot.say(tr("Hi, I'm Bitu! Sign in and we'll climb together.", 'Namaste, main Bitu hoon! Sign in karo, saath mein chadhenge.'));
+  Mascot.react('wave');
 }
 /* the three module-based courses share one page layout */
 function course(kind) {
@@ -553,6 +793,17 @@ function route() {
   if (r === 'neet' + 'code') r = 'dsa150';
   if (r === 'video-think') r = 'm-g1';
   if (player) { player.destroy(); player = null; }
+  clearGate();
+  /* the URL hash is kept as-is, so a deep link opens its page right after sign-in */
+  const waiting = !!(window.Auth && Auth.ready && !Auth.known);
+  const gated = !!(window.Auth && Auth.ready && Auth.known && !Auth.signedIn);
+  document.body.classList.toggle('gated', waiting || gated);
+  if (waiting || gated) {
+    waiting ? pageBoot() : pageGate();
+    window.scrollTo(0, 0);
+    if (gated) mascotGate();
+    return;
+  }
   navActive(r);
   if (r === '' || r === 'path') pageHome();
   else if (r === 'math') pageModuleList('math');
@@ -651,13 +902,24 @@ setupMascot();
 window.addEventListener('hashchange', route);
 paintLang();
 paintTheme();
+/* back from the Google page via the browser's back button: re-render so the sign-in buttons aren't stuck on "Opening Google…" */
+window.addEventListener('pageshow', e => { if (e.persisted && document.body.classList.contains('gated')) route(); });
 route();
 if (window.Auth) Auth.init({
+  /* signed in, signed out, or a different account: re-read this browser's copy (auth.js clears it on sign-out) */
+  onReady() {
+    solved = new Set(store.get('solved', []));
+    modsDone = new Set(store.get('mods', []));
+    route();
+  },
+  /* the account is the source of truth: replace, don't merge, so an "unmark" on another device sticks here too */
   onProgress(remote) {
-    let changed = false;
-    remote.mods.forEach(id => { if (!modsDone.has(id)) { modsDone.add(id); changed = true; } });
-    remote.solved.forEach(id => { if (!solved.has(id)) { solved.add(id); changed = true; } });
-    if (changed) { store.set('mods', [...modsDone]); store.set('solved', [...solved]); updateChip(); route(); }
+    const same = (a, b) => a.size === b.size && [...a].every(x => b.has(x));
+    const m = new Set(remote.mods), p = new Set(remote.solved);
+    if (same(m, modsDone) && same(p, solved)) return;
+    modsDone = m; solved = p;
+    store.set('mods', [...modsDone]); store.set('solved', [...solved]);
+    updateChip(); route();
   }
 });
 })();
