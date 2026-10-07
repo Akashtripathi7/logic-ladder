@@ -14,7 +14,18 @@ A complete, beginner-friendly path from "never coded" to solving 150 core DSA pr
 
 Every page has a **coach panel** beside the content: **Bitu**, the robot mascot, with a tip for that page, your progress, the page's main action (mark solved, mark complete), what's up next, and an "On this page" list that follows you as you scroll. Bitu types on Python pages, lifts weights in the Logic Gym, jogs through the warm-ups, climbs the ladder in DSA 150, and cheers when you solve something. Click Bitu for a tip. There is a **night mode** toggle in the top bar.
 
-The narration uses the browser's built-in speech voice. For Hinglish, an Indian English voice (en-IN) sounds best. Progress is saved in the browser.
+The narration uses the browser's built-in speech voice. For Hinglish, an Indian English voice (en-IN) sounds best.
+
+Progress (modules complete, problems solved) always saves to the browser. **Sign in with Google**, in the top bar, also syncs it to an account via Supabase, so it follows you across devices and keeps a real history — see [Accounts and progress](#accounts-and-progress) below. Signed out, or with no Supabase project configured, the site works exactly as before.
+
+## Accounts and progress
+
+Optional: without `SUPABASE_URL`/`SUPABASE_ANON_KEY` set, `auth.js` is a no-op and nothing below applies.
+
+- `auth.js` — the Google sign-in button, session handling, and syncing progress to/from Supabase.
+- `supabase/migrations/0001_progress.sql` — run once in the Supabase SQL editor. `activity_log` is an append-only history (no update/delete policy exists for it, so it can't be rewritten, only added to); `module_progress`/`problem_progress` are fast-read summaries that only a server-side trigger can write, so they can never drift from the log.
+
+**Setup:** create a Supabase project, enable the Google provider under Authentication → Providers (needs a Google Cloud OAuth client; the redirect URI Supabase shows you goes into that client's Authorized redirect URIs), run the migration above, then set `SUPABASE_URL` and `SUPABASE_ANON_KEY` — as Vercel project environment variables for the live site, and in a local `.env.local` (gitignored, `KEY=VALUE` per line) for `python3 build.py` on a laptop.
 
 ## How it's built
 
@@ -31,6 +42,7 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 | `traces.txt` | Shared dry-run tables |
 | `app.js`, `app.css`, `style.css`, `shell.html` | The site around the lessons |
 | `mascot.js`, `mascot.css` | Bitu the mascot, and the night mode toggle |
+| `auth.js`, `supabase/migrations/*.sql` | Google sign-in and synced progress (optional, see [Accounts and progress](#accounts-and-progress)) |
 | `prelude.py` | Test helpers used when verifying solutions |
 
 ## Build

@@ -159,6 +159,23 @@ details.sec[open] .sum-hint{display:none}
 .prog-chip{margin-left:0}
 .topbar-in .lang{margin-left:auto}
 
+/* ---------- sign in ---------- */
+.auth-box{position:relative;display:flex;align-items:center}
+.auth-signin{gap:8px;min-height:36px;padding:0 14px;border-radius:999px}
+.auth-chip{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;font:600 13px var(--f-body)}
+.auth-chip img,.auth-initial{width:26px;height:26px;border-radius:50%;object-fit:cover}
+.auth-initial{display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font:700 12px var(--f-body);text-transform:uppercase}
+.auth-name{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:180px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);z-index:40}
+.auth-who{padding:6px 10px 8px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-menu button{width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:none;background:none;color:var(--fg);font:600 13px var(--f-body);cursor:pointer}
+.auth-menu button:hover{background:var(--soft)}
+@media(max-width:700px){
+  .auth-signin{padding:0;width:32px;height:32px;border-radius:50%}
+  .auth-signin span{display:none}
+  .auth-name{display:none}
+}
+
 /* ---------- theory prose ---------- */
 .theory{margin:26px 0}
 .theory-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}

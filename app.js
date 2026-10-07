@@ -28,8 +28,16 @@ const store = {
 let solved = new Set(store.get('solved', []));
 let modsDone = new Set(store.get('mods', []));
 const isSolved = id => solved.has(id);
-function toggleSolved(id) { solved.has(id) ? solved.delete(id) : solved.add(id); store.set('solved', [...solved]); updateChip(); }
-function toggleMod(id) { modsDone.has(id) ? modsDone.delete(id) : modsDone.add(id); store.set('mods', [...modsDone]); updateChip(); }
+function toggleSolved(id) {
+  const willBeSolved = !solved.has(id);
+  solved.has(id) ? solved.delete(id) : solved.add(id); store.set('solved', [...solved]); updateChip();
+  if (window.Auth) Auth.markProblem(id, willBeSolved);
+}
+function toggleMod(id) {
+  const willBeDone = !modsDone.has(id);
+  modsDone.has(id) ? modsDone.delete(id) : modsDone.add(id); store.set('mods', [...modsDone]); updateChip();
+  if (window.Auth) Auth.markModule(id, willBeDone);
+}
 const countSolved = ids => ids.filter(isSolved).length;
 const countMods = list => list.filter(m => modsDone.has(m.id)).length;
 function lessonProgress(lessonId) {
@@ -644,4 +652,12 @@ window.addEventListener('hashchange', route);
 paintLang();
 paintTheme();
 route();
+if (window.Auth) Auth.init({
+  onProgress(remote) {
+    let changed = false;
+    remote.mods.forEach(id => { if (!modsDone.has(id)) { modsDone.add(id); changed = true; } });
+    remote.solved.forEach(id => { if (!solved.has(id)) { solved.add(id); changed = true; } });
+    if (changed) { store.set('mods', [...modsDone]); store.set('solved', [...solved]); updateChip(); route(); }
+  }
+});
 })();

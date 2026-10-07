@@ -10,6 +10,24 @@ RAW = {'code', 'test', 'trace', 'example', 'hinglish'}
 ERRORS = []
 
 
+def load_supabase_config():
+    """SUPABASE_URL / SUPABASE_ANON_KEY: real environment first (Vercel, CI), then a local
+    `.env.local` (gitignored, KEY=VALUE per line, '#' comments) for `python3 build.py` on a
+    laptop. Either or both may be empty — the site then simply runs signed-out / local-only."""
+    import os
+    env = {}
+    local = D / '.env.local'
+    if local.exists():
+        for line in local.read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            k, _, v = line.partition('=')
+            env[k.strip()] = v.strip().strip('"').strip("'")
+    return (os.environ.get('SUPABASE_URL', env.get('SUPABASE_URL', '')),
+            os.environ.get('SUPABASE_ANON_KEY', env.get('SUPABASE_ANON_KEY', '')))
+
+
 def inline(s):
     s = html.escape(s.strip(), quote=False)
     s = re.sub(r'`([^`]+)`', r'<code>\1</code>', s)
@@ -310,9 +328,13 @@ def main():
     js = [(D / f).read_text() for f in ('engine.js',)]
     js += [f.read_text() for f in sorted(D.glob('lessons/*.js'))]
     js.append((D / 'mascot.js').read_text())
+    js.append((D / 'auth.js').read_text())
     js.append((D / 'app.js').read_text())
+    supabase_url, supabase_key = load_supabase_config()
     out = (shell.replace('{{CSS}}', (D / 'style.css').read_text() + (D / 'app.css').read_text() + (D / 'mascot.css').read_text())
            .replace('{{DATA}}', json.dumps(data, ensure_ascii=False).replace('</', '<\\/'))
+           .replace('{{SUPABASE_URL_JSON}}', json.dumps(supabase_url))
+           .replace('{{SUPABASE_ANON_KEY_JSON}}', json.dumps(supabase_key))
            .replace('{{JS}}', '\n;\n'.join(js)))
     # public/ is what Vercel serves; build/ holds the same page without the document skeleton (for hosts that add their own)
     (D / 'public').mkdir(exist_ok=True)
