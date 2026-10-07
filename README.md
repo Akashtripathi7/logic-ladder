@@ -43,6 +43,7 @@ The site is a single self-contained `index.html` with no dependencies and no ser
 | `app.js`, `app.css`, `style.css`, `shell.html` | The site around the lessons |
 | `mascot.js`, `mascot.css` | Bitu the mascot, and the night mode toggle |
 | `auth.js`, `supabase/migrations/*.sql` | Google sign-in and synced progress (see [Accounts and progress](#accounts-and-progress)) |
+| `privacy_policy.html` | The privacy policy, served at `/privacy_policy` (Google's sign-in setup links to it) |
 | `prelude.py` | Test helpers used when verifying solutions |
 
 ## Build

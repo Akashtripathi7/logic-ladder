@@ -924,3 +924,10 @@ body.gated .topbar{background:rgba(9,11,26,.72);border-bottom-color:rgba(255,255
   .rot b,.ga-lit,.ga-bitu,.ga-world,.ga-sky,.ga-rung,.ga-lab,.gh-stars,.st-card{transition:none}
   .fl-out{opacity:1}
 }
+
+/* static site footer: the privacy policy link has to be in the page HTML itself */
+.site-foot{padding:0 16px 28px;text-align:center;font-size:13px}
+.site-foot a{color:var(--muted)}
+.site-foot a:hover{color:var(--fg)}
+body.gated .site-foot{background:#090b1a}
+body.gated .site-foot a{color:#8d93b8}

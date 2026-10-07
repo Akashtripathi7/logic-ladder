@@ -339,6 +339,7 @@ def main():
     # public/ is what Vercel serves; build/ holds the same page without the document skeleton (for hosts that add their own)
     (D / 'public').mkdir(exist_ok=True)
     (D / 'public' / 'index.html').write_text(out)
+    (D / 'public' / 'privacy_policy.html').write_text((D / 'privacy_policy.html').read_text())
     bare = re.sub(r'\A<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n', '', out)
     bare = re.sub(r'<meta name="viewport"[^>]*>\n', '', bare, count=1)
     (D / 'build').mkdir(exist_ok=True)
