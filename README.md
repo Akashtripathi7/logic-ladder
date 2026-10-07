@@ -16,7 +16,7 @@ Every page has a **coach panel** beside the content: **Bitu**, the robot mascot,
 
 The narration uses the browser's built-in speech voice. For Hinglish, an Indian English voice (en-IN) sounds best.
 
-**Sign-in is required.** Every page, including direct links, shows a sign-in page until the visitor signs in with Google. That page introduces the course: Bitu, the five steps as an interactive ladder, live demos of how lessons work, and a short "what does this print?" taster. After sign-in, the visitor lands on the page they originally asked for. Progress (modules complete, problems solved) is stored in their account via Supabase, so it follows them across devices and keeps a real history. Signing out clears this browser's copy. See [Accounts and progress](#accounts-and-progress) below.
+**Sign-in is required.** Every page, including direct links, shows a sign-in page until the visitor signs in with Google. Its first screen is a night sky with a glowing ladder in perspective: light climbs its rungs, the five steps hang off it, and the Google sign-in card sits in the middle with Bitu standing on it. Below that is a mini ladder game: five rungs, one real question from each step, and Bitu climbs a rung for every right answer. After sign-in, the visitor lands on the page they originally asked for. Progress (modules complete, problems solved) is stored in their account via Supabase, so it follows them across devices and keeps a real history. Signing out clears this browser's copy. See [Accounts and progress](#accounts-and-progress) below.
 
 ## Accounts and progress
 

@@ -237,13 +237,16 @@ function homeNote(steps, st) {
   return `${tr('Step', 'Step')} ${s.n} ${tr('of 5', 'of 5')} · ${s.label()}${st.lastLabel ? ` · ${tr('last opened', 'aakhri baar khola')}: ${esc(st.lastLabel)}` : ''}`;
 }
 /* the four lesson moves, as small live demos (home page and sign-in page) */
+function howMoves(solvedN) {
+  return [
+    { demo: '<div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div>', t: tr('Watch', 'Dekho'), d: tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.') },
+    { demo: '<div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div>', t: tr('Understand', 'Samjho'), d: tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.') },
+    { demo: '<div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div>', t: tr('Practise', 'Practice karo'), d: tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.') },
+    { demo: `<div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div>`, t: tr('Track', 'Track karo'), d: tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.') }
+  ];
+}
 function howGrid(solvedN) {
-  return `<div class="how-grid">
-      <div class="how-card"><div class="demo demo-watch"><div class="dw-stage"><i></i><i></i><i></i><b class="dw-ptr"></b></div><div class="dw-bar"><i></i></div></div><h3>${tr('Watch', 'Dekho')}</h3><p>${tr('Short animated videos with narration and captions. Pause whenever the timer asks you to think.', 'Narration aur captions ke saath chhote animated videos. Jab timer bole, ruko aur socho.')}</p></div>
-      <div class="how-card"><div class="demo demo-lang"><span class="dl-en">for x in nums: <em>repeat for each item</em></span><span class="dl-hi">for x in nums: <em>har item ke liye dohraao</em></span><span class="dl-sw"><i>EN</i><i>HI</i></span></div><h3>${tr('Understand', 'Samjho')}</h3><p>${tr('Theory in simple words with real-life analogies. Switch to Hinglish any time.', 'Aasaan shabdon mein theory, real-life analogies ke saath. Kabhi bhi Hinglish chuno.')}</p></div>
-      <div class="how-card"><div class="demo demo-code"><code><span class="k">for</span> i <span class="k">in</span> range(3):</code><code>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<b class="caret"></b></code><span class="dc-out">0 1 2 <em>✓</em></span></div><h3>${tr('Practise', 'Practice karo')}</h3><p>${tr('Predict the output, write the function, fix the bug. Hints open one at a time.', 'Output predict karo, function likho, bug theek karo. Hints ek-ek karke khulte hain.')}</p></div>
-      <div class="how-card"><div class="demo demo-track"><span class="ring big" style="--p:${Math.max(8, Math.round(solvedN / 2))}"><span>${solvedN}</span></span><span class="dt-lab">${tr('solved of 200', '200 mein se solved')}</span></div><h3>${tr('Track', 'Track karo')}</h3><p>${tr('Mark problems solved and modules complete. Your ladder fills as you climb.', 'Problems solved aur modules complete mark karo. Chadhte hi tumhari seedhi bharti hai.')}</p></div>
-    </div>`;
+  return `<div class="how-grid">${howMoves(solvedN).map(m => `<div class="how-card">${m.demo}<h3>${m.t}</h3><p>${m.d}</p></div>`).join('')}</div>`;
 }
 const WEEKS = 15;
 function pageHome() {
@@ -344,21 +347,24 @@ function pageHome() {
 /* ---------- sign-in gate: with Supabase configured, every route shows this until the learner signs in ---------- */
 const G_LOGO = '<svg viewBox="0 0 18 18" width="20" height="20" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.4 5.4 0 0 1 3.69 9c0-.6.1-1.18.28-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.05l3.01-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>';
 const gBtn = (label, cls = '') => `<button type="button" class="g-google ${cls}" data-signin><span class="g-logo">${G_LOGO}</span><span class="g-spin" aria-hidden="true"></span><span class="g-lab">${label}</span></button>`;
-/* "what does this print?" taster; code is pre-highlighted HTML (k keyword, f builtin, n number, s string) */
-const QUIZ = [
-  { code: 'nums = [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>]\n<span class="f">print</span>(<span class="f">sum</span>(nums) % <span class="n">4</span>)', opts: ['0', '2', '8'], a: 0,
-    why: ['3 + 1 + 4 = 8, and % gives the remainder: 8 ÷ 4 leaves 0.', '3 + 1 + 4 = 8, aur % remainder deta hai: 8 ÷ 4 mein 0 bachta hai.'] },
-  { code: '<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):\n    <span class="f">print</span>(i * i, end=<span class="s">" "</span>)', opts: ['0 1 4', '1 4 9', '1 4 9 16'], a: 1,
+/* the mini ladder game: one question from each of the five steps; code is pre-highlighted (k keyword, f builtin, n number, s string) */
+const CLIMB_Q = [
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: '<span class="f">print</span>(<span class="n">17</span> % <span class="n">5</span>)', opts: ['2', '3', '12'], a: 0,
+    why: ['17 = 5 × 3 + 2. % gives what is left over, so it prints 2.', '17 = 5 × 3 + 2. % bacha hua hissa deta hai, toh 2 print hoga.'] },
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: 'nums = [<span class="n">3</span>, <span class="n">1</span>, <span class="n">4</span>]\n<span class="f">print</span>(<span class="f">sum</span>(nums) % <span class="n">4</span>)', opts: ['0', '2', '8'], a: 0,
+    why: ['3 + 1 + 4 = 8, and 8 ÷ 4 leaves nothing over, so 0.', '3 + 1 + 4 = 8, aur 8 ÷ 4 mein kuch nahi bachta, toh 0.'] },
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: '<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):\n    <span class="f">print</span>(i * i, end=<span class="s">" "</span>)', opts: ['0 1 4', '1 4 9', '1 4 9 16'], a: 1,
     why: ['range(1, 4) gives 1, 2, 3. The end value, 4, is never included.', 'range(1, 4) deta hai 1, 2, 3. End value 4 kabhi include nahi hoti.'] },
-  { code: 's = <span class="s">"ladder"</span>\n<span class="f">print</span>(s[::<span class="n">-1</span>])', opts: ['ladder', 'reddal', 'Error'], a: 1,
-    why: ['[::-1] walks the string from the last letter to the first, so it comes out reversed.', '[::-1] string ko aakhri letter se pehle tak padhta hai, isliye ulta aata hai.'] }
+  { ask: ['What does this print?', 'Ye kya print karega?'], code: 's = <span class="s">"ladder"</span>\n<span class="f">print</span>(s[::<span class="n">-1</span>])', opts: ['ladder', 'reddal', 'Error'], a: 1,
+    why: ['[::-1] reads the string from the last letter to the first, so it comes out reversed.', '[::-1] string ko aakhri letter se pehle tak padhta hai, isliye ulta aata hai.'] },
+  { ask: ['You must check, fast, whether a number was seen before. Which fits best?', 'Fast check karna hai ki number pehle aaya tha ya nahi. Sabse sahi kya hai?'], code: 'seen = <span class="n">???</span>\n<span class="k">if</span> x <span class="k">in</span> seen: ...', opts: ['list', 'set', 'string'], a: 1,
+    why: ['A set answers "is x in here?" in about one step, O(1). A list checks items one by one, O(n).', 'Set "kya x isme hai?" lagbhag ek step mein batata hai, O(1). List ek-ek item check karti hai, O(n).'] }
 ];
+/* rung heights on the game ladder, step 1 (bottom) to step 5, as % of the ladder */
+const CLIMB_AT = [12, 29, 46, 63, 80];
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-let gateTimer = 0, gateIO = null;
-function clearGate() {
-  clearInterval(gateTimer); gateTimer = 0;
-  if (gateIO) { gateIO.disconnect(); gateIO = null; }
-}
+let gateCleanups = [];
+function clearGate() { gateCleanups.forEach(f => f()); gateCleanups = []; }
 function pageBoot() {
   view.innerHTML = `<div class="g-boot" role="status"><svg viewBox="0 0 20 24" aria-hidden="true"><rect x="2" y="1" width="3.4" height="22" rx="1.7"/><rect x="14.6" y="1" width="3.4" height="22" rx="1.7"/><rect class="r" x="3" y="17" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="11" width="14" height="3" rx="1.5"/><rect class="r" x="3" y="5" width="14" height="3" rx="1.5"/></svg><span>${tr('Loading…', 'Load ho raha hai…')}</span></div>`;
 }
@@ -367,196 +373,262 @@ function pageGate() {
   const nVideos = Object.keys(E.LESSONS).length;
   const nDrills = MODS.reduce((a, m) => a + m.drills.length, 0);
   const nProblems = ORDER.warm.length + ORDER.nc.length;
-  const glyphs = g => g.map((x, i) => `<span class="gl" style="--x:${3 + (i * 37) % 94}%;--d:${i * .9}s;--s:${9 + (i % 3) * 2}s">${x}</span>`).join('');
-  const chips = [
-    ['l1', 'y', '▶', `${nVideos} ${tr('animated videos', 'animated videos')}`],
-    ['l2', 'v', 'EN', tr('English ⇄ Hinglish', 'English ⇄ Hinglish')],
-    ['l3', 's', '{ }', `${PY.length} ${tr('Python modules', 'Python modules')}`],
-    ['r1', 'm', '✓', `${DATA.checks} ${tr('tested code checks', 'tested code checks')}`],
-    ['r2', 'c', 'O(n)', tr('Brute force → best', 'Brute force → best')],
-    ['r3', 'y', '★', `${nProblems} ${tr('problems, explained', 'problems, samjhaaye hue')}`]
-  ];
+  const words = ['loops', 'recursion', 'binary search', 'graphs', 'dynamic programming', '150 interview problems'].map(w => tr(w, w + ' tak'));
   view.innerHTML = `<div class="gate">
-  <section class="g-hero" aria-labelledby="g-h1">
-    <div class="g-sky" aria-hidden="true"><i class="g-orb o1"></i><i class="g-orb o2"></i><div class="g-grid"></div>${glyphs(['for', '[ ]', 'O(n)', 'def', '%', '{ }', 'if', 'λ', 'while', '→'])}</div>
-    <div class="g-head">
-      <div class="kicker">${tr('Logic Ladder · learn DSA in Python', 'Logic Ladder · Python mein DSA seekho')}</div>
-      <h1 id="g-h1">${tr('From <span class="hl">zero</span> to 150 interview problems, one rung at a time', '<span class="hl">Zero</span> se 150 interview problems tak, ek‑ek seedhi chadh ke')}</h1>
-      <p class="g-sub">${tr('The maths you need, Python from scratch, logic drills, 50 warm-ups and 150 DSA problems, taught slowly with animated videos for people who find logic hard. Every explanation is in English and Hinglish.', 'Zaroori maths, bilkul shuru se Python, logic drills, 50 warm-ups aur 150 DSA problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. Har explanation English aur Hinglish mein.')}</p>
+  <section class="gh" id="gh" aria-labelledby="gh-h1">
+    <div class="gh-sky" aria-hidden="true"><i class="gh-aurora"></i><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gh-stars s3"></i><i class="gh-shoot"></i><i class="gh-shoot b"></i></div>
+    <svg class="gh-lad" id="gh-lad" aria-hidden="true"></svg>
+    <div class="gh-steps" id="gh-steps" aria-hidden="true"></div>
+    <div class="gh-head">
+      <div class="gh-kick">${tr('Logic Ladder · DSA in Python, from zero', 'Logic Ladder · Python mein DSA, zero se')}</div>
+      <h1 id="gh-h1"><span class="h1a">${tr('From zero to', 'Zero se lekar')}</span><span class="rot" aria-hidden="true">${words.map((w, i) => `<b class="${i === words.length - 1 ? 'on' : ''}">${w}</b>`).join('')}</span><span class="vh">${words[words.length - 1]}</span></h1>
+      <p class="gh-sub">${tr('Maths, Python from scratch, logic drills and 200 problems, taught slowly with animated videos for people who find logic hard. In English and Hinglish.', 'Maths, bilkul shuru se Python, logic drills aur 200 problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. English aur Hinglish mein.')}</p>
     </div>
-    <div class="g-stage" id="g-stage">
-      <div class="g-card">
-        <div class="g-bitu" id="bitu-host"></div>
-        <h2>${tr('Sign in to start climbing', 'Sign in karo, chadhai shuru karo')}</h2>
-        <p>${tr('One click with Google. Every module you finish and every problem you solve is saved to your account, on any device.', 'Google se ek click. Har module jo tum complete karo aur har problem jo solve karo, tumhare account mein save hota hai, kisi bhi device pe.')}</p>
-        ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
-        <p class="g-err" role="alert" hidden></p>
-        <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Synced on every device', 'Har device pe sync')}</li></ul>
-        <p class="g-priv">${tr('Google shares only your name, email and profile photo with Logic Ladder.', 'Google, Logic Ladder ko sirf tumhara naam, email aur profile photo deta hai.')}</p>
+    <div class="gh-card g-card" id="gh-card">
+      <div class="gh-bitu" id="bitu-host"></div>
+      <div class="g-say" id="bitu-say"></div>
+      <h2>${tr('Sign in to start climbing', 'Sign in karo, chadhai shuru karo')}</h2>
+      <p>${tr('One click with Google. Every module you finish and problem you solve is saved to your account, on any device.', 'Google se ek click. Har module jo tum complete karo aur har problem jo solve karo, tumhare account mein save hota hai, kisi bhi device pe.')}</p>
+      ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
+      <p class="g-err" role="alert" hidden></p>
+      <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Synced on every device', 'Har device pe sync')}</li></ul>
+      <p class="g-priv">${tr('Google shares only your name, email and photo with us.', 'Google humein sirf tumhara naam, email aur photo deta hai.')}</p>
+    </div>
+    <button type="button" class="gh-cue" id="gh-cue">${tr('Play the mini ladder', 'Mini ladder khelo')}<span aria-hidden="true"></span></button>
+  </section>
+
+  <section class="gp" id="gp" aria-labelledby="gp-h">
+    <div class="gp-head">
+      <div><div class="kicker">${tr('Play · about a minute', 'Khelo · lagbhag ek minute')}</div><h2 id="gp-h">${tr('Climb a mini ladder', 'Ek mini ladder chadho')}</h2><p>${tr('Five rungs, one real question from each step of the course. Answer right and Bitu climbs a rung.', 'Paanch seedhiyan, course ke har step se ek asli sawaal. Sahi jawab do aur Bitu ek seedhi upar chadhega.')}</p></div>
+      <dl class="gp-stats">${[[nVideos, tr('videos', 'videos')], [MODS.length, tr('modules', 'modules')], [nDrills, tr('drills', 'drills')], [nProblems, tr('problems', 'problems')], [DATA.checks, tr('tested checks', 'tested checks')]].map(([n, l]) => `<div><dd data-n="${n}">${n}</dd><dt>${l}</dt></div>`).join('')}</dl>
+    </div>
+    <div class="gp-play">
+      <div class="gp-lad" id="gp-lad">
+        <div class="gp-sky" aria-hidden="true"><i class="gh-stars s1"></i><i class="gh-stars s2"></i></div>
+        <div class="gp-top" aria-hidden="true"><svg class="gp-flag" viewBox="0 0 46 50"><rect x="6" y="2" width="4" height="46" rx="2"/><path class="cloth" d="M10 5h28l-7 9 7 9H10z"/></svg><span>${tr('Interview-ready', 'Interview-ready')}</span></div>
+        <div class="gp-frame" aria-hidden="true"><i class="gp-rail l"></i><i class="gp-rail r"></i><span class="gp-lit"><i class="gp-spark l"></i><i class="gp-spark r"></i></span>${CLIMB_AT.map((b, i) => `<i class="gp-rung" style="bottom:${b}%;--i:${i}"></i>`).join('')}</div>
+        <ol class="gp-labs" aria-label="${tr('Your climb', 'Tumhari chadhai')}">${steps.map((s, i) => `<li class="gp-lab" style="bottom:${CLIMB_AT[i]}%"><b>${s.n}</b><span>${esc(s.short)}<small>${s.when}</small></span></li>`).join('')}</ol>
+        <div class="gp-bitu" id="gp-bitu"></div>
+        <div class="gp-say" id="gp-say"></div>
+        <div class="gp-burst" id="gp-burst" aria-hidden="true"></div>
       </div>
-      <div class="g-chips" aria-hidden="true">${chips.map(([pos, c, ic, t], i) => `<span class="g-chip ${pos}" style="--cc:var(--${c});--d:${.35 + i * .09}s;--d2:${-i * .8}s;--z:${(i % 3) + 1}"><i>${ic}</i>${esc(t)}</span>`).join('')}</div>
-    </div>
-    <button type="button" class="g-scroll" id="g-scroll">${tr("See what's inside", 'Dekho andar kya hai')} <span aria-hidden="true">↓</span></button>
-  </section>
-
-  <section class="nums g-nums rv" id="g-nums" aria-label="${tr('What is inside', 'Andar kya hai')}">
-    <div><b data-n="${nVideos}">${nVideos}</b><span>${tr('animated videos', 'animated videos')}</span></div>
-    <div><b data-n="${MODS.length}">${MODS.length}</b><span>${tr('modules with theory', 'modules, theory ke saath')}</span></div>
-    <div><b data-n="${nDrills}">${nDrills}</b><span>${tr('practice drills', 'practice drills')}</span></div>
-    <div><b data-n="${nProblems}">${nProblems}</b><span>${tr('problems, explained', 'problems, samjhaaye hue')}</span></div>
-    <div><b data-n="${DATA.checks}">${DATA.checks}</b><span>${tr('tested code checks', 'tested code checks')}</span></div>
-  </section>
-
-  <section class="g-sec" aria-labelledby="g-climb-h">
-    <div class="sec-head rv"><div class="kicker">${tr('The path', 'Raasta')}</div><h2 id="g-climb-h">${tr('Five steps, from your first number to your last problem', 'Paanch steps, pehle number se aakhri problem tak')}</h2><p>${tr('Each step makes the next one easy. About 15 weeks at 1–2 hours a day. Tap a rung to look inside.', 'Har step agle ko aasaan banata hai. Roz 1–2 ghante, lagbhag 15 hafte. Andar dekhne ke liye kisi seedhi pe tap karo.')}</p></div>
-    <div class="g-climb rv" id="g-climb">
-      <div class="gc-ladder" role="tablist" aria-orientation="vertical" aria-label="${tr('The five steps', 'Paanch steps')}">
-        <span class="gc-rails" aria-hidden="true"><i class="gc-fill"></i></span>
-        ${steps.map((s, i) => `<button type="button" role="tab" class="gc-rung" id="gc-tab-${i}" aria-controls="gc-panel" aria-selected="false" tabindex="-1" data-i="${i}"><span class="gc-dot"><b>${s.n}</b></span><span class="gc-txt"><b>${esc(s.t)}</b><small>${s.when}</small></span></button>`).join('')}
-      </div>
-      <div class="gc-panel" id="gc-panel" role="tabpanel" tabindex="0"></div>
+      <div class="gp-card" id="gp-card"></div>
     </div>
   </section>
-
-  <section class="g-sec" aria-labelledby="g-how-h">
-    <div class="sec-head rv"><div class="kicker">${tr('How it works', 'Kaise kaam karta hai')}</div><h2 id="g-how-h">${tr('Every lesson, the same four moves', 'Har lesson, wahi chaar kadam')}</h2></div>
-    <div class="rv">${howGrid(37)}</div>
-  </section>
-
-  <section class="g-sec" aria-labelledby="g-quiz-h">
-    <div class="sec-head rv"><div class="kicker">${tr('Try one now', 'Abhi ek try karo')}</div><h2 id="g-quiz-h">${tr('What does this print?', 'Ye kya print karega?')}</h2><p>${tr(`This is how every drill feels: predict first, then check. There are ${nDrills} more inside.`, `Har drill aisi hi hai: pehle predict karo, phir check karo. Andar aisi ${nDrills} aur hain.`)}</p></div>
-    <div class="g-quiz rv" id="g-quiz"></div>
-  </section>
-
-  <section class="g-final rv" aria-labelledby="g-final-h">
-    <div class="g-sky" aria-hidden="true"><div class="g-grid"></div>${glyphs(['def', 'O(1)', '[ ]', 'if', '%', 'return'])}</div>
-    <h2 id="g-final-h">${tr('Your first rung is one click away', 'Pehli seedhi bas ek click door hai')}</h2>
-    <p>${tr('You start with topic 1 of Math for Logic: numbers and the number line. No experience needed.', 'Shuruaat Math for Logic ke topic 1 se: numbers aur number line. Koi experience nahi chahiye.')}</p>
-    ${gBtn(tr('Sign in with Google', 'Google se sign in karo'), 'wide')}
-  </section>
-
-  <footer class="home-foot">
+  <footer class="home-foot gate-foot">
     <span>Logic Ladder · ${tr('every code sample is run and tested before it is shown', 'har code sample dikhane se pehle chala ke test kiya gaya hai')}</span>
     <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
   </footer>
   </div>`;
-  view.querySelectorAll('[data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
-  document.getElementById('g-scroll').onclick = () => {
-    const t = document.getElementById('g-nums');
-    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 90, behavior: reduceMotion() ? 'auto' : 'smooth' });
+  view.querySelectorAll('.gh-card [data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
+  document.getElementById('gh-cue').onclick = () => {
+    const t = document.getElementById('gp');
+    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 70, behavior: reduceMotion() ? 'auto' : 'smooth' });
   };
-  wireGateParallax();
-  wireClimb(steps);
-  renderQuiz(0);
-  wireReveal();
+  wireHero(steps);
+  wireClimbGame(steps, { nDrills, nProblems });
 }
 function gateSignIn(btn) {
   const all = view.querySelectorAll('[data-signin]');
   const lab = btn.querySelector('.g-lab'), was = lab.textContent;
-  const err = view.querySelector('.g-err');
+  const err = btn.parentNode.querySelector('.g-err');
   all.forEach(b => { b.disabled = true; b.classList.add('busy'); });
   lab.textContent = tr('Opening Google…', 'Google khul raha hai…');
-  err.hidden = true;
+  if (err) err.hidden = true;
   Auth.signIn().catch(e => {
     console.error('Sign-in failed', e);
     all.forEach(b => { b.disabled = false; b.classList.remove('busy'); });
     lab.textContent = was;
-    err.textContent = tr("Couldn't open Google sign-in. Check your connection and try again.", 'Google sign-in nahi khula. Internet check karke dobara try karo.');
-    err.hidden = false;
+    if (err) { err.textContent = tr("Couldn't open Google sign-in. Check your connection and try again.", 'Google sign-in nahi khula. Internet check karke dobara try karo.'); err.hidden = false; }
   });
 }
-/* the floating chips drift a little against the pointer, nearer ones (bigger --z) more */
-function wireGateParallax() {
-  const stage = document.getElementById('g-stage');
-  if (reduceMotion() || !matchMedia('(pointer: fine)').matches) return;
+
+/* ---- screen 1: a ladder in perspective, drawn to fit around the sign-in card ---- */
+function drawHeroLadder(steps) {
+  const hero = document.getElementById('gh');
+  if (!hero) return;
+  const svg = document.getElementById('gh-lad'), box = document.getElementById('gh-steps'), card = document.getElementById('gh-card');
+  const W = hero.clientWidth, H = hero.clientHeight;
+  /* offset*, not getBoundingClientRect: the card's entrance animation must not shift the ladder */
+  const c = { l: card.offsetLeft, r: card.offsetLeft + card.offsetWidth, t: card.offsetTop, b: card.offsetTop + card.offsetHeight };
+  const wide = W >= 1000;
+  const vx = W / 2, vy = Math.max(44, H * .06), B = wide ? Math.min(W * .4, 620) : W * .5;
+  const depth = y => (y - vy) / (H - vy);
+  const railX = (y, side) => vx + side * (4 + (B - 4) * depth(y));
+  const rungs = [];
+  for (let k = 1; k < 60; k++) {
+    const y = vy + (H - vy) * Math.pow(.87, k);
+    if (rungs.length && rungs[rungs.length - 1] - y < 7) break;
+    rungs.push(y);
+  }
+  /* five rungs alongside the card carry the five steps, step 1 lowest */
+  const picked = [];
+  if (wide) {
+    const lo = c.b - 34, hi = c.t + 40;
+    for (let i = 0; i < 5; i++) {
+      const want = lo - (lo - hi) * i / 4;
+      let best = -1;
+      rungs.forEach((y, k) => { if (!picked.includes(k) && (best < 0 || Math.abs(y - want) < Math.abs(rungs[best] - want))) best = k; });
+      picked.push(best);
+    }
+  }
+  const sw = y => (2 + 9 * depth(y)).toFixed(1);
+  const rail = side => `${railX(H, side) - side * 9},${H} ${railX(H, side) + side * 9},${H} ${vx + side * 3},${vy} ${vx + side * 6},${vy}`;
+  const path = side => `M${railX(H, side)},${H} L${vx + side * 5},${vy}`;
+  const spark = (side, begin) => `<circle r="6" fill="url(#gh-sp)"><animateMotion dur="3.4s" begin="${begin}s" repeatCount="indefinite" path="${path(side)}"/><animate attributeName="r" values="7;1.5" dur="3.4s" begin="${begin}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.8;1" dur="3.4s" begin="${begin}s" repeatCount="indefinite"/></circle>`;
+  const still = reduceMotion();
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.innerHTML = `<defs>
+      <linearGradient id="gh-rg" gradientUnits="userSpaceOnUse" x1="0" y1="${H}" x2="0" y2="${vy}"><stop offset="0" stop-color="#6d6ff5"/><stop offset=".65" stop-color="#bba4ff"/><stop offset="1" stop-color="#ffd166"/></linearGradient>
+      <radialGradient id="gh-sp"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#ffeab0"/><stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gh-halo"><stop offset="0" stop-color="#fff6d6"/><stop offset=".3" stop-color="#ffd166" stop-opacity=".8"/><stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient>
+      <filter id="gh-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <g filter="url(#gh-glow)">
+      <polygon points="${rail(-1)}" fill="url(#gh-rg)"/><polygon points="${rail(1)}" fill="url(#gh-rg)"/>
+      ${rungs.map((y, k) => `<line class="gh-rung${picked.includes(k) ? ' key' : ''}" x1="${railX(y, -1)}" y1="${y}" x2="${railX(y, 1)}" y2="${y}" stroke-width="${sw(y)}" style="--d:${(k * .16).toFixed(2)}s"/>`).join('')}
+    </g>
+    ${picked.map((k, i) => { const y = rungs[k], side = i % 2 ? -1 : 1, x = railX(y, side), lx = side > 0 ? c.r + 40 : c.l - 40; return `<path class="gh-lead" d="M${x},${y} H${lx}"/><circle class="gh-node" cx="${x}" cy="${y}" r="4.5" style="--d:${(k * .16).toFixed(2)}s"/>`; }).join('')}
+    ${still ? '' : spark(-1, 0) + spark(1, 1.7)}
+    <g class="gh-star"><circle cx="${vx}" cy="${vy}" r="38" fill="url(#gh-halo)"/><g class="gh-rays"><path d="M${vx},${vy - 30}V${vy + 30}M${vx - 30},${vy}H${vx + 30}M${vx - 16},${vy - 16}L${vx + 16},${vy + 16}M${vx + 16},${vy - 16}L${vx - 16},${vy + 16}"/></g><circle cx="${vx}" cy="${vy}" r="5" fill="#fff"/></g>`;
+  box.innerHTML = picked.map((k, i) => {
+    const y = rungs[k], side = i % 2 ? -1 : 1, x = railX(y, side), lx = side > 0 ? c.r + 40 : c.l - 40, s = steps[i];
+    return `<div class="gh-step ${side > 0 ? 'r' : 'l'}" style="left:${lx}px;top:${y}px;--d:${(k * .16).toFixed(2)}s;--k:${i}"><b>${s.n}</b><span>${esc(s.t)}<small>${s.when} · ${esc(s.meta[0])}</small></span></div>`;
+  }).join('');
+}
+function wireHero(steps) {
+  const hero = document.getElementById('gh');
+  const draw = () => drawHeroLadder(steps);
+  draw();
   let raf = 0;
-  stage.closest('.g-hero').addEventListener('pointermove', e => {
-    if (raf) return;
-    raf = requestAnimationFrame(() => {
-      raf = 0;
-      const r = stage.getBoundingClientRect();
-      stage.style.setProperty('--px', ((e.clientX - r.left) / r.width - .5) * -12);
-      stage.style.setProperty('--py', ((e.clientY - r.top) / r.height - .5) * -12);
+  const onResize = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); };
+  window.addEventListener('resize', onResize);
+  gateCleanups.push(() => window.removeEventListener('resize', onResize));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (hero.isConnected) draw(); });
+  if (reduceMotion()) return;
+  /* headline: the last word stays put for screen readers; the visible one cycles */
+  const words = [...hero.querySelectorAll('.rot b')];
+  let w = words.length - 1;
+  const t = setInterval(() => {
+    if (document.hidden) return;
+    const prev = words[w]; w = (w + 1) % words.length;
+    prev.classList.remove('on'); prev.classList.add('out');
+    setTimeout(() => prev.classList.remove('out'), 600);
+    words[w].classList.add('on');
+  }, 2300);
+  gateCleanups.push(() => clearInterval(t));
+  /* stars drift a little against the pointer */
+  if (matchMedia('(pointer: fine)').matches) {
+    let pr = 0;
+    hero.addEventListener('pointermove', e => {
+      if (pr) return;
+      pr = requestAnimationFrame(() => {
+        pr = 0;
+        hero.style.setProperty('--mx', ((e.clientX / innerWidth) - .5).toFixed(3));
+        hero.style.setProperty('--my', ((e.clientY / innerHeight) - .5).toFixed(3));
+      });
     });
-  });
-}
-/* the ladder: step 1 at the bottom; auto-climbs every few seconds until the learner picks a rung */
-function wireClimb(steps) {
-  const box = document.getElementById('g-climb');
-  const tabs = [...box.querySelectorAll('.gc-rung')];
-  const panel = document.getElementById('gc-panel');
-  let cur = 0, manual = reduceMotion(), visible = false;
-  const show = (i, focus) => {
-    cur = i;
-    tabs.forEach((t, k) => { t.setAttribute('aria-selected', String(k === i)); t.tabIndex = k === i ? 0 : -1; t.classList.toggle('past', k < i); });
-    box.style.setProperty('--f', `${(i + .5) / tabs.length * 100}%`);
-    const s = steps[i], items = stepItems(s.key), shown = items.slice(0, 10);
-    panel.setAttribute('aria-labelledby', 'gc-tab-' + i);
-    panel.innerHTML = `<span class="gc-big" aria-hidden="true">${stepIcon(s.key)}</span>
-      <div class="gc-top">${stepIcon(s.key)}<span class="sp-kick">${tr('Step', 'Step')} ${s.n} · ${s.when}</span></div>
-      <h3>${esc(s.t)}</h3>
-      <p>${esc(s.d)}</p>
-      <dl class="sp-stats">${s.meta.map(m => { const [n, ...rest] = m.split(' '); return `<div><dd>${n}</dd><dt>${rest.join(' ')}</dt></div>`; }).join('')}</dl>
-      <div class="gc-items">${shown.map((x, k) => `<span style="--k:${k}">${esc(x.t)}</span>`).join('')}${items.length > shown.length ? `<span class="more" style="--k:${shown.length}">+${items.length - shown.length} ${tr('more', 'aur')}</span>` : ''}</div>
-      ${manual ? '' : '<i class="gc-timer" aria-hidden="true"></i>'}`;
-    panel.classList.remove('swap'); void panel.offsetWidth; panel.classList.add('swap');
-    if (focus) tabs[i].focus();
-  };
-  const stopAuto = () => { if (manual) return; manual = true; clearInterval(gateTimer); gateTimer = 0; const t = panel.querySelector('.gc-timer'); if (t) t.remove(); };
-  tabs.forEach((t, i) => {
-    t.onclick = () => { stopAuto(); show(i); };
-    t.onkeydown = e => {
-      const d = e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 1 : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -1 : 0;
-      if (d) { e.preventDefault(); stopAuto(); show((i + d + tabs.length) % tabs.length, true); }
-    };
-  });
-  box.addEventListener('pointerenter', stopAuto);
-  box.addEventListener('focusin', stopAuto);
-  show(0);
-  if (!manual) {
-    gateTimer = setInterval(() => { if (visible && !document.hidden) show((cur + 1) % tabs.length); }, 5000);
-    box.addEventListener('climbvis', e => { visible = e.detail; if (visible && !manual) show(cur); });
   }
 }
-function renderQuiz(qi) {
-  const host = document.getElementById('g-quiz');
-  const q = QUIZ[qi];
-  host.innerHTML = `<div class="gq-code"><div class="gq-bar"><i></i><i></i><i></i><span>drill_${qi + 1}.py</span></div><pre><code>${q.code}</code></pre></div>
-    <div class="gq-side">
-      <p class="gq-ask">${tr('Pick the output:', 'Output chuno:')}</p>
-      <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"><span class="gq-k">${'ABC'[k]}</span>${esc(o)}</button>`).join('')}</div>
-      <p class="gq-why" role="status" aria-live="polite"></p>
-      <div class="gq-foot"><span class="gq-dots" aria-label="${tr('Question', 'Sawaal')} ${qi + 1} / ${QUIZ.length}">${QUIZ.map((_, k) => `<i class="${k === qi ? 'on' : ''}"></i>`).join('')}</span><button type="button" class="btn sm gq-next" hidden>${qi < QUIZ.length - 1 ? tr('Next question', 'Agla sawaal') : tr('Start over', 'Phir se')} <span aria-hidden="true">→</span></button></div>
-    </div>`;
-  const opts = [...host.querySelectorAll('.gq-opt')];
-  const next = host.querySelector('.gq-next');
-  opts.forEach(b => b.onclick = () => {
-    const k = +b.dataset.k, ok = k === q.a;
-    opts.forEach(o => { o.disabled = true; if (+o.dataset.k === q.a) o.classList.add('right'); });
-    if (!ok) b.classList.add('wrong');
-    host.querySelector('.gq-why').innerHTML = `<b class="${ok ? 'ok' : 'no'}">${ok ? tr('Right!', 'Sahi!') : tr('Not quite.', 'Thoda galat.')}</b> ${esc(tr(q.why[0], q.why[1]))}`;
-    next.hidden = false;
-    next.focus({ preventScroll: true });
-  });
-  next.onclick = () => { renderQuiz((qi + 1) % QUIZ.length); host.querySelector('.gq-opt').focus({ preventScroll: true }); };
-}
-/* sections fade up as they scroll in; the numbers count up once */
-function wireReveal() {
-  const gate = view.querySelector('.gate');
-  const climb = document.getElementById('g-climb');
-  if (!('IntersectionObserver' in window)) return;
-  const still = reduceMotion();
-  if (!still) gate.classList.add('js-rv');
-  gateIO = new IntersectionObserver(es => es.forEach(e => {
-    if (e.target === climb) climb.dispatchEvent(new CustomEvent('climbvis', { detail: e.isIntersecting }));
-    if (!e.isIntersecting || e.target.classList.contains('in')) return;
-    e.target.classList.add('in');
-    if (e.target.id === 'g-nums' && !still) countUp(e.target);
-  }), { threshold: .2 });
-  gate.querySelectorAll('.rv').forEach(el => gateIO.observe(el));
+
+/* ---- screen 2: the mini ladder game ---- */
+function wireClimbGame(steps, n) {
+  const lad = document.getElementById('gp-lad'), card = document.getElementById('gp-card');
+  const rungs = [...lad.querySelectorAll('.gp-rung')], labs = [...lad.querySelectorAll('.gp-lab')];
+  let level = 0, poseT = 0;
+  const setLadder = () => {
+    rungs.forEach((r, i) => { r.classList.toggle('on', i < level); r.classList.toggle('next', i === level); });
+    labs.forEach((l, i) => { l.classList.toggle('done', i < level); l.classList.toggle('next', i === level); l.querySelector('b').textContent = i < level ? '✓' : steps[i].n; });
+    const f = level ? CLIMB_AT[level - 1] / 100 : 0;
+    lad.style.setProperty('--lv', f);
+    lad.style.setProperty('--lit', level ? CLIMB_AT[level - 1] + '%' : '0%');
+    lad.classList.toggle('top', level === steps.length);
+    lad.classList.toggle('lit', level > 0);
+  };
+  const swap = () => { card.classList.remove('swap'); void card.offsetWidth; card.classList.add('swap'); };
+  const climbTo = l => {
+    level = l; setLadder();
+    if (!window.Mascot || !inGame) return;
+    clearTimeout(poseT);
+    Mascot.pose('climb');
+    poseT = setTimeout(() => { Mascot.pose('idle'); level === steps.length ? Mascot.react('cheer', tr('We made it to the top! Interview-ready!', 'Hum top pe pahunch gaye! Interview-ready!')) : Mascot.react('nod'); }, 1000);
+  };
+  const burst = () => {
+    if (reduceMotion()) return;
+    const b = document.getElementById('gp-burst');
+    const cols = ['#ffd166', '#ff8b7b', '#6ec6ff', '#62e0a9', '#bba4ff'];
+    b.innerHTML = [0, 1, 2].map(g => Array.from({ length: 18 }, (_, i) => `<i style="--a:${i * 20}deg;--r:${70 + (i % 3) * 22}px;--c:${cols[(i + g) % 5]};--x:${[30, 60, 82][g]}%;--y:${[22, 12, 30][g]}%;--t:${g * .35}s"></i>`).join('')).join('');
+    setTimeout(() => { b.innerHTML = ''; }, 2600);
+  };
+  const ask = (wrongOnce) => {
+    if (level === steps.length) return finish();
+    const q = CLIMB_Q[level], s = steps[level];
+    card.innerHTML = `<div class="gc-step">${stepIcon(s.key)}<div><span class="sp-kick">${tr('Rung', 'Seedhi')} ${level + 1} / ${steps.length} · ${s.when}</span><h3>${esc(s.t)}</h3></div>
+        <span class="gc-pips" aria-label="${level} / ${steps.length}">${steps.map((_, i) => `<i class="${i < level ? 'done' : i === level ? 'cur' : ''}"></i>`).join('')}</span></div>
+      <p class="gc-about">${esc(s.d)}</p>
+      <div class="gc-meta">${s.meta.map(m => `<span>${esc(m)}</span>`).join('')}</div>
+      <div class="gc-q">
+        <p class="gc-ask">${esc(tr(q.ask[0], q.ask[1]))}</p>
+        <pre class="gq-pre"><code>${q.code}</code></pre>
+        <div class="gq-opts">${q.opts.map((o, k) => `<button type="button" class="gq-opt" data-k="${k}"><span class="gq-k">${'ABC'[k]}</span>${esc(o)}</button>`).join('')}</div>
+        <div class="gc-foot"><p class="gq-why" role="status" aria-live="polite">${wrongOnce ? tr('Have another look. You can do this.', 'Ek baar aur dekho. Tum kar sakte ho.') : tr('Pick an answer to climb.', 'Chadhne ke liye jawab chuno.')}</p><button type="button" class="btn pri gc-next" hidden></button></div>
+      </div>`;
+    swap();
+    const opts = [...card.querySelectorAll('.gq-opt')], why = card.querySelector('.gq-why'), next = card.querySelector('.gc-next');
+    opts.forEach(b => b.onclick = () => {
+      const ok = +b.dataset.k === q.a;
+      opts.forEach(o => { o.disabled = true; if (ok && +o.dataset.k === q.a) o.classList.add('right'); });
+      if (!ok) b.classList.add('wrong');
+      why.innerHTML = `<b class="${ok ? 'ok' : 'no'}">${ok ? tr('Right!', 'Sahi!') : tr('Not quite.', 'Thoda galat.')}</b> ${ok ? esc(tr(q.why[0], q.why[1])) : tr('Try it once more.', 'Ek baar aur try karo.')}`;
+      next.hidden = false;
+      if (ok) {
+        climbTo(level + 1);
+        card.querySelectorAll('.gc-pips i')[level - 1].className = 'done';
+        next.innerHTML = level === steps.length ? `${tr('Reach the top', 'Top pe pahuncho')} <span aria-hidden="true">★</span>` : `${tr('Next rung', 'Agli seedhi')} <span aria-hidden="true">↑</span>`;
+        next.onclick = () => ask(false);
+      } else {
+        if (window.Mascot && inGame) Mascot.react('think', tr('Hmm, close! Look again.', 'Hmm, kareeb tha! Phir se dekho.'));
+        next.className = 'btn gc-next';
+        next.innerHTML = tr('Try again', 'Phir try karo');
+        next.onclick = () => ask(true);
+      }
+      next.focus({ preventScroll: true });
+    });
+  };
+  const finish = () => {
+    card.innerHTML = `<div class="gc-done">
+        <div class="gc-trophy" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></div>
+        <h3>${tr('You climbed all five rungs!', 'Tumne paanchon seedhiyan chadh li!')}</h3>
+        <p>${tr(`That was the whole path in miniature. The real ladder has ${MODS.length} modules, ${n.nDrills} drills and ${n.nProblems} problems, each explained step by step.`, `Ye poora raasta chhote roop mein tha. Asli ladder mein ${MODS.length} modules, ${n.nDrills} drills aur ${n.nProblems} problems hain, sab step-by-step samjhaaye hue.`)}</p>
+        ${gBtn(tr('Sign in and climb for real', 'Sign in karo, asli chadhai shuru karo'), 'wide')}
+        <p class="g-err" role="alert" hidden></p>
+        <button type="button" class="gc-replay">${tr('Play again', 'Phir se khelo')}</button>
+      </div>`;
+    swap(); burst();
+    card.querySelector('[data-signin]').onclick = e => gateSignIn(e.currentTarget);
+    card.querySelector('.gc-replay').onclick = () => { climbTo(0); ask(false); };
+  };
+  /* Bitu hops down from the sign-in card to play when the game is on screen, and back up after */
+  let inGame = false, counted = false;
+  const gp = document.getElementById('gp');
+  const io = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !counted) { counted = true; if (!reduceMotion()) countUp(gp.querySelector('.gp-stats')); }
+    if (e.isIntersecting === inGame || !window.Mascot) { inGame = e.isIntersecting; return; }
+    inGame = e.isIntersecting;
+    if (inGame) {
+      Mascot.mount(document.getElementById('gp-bitu'), document.getElementById('gp-say'));
+      Mascot.pose('idle');
+      Mascot.say(level === steps.length ? tr('We made it to the top!', 'Hum top pe pahunch gaye!') : tr("Let's play! Answer right and I climb a rung.", 'Chalo khelte hain! Sahi jawab do, main ek seedhi chadhunga.'));
+      Mascot.react('wave');
+    } else mascotGate();
+  }, { threshold: .3 });
+  io.observe(gp);
+  gateCleanups.push(() => { io.disconnect(); clearTimeout(poseT); });
+  setLadder();
+  ask(false);
 }
 function countUp(root) {
-  const els = [...root.querySelectorAll('b[data-n]')];
+  const els = [...root.querySelectorAll('[data-n]')];
   const t0 = performance.now(), dur = 1400;
   const tick = now => {
     const p = Math.min(1, (now - t0) / dur), ease = 1 - Math.pow(1 - p, 3);
@@ -569,7 +641,7 @@ function mascotGate() {
   if (!window.Mascot) return;
   const host = document.getElementById('bitu-host');
   if (!host) return;
-  Mascot.mount(host);
+  Mascot.mount(host, document.getElementById('bitu-say'));
   routePose = 'idle';
   Mascot.pose('idle');
   Mascot.say(tr("Hi, I'm Bitu! Sign in and we'll climb together.", 'Namaste, main Bitu hoon! Sign in karo, saath mein chadhenge.'));
