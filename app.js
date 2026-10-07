@@ -373,34 +373,46 @@ function pageGate() {
   const nVideos = Object.keys(E.LESSONS).length;
   const nDrills = MODS.reduce((a, m) => a + m.drills.length, 0);
   const nProblems = ORDER.warm.length + ORDER.nc.length;
-  const words = ['loops', 'recursion', 'binary search', 'graphs', 'dynamic programming', '150 interview problems'].map(w => tr(w, w + ' tak'));
+  const words = ['loops', 'recursion', 'binary search', 'graphs', 'trees', '150 problems'];
   view.innerHTML = `<div class="gate">
   <section class="gh" id="gh" aria-labelledby="gh-h1">
     <div class="gh-sky" aria-hidden="true"><i class="gh-aurora"></i><i class="gh-stars s1"></i><i class="gh-stars s2"></i><i class="gh-stars s3"></i><i class="gh-shoot"></i><i class="gh-shoot b"></i></div>
-    <svg class="gh-lad" id="gh-lad" aria-hidden="true"></svg>
-    <div class="gh-steps" id="gh-steps" aria-hidden="true"></div>
-    <div class="gh-head">
-      <div class="gh-kick">${tr('Logic Ladder · DSA in Python, from zero', 'Logic Ladder · Python mein DSA, zero se')}</div>
-      <h1 id="gh-h1"><span class="h1a">${tr('From zero to', 'Zero se lekar')}</span><span class="rot" aria-hidden="true">${words.map((w, i) => `<b class="${i === words.length - 1 ? 'on' : ''}">${w}</b>`).join('')}</span><span class="vh">${words[words.length - 1]}</span></h1>
-      <p class="gh-sub">${tr('Maths, Python from scratch, logic drills and 200 problems, taught slowly with animated videos for people who find logic hard. In English and Hinglish.', 'Maths, bilkul shuru se Python, logic drills aur 200 problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. English aur Hinglish mein.')}</p>
-    </div>
-    <div class="gh-card g-card" id="gh-card">
-      <div class="gh-bitu" id="bitu-host"></div>
-      <div class="g-say" id="bitu-say"></div>
-      <h2>${tr('Sign in to start climbing', 'Sign in karo, chadhai shuru karo')}</h2>
-      <p>${tr('One click with Google. Every module you finish and problem you solve is saved to your account, on any device.', 'Google se ek click. Har module jo tum complete karo aur har problem jo solve karo, tumhare account mein save hota hai, kisi bhi device pe.')}</p>
-      ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
-      <p class="g-err" role="alert" hidden></p>
-      <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Synced on every device', 'Har device pe sync')}</li></ul>
-      <p class="g-priv">${tr('Google shares only your name, email and photo with us.', 'Google humein sirf tumhara naam, email aur photo deta hai.')}</p>
+    <div class="gh-in">
+      <div class="gh-copy">
+        <div class="gh-kick">${tr('Logic Ladder · DSA in Python, from zero', 'Logic Ladder · Python mein DSA, zero se')}</div>
+        <h1 id="gh-h1"><span class="h1a">${tr('From zero to', 'Zero se seekho')}</span><span class="rot" aria-hidden="true">${words.map((w, i) => `<b class="${i === words.length - 1 ? 'on' : ''}">${w}</b>`).join('')}</span><span class="vh">${words[words.length - 1]}</span></h1>
+        <p class="gh-sub">${tr('Maths, Python from scratch, logic drills and 200 problems, taught slowly with animated videos for people who find logic hard. In English and Hinglish.', 'Maths, bilkul shuru se Python, logic drills aur 200 problems, dheere-dheere animated videos ke saath, unke liye jinhe logic mushkil lagta hai. English aur Hinglish mein.')}</p>
+        <div class="gh-sign">
+          ${gBtn(tr('Continue with Google', 'Google se continue karo'))}
+          <p class="g-err" role="alert" hidden></p>
+          <ul class="g-trust"><li>${tr('Free', 'Free')}</li><li>${tr('No new password', 'Naya password nahi')}</li><li>${tr('Progress synced on every device', 'Progress har device pe sync')}</li></ul>
+          <p class="g-priv">${tr('Google shares only your name, email and photo with us.', 'Google humein sirf tumhara naam, email aur photo deta hai.')}</p>
+        </div>
+        <dl class="gh-stats">${[[nVideos, tr('animated videos', 'animated videos')], [nDrills, tr('practice drills', 'practice drills')], [nProblems, tr('problems, explained', 'problems, samjhaaye hue')], [DATA.checks, tr('tested code checks', 'tested code checks')]].map(([v, l]) => `<div><dd data-n="${v}">${v}</dd><dt>${l}</dt></div>`).join('')}</dl>
+      </div>
+      <div class="st" id="st" role="region" aria-label="${tr('The five steps of the course', 'Course ke paanch steps')}">
+        <div class="st-glow" aria-hidden="true"></div>
+                <div class="st-beam" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i * .55).toFixed(2)}s;--s:${(3 + (i % 3)).toFixed(1)}s"></i>`).join('')}</div>
+        <div class="st-ring" id="st-ring"><i class="st-disc" aria-hidden="true"></i><i class="st-disc top" aria-hidden="true"></i>${steps.map((s, i) => `<button type="button" class="st-card" data-i="${i}" style="--cc:var(--${['y', 'v', 'c', 's', 'm'][i]})" aria-label="${tr('Step', 'Step')} ${s.n}: ${esc(s.t)}"><span class="st-n">0${s.n}</span>${stepIcon(s.key)}<b>${esc(s.t)}</b><small>${s.when} · ${esc(s.meta[0])}</small></button>`).join('')}</div>
+        <div class="st-info">
+          <div class="st-bitu" id="bitu-host"></div>
+          <div class="st-say" id="bitu-say"></div>
+          <div class="st-txt" id="st-txt" aria-live="polite"></div>
+        </div>
+        <div class="st-ctrl">
+          <button type="button" class="st-arrow" data-d="-1" aria-label="${tr('Previous step', 'Pichhla step')}">‹</button>
+          <span class="st-dots">${steps.map((_, i) => `<i data-i="${i}"></i>`).join('')}</span>
+          <button type="button" class="st-arrow" data-d="1" aria-label="${tr('Next step', 'Agla step')}">›</button>
+          <span class="st-hint">${tr('Drag to spin', 'Ghumane ke liye drag karo')}</span>
+        </div>
+      </div>
     </div>
     <button type="button" class="gh-cue" id="gh-cue">${tr('Play the mini ladder', 'Mini ladder khelo')}<span aria-hidden="true"></span></button>
   </section>
 
   <section class="gp" id="gp" aria-labelledby="gp-h">
     <div class="gp-head">
-      <div><div class="kicker">${tr('Play · about a minute', 'Khelo · lagbhag ek minute')}</div><h2 id="gp-h">${tr('Climb a mini ladder', 'Ek mini ladder chadho')}</h2><p>${tr('Five rungs, one real question from each step of the course. Answer right and Bitu climbs a rung.', 'Paanch seedhiyan, course ke har step se ek asli sawaal. Sahi jawab do aur Bitu ek seedhi upar chadhega.')}</p></div>
-      <dl class="gp-stats">${[[nVideos, tr('videos', 'videos')], [MODS.length, tr('modules', 'modules')], [nDrills, tr('drills', 'drills')], [nProblems, tr('problems', 'problems')], [DATA.checks, tr('tested checks', 'tested checks')]].map(([n, l]) => `<div><dd data-n="${n}">${n}</dd><dt>${l}</dt></div>`).join('')}</dl>
+      <div class="kicker">${tr('Play · about a minute', 'Khelo · lagbhag ek minute')}</div><h2 id="gp-h">${tr('Climb a mini ladder', 'Ek mini ladder chadho')}</h2><p>${tr('Five rungs, one real question from each step of the course. Answer right and Bitu climbs a rung.', 'Paanch seedhiyan, course ke har step se ek asli sawaal. Sahi jawab do aur Bitu ek seedhi upar chadhega.')}</p>
     </div>
     <div class="gp-play">
       <div class="gp-lad" id="gp-lad">
@@ -420,12 +432,13 @@ function pageGate() {
     <a href="https://github.com/Akashtripathi7/logic-ladder" target="_blank" rel="noopener">${tr('Source on GitHub', 'GitHub pe source')} ↗</a>
   </footer>
   </div>`;
-  view.querySelectorAll('.gh-card [data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
+  view.querySelectorAll('.gh-sign [data-signin]').forEach(b => { b.onclick = () => gateSignIn(b); });
   document.getElementById('gh-cue').onclick = () => {
     const t = document.getElementById('gp');
-    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 70, behavior: reduceMotion() ? 'auto' : 'smooth' });
+    window.scrollTo({ top: t.getBoundingClientRect().top + scrollY - 40, behavior: reduceMotion() ? 'auto' : 'smooth' });
   };
-  wireHero(steps);
+  wireHero();
+  wireStage(steps);
   wireClimbGame(steps, { nDrills, nProblems });
 }
 function gateSignIn(btn) {
@@ -443,70 +456,11 @@ function gateSignIn(btn) {
   });
 }
 
-/* ---- screen 1: a ladder in perspective, drawn to fit around the sign-in card ---- */
-function drawHeroLadder(steps) {
+/* ---- screen 1: headline word cycle, star parallax, counters ---- */
+function wireHero() {
   const hero = document.getElementById('gh');
-  if (!hero) return;
-  const svg = document.getElementById('gh-lad'), box = document.getElementById('gh-steps'), card = document.getElementById('gh-card');
-  const W = hero.clientWidth, H = hero.clientHeight;
-  /* offset*, not getBoundingClientRect: the card's entrance animation must not shift the ladder */
-  const c = { l: card.offsetLeft, r: card.offsetLeft + card.offsetWidth, t: card.offsetTop, b: card.offsetTop + card.offsetHeight };
-  const wide = W >= 1000;
-  const vx = W / 2, vy = Math.max(44, H * .06), B = wide ? Math.min(W * .4, 620) : W * .5;
-  const depth = y => (y - vy) / (H - vy);
-  const railX = (y, side) => vx + side * (4 + (B - 4) * depth(y));
-  const rungs = [];
-  for (let k = 1; k < 60; k++) {
-    const y = vy + (H - vy) * Math.pow(.87, k);
-    if (rungs.length && rungs[rungs.length - 1] - y < 7) break;
-    rungs.push(y);
-  }
-  /* five rungs alongside the card carry the five steps, step 1 lowest */
-  const picked = [];
-  if (wide) {
-    const lo = c.b - 34, hi = c.t + 40;
-    for (let i = 0; i < 5; i++) {
-      const want = lo - (lo - hi) * i / 4;
-      let best = -1;
-      rungs.forEach((y, k) => { if (!picked.includes(k) && (best < 0 || Math.abs(y - want) < Math.abs(rungs[best] - want))) best = k; });
-      picked.push(best);
-    }
-  }
-  const sw = y => (2 + 9 * depth(y)).toFixed(1);
-  const rail = side => `${railX(H, side) - side * 9},${H} ${railX(H, side) + side * 9},${H} ${vx + side * 3},${vy} ${vx + side * 6},${vy}`;
-  const path = side => `M${railX(H, side)},${H} L${vx + side * 5},${vy}`;
-  const spark = (side, begin) => `<circle r="6" fill="url(#gh-sp)"><animateMotion dur="3.4s" begin="${begin}s" repeatCount="indefinite" path="${path(side)}"/><animate attributeName="r" values="7;1.5" dur="3.4s" begin="${begin}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.1;.8;1" dur="3.4s" begin="${begin}s" repeatCount="indefinite"/></circle>`;
-  const still = reduceMotion();
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.innerHTML = `<defs>
-      <linearGradient id="gh-rg" gradientUnits="userSpaceOnUse" x1="0" y1="${H}" x2="0" y2="${vy}"><stop offset="0" stop-color="#6d6ff5"/><stop offset=".65" stop-color="#bba4ff"/><stop offset="1" stop-color="#ffd166"/></linearGradient>
-      <radialGradient id="gh-sp"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#ffeab0"/><stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient>
-      <radialGradient id="gh-halo"><stop offset="0" stop-color="#fff6d6"/><stop offset=".3" stop-color="#ffd166" stop-opacity=".8"/><stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient>
-      <filter id="gh-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    <g filter="url(#gh-glow)">
-      <polygon points="${rail(-1)}" fill="url(#gh-rg)"/><polygon points="${rail(1)}" fill="url(#gh-rg)"/>
-      ${rungs.map((y, k) => `<line class="gh-rung${picked.includes(k) ? ' key' : ''}" x1="${railX(y, -1)}" y1="${y}" x2="${railX(y, 1)}" y2="${y}" stroke-width="${sw(y)}" style="--d:${(k * .16).toFixed(2)}s"/>`).join('')}
-    </g>
-    ${picked.map((k, i) => { const y = rungs[k], side = i % 2 ? -1 : 1, x = railX(y, side), lx = side > 0 ? c.r + 40 : c.l - 40; return `<path class="gh-lead" d="M${x},${y} H${lx}"/><circle class="gh-node" cx="${x}" cy="${y}" r="4.5" style="--d:${(k * .16).toFixed(2)}s"/>`; }).join('')}
-    ${still ? '' : spark(-1, 0) + spark(1, 1.7)}
-    <g class="gh-star"><circle cx="${vx}" cy="${vy}" r="38" fill="url(#gh-halo)"/><g class="gh-rays"><path d="M${vx},${vy - 30}V${vy + 30}M${vx - 30},${vy}H${vx + 30}M${vx - 16},${vy - 16}L${vx + 16},${vy + 16}M${vx + 16},${vy - 16}L${vx - 16},${vy + 16}"/></g><circle cx="${vx}" cy="${vy}" r="5" fill="#fff"/></g>`;
-  box.innerHTML = picked.map((k, i) => {
-    const y = rungs[k], side = i % 2 ? -1 : 1, x = railX(y, side), lx = side > 0 ? c.r + 40 : c.l - 40, s = steps[i];
-    return `<div class="gh-step ${side > 0 ? 'r' : 'l'}" style="left:${lx}px;top:${y}px;--d:${(k * .16).toFixed(2)}s;--k:${i}"><b>${s.n}</b><span>${esc(s.t)}<small>${s.when} · ${esc(s.meta[0])}</small></span></div>`;
-  }).join('');
-}
-function wireHero(steps) {
-  const hero = document.getElementById('gh');
-  const draw = () => drawHeroLadder(steps);
-  draw();
-  let raf = 0;
-  const onResize = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(draw); };
-  window.addEventListener('resize', onResize);
-  gateCleanups.push(() => window.removeEventListener('resize', onResize));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (hero.isConnected) draw(); });
   if (reduceMotion()) return;
-  /* headline: the last word stays put for screen readers; the visible one cycles */
+  countUp(hero.querySelector('.gh-stats'));
   const words = [...hero.querySelectorAll('.rot b')];
   let w = words.length - 1;
   const t = setInterval(() => {
@@ -517,7 +471,6 @@ function wireHero(steps) {
     words[w].classList.add('on');
   }, 2300);
   gateCleanups.push(() => clearInterval(t));
-  /* stars drift a little against the pointer */
   if (matchMedia('(pointer: fine)').matches) {
     let pr = 0;
     hero.addEventListener('pointermove', e => {
@@ -529,6 +482,97 @@ function wireHero(steps) {
       });
     });
   }
+}
+/* ---- the spiral staircase: five glass cards rising around a beam of light ----
+   It spins on its own; drag or flick to spin it, click a card (or the arrows) to bring that step to the front. */
+const STEP_POSE = { math: ['math', 'math'], python: ['type', 'python'], gym: ['lift', 'gym'], warm: ['jog', 'warmup'], dsa: ['climb', 'dsa'] };
+function wireStage(steps) {
+  const st = document.getElementById('st'), cards = [...st.querySelectorAll('.st-card')];
+  const txt = document.getElementById('st-txt'), dots = [...st.querySelectorAll('.st-dots i')];
+  const N = cards.length, SEP = 360 / N, still = reduceMotion();
+  let rot = 0, vel = still ? 0 : -.012, target = null, front = -1, idleUntil = 0, raf = 0, last = 0, visible = true;
+  let R = 240, RISE = 52;
+  const ring = document.getElementById('st-ring');
+  const size = () => { const w = st.clientWidth, h = st.clientHeight; R = Math.max(120, Math.min(w * .36, 290)); RISE = Math.max(24, Math.min(h * .055, 42)); ring.style.setProperty('--R', R + 'px'); ring.style.setProperty('--rise', RISE + 'px'); };
+  const norm = a => ((a % 360) + 540) % 360 - 180;
+  const bitusHome = () => window.Mascot && Mascot.el && document.getElementById('bitu-host').contains(Mascot.el);
+  const setFront = (i, byUser) => {
+    if (i === front) return;
+    front = i;
+    const s = steps[i];
+    cards.forEach((c, k) => c.classList.toggle('front', k === i));
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    txt.innerHTML = `<span class="sp-kick">${tr('Step', 'Step')} ${s.n} / ${N} · ${s.when}</span><h3>${esc(s.t)}</h3><p>${esc(s.d)}</p><div class="st-meta">${s.meta.map(m => `<span>${esc(m)}</span>`).join('')}</div>`;
+    txt.classList.remove('swap'); void txt.offsetWidth; txt.classList.add('swap');
+    if (bitusHome()) { Mascot.pose(STEP_POSE[s.key][0]); if (byUser) Mascot.say(say2(LINES[STEP_POSE[s.key][1]][0])); }
+  };
+  const place = () => {
+    let best = 0, bestA = 999;
+    cards.forEach((c, i) => {
+      const a = norm(i * SEP + rot), rad = a * Math.PI / 180;
+      const x = Math.sin(rad) * R, z = Math.cos(rad) * R - R, y = (2 - i) * RISE;
+      const f = (Math.cos(rad) + 1) / 2;
+      c.style.transform = `translate(-50%,-50%) translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,${z.toFixed(1)}px) rotateY(${(a * .5).toFixed(1)}deg)`;
+      c.style.opacity = (.28 + .72 * f).toFixed(3);
+      c.style.zIndex = Math.round(f * 100);
+      c.style.setProperty('--f', f.toFixed(3));
+      if (Math.abs(a) < bestA) { bestA = Math.abs(a); best = i; }
+    });
+    return best;
+  };
+  const focus = (i, byUser) => {
+    const want = -i * SEP;
+    target = rot + norm(want - rot);
+    idleUntil = performance.now() + 7000;
+    setFront(i, byUser);
+  };
+  const tick = now => {
+    raf = requestAnimationFrame(tick);
+    const dt = Math.min(48, now - (last || now)); last = now;
+    if (!visible || document.hidden) return;
+    if (dragging) { /* the pointer drives rot */ }
+    else if (target !== null) { rot += (target - rot) * Math.min(1, dt * .009); if (Math.abs(target - rot) < .05) { rot = target; target = null; } }
+    else if (Math.abs(fling) > .002) { rot += fling * dt; fling *= Math.pow(.994, dt); if (Math.abs(fling) <= .002) focus(place(), true); }
+    else if (!still && now > idleUntil) rot += vel * dt;
+    const b = place();
+    if (target === null) setFront(b, false);
+  };
+  /* drag / flick */
+  let dragging = false, moved = 0, lastX = 0, lastT = 0, fling = 0;
+  st.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('.st-ctrl, .st-info')) return;
+    dragging = true; moved = 0; lastX = e.clientX; lastT = performance.now(); fling = 0; target = null;
+    st.setPointerCapture(e.pointerId); st.classList.add('drag');
+  });
+  st.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, now = performance.now();
+    moved += Math.abs(dx); rot += dx * .35;
+    fling = dx * .35 / Math.max(8, now - lastT);
+    lastX = e.clientX; lastT = now;
+  });
+  const end = e => {
+    if (!dragging) return;
+    dragging = false; st.classList.remove('drag');
+    idleUntil = performance.now() + 7000;
+    if (moved < 6) { fling = 0; const c = e.target.closest && e.target.closest('.st-card'); if (c) focus(+c.dataset.i, true); return; }
+    if (Math.abs(fling) < .02) { fling = 0; focus(place(), true); }
+  };
+  st.addEventListener('pointerup', end);
+  st.addEventListener('pointercancel', end);
+  cards.forEach((c, i) => {
+    c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); focus(i, true); } });
+    c.addEventListener('focus', () => { if (!dragging) focus(i, true); });
+  });
+  st.querySelectorAll('.st-arrow').forEach(b => { b.onclick = () => focus((front + +b.dataset.d + N) % N, true); });
+  dots.forEach((d, i) => { d.onclick = () => focus(i, true); });
+  size(); setFront(place(), false);
+  const onResize = () => { size(); place(); };
+  window.addEventListener('resize', onResize);
+  const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { threshold: 0 });
+  io.observe(st);
+  raf = requestAnimationFrame(tick);
+  gateCleanups.push(() => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); io.disconnect(); });
 }
 
 /* ---- screen 2: the mini ladder game ---- */
@@ -609,10 +653,9 @@ function wireClimbGame(steps, n) {
     card.querySelector('.gc-replay').onclick = () => { climbTo(0); ask(false); };
   };
   /* Bitu hops down from the sign-in card to play when the game is on screen, and back up after */
-  let inGame = false, counted = false;
+  let inGame = false;
   const gp = document.getElementById('gp');
   const io = new IntersectionObserver(([e]) => {
-    if (e.isIntersecting && !counted) { counted = true; if (!reduceMotion()) countUp(gp.querySelector('.gp-stats')); }
     if (e.isIntersecting === inGame || !window.Mascot) { inGame = e.isIntersecting; return; }
     inGame = e.isIntersecting;
     if (inGame) {
